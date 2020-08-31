@@ -1,18 +1,13 @@
 # The main entry point of your workflow.
 # After configuring, running snakemake -n in a clone of this repository should successfully execute a dry-run of the workflow.
-
-
-report: "report/workflow.rst"
-
-# Allow users to fix the underlying OS via singularity.
-singularity: "docker://continuumio/miniconda3"
-
+include: "rules/common.smk"
 
 rule all:
     input:
-        # The first rule should define the default target files
+        expand(OUT_DIR+"relative_cn_rds/{bin}kb/{project}_{bin}kb_relSmoothedCN.rds",bin=config["bins"],project=config["project_name"])
         # Subsequent target rules can be specified below. They should start with all_*.
 
-
-include: "rules/common.smk"
+# pipeline rules
+include: "rules/rel_rds.smk"
+include: "rules/collapse_rel_rds.smk"
 include: "rules/other.smk"

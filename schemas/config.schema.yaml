@@ -11,4 +11,4 @@ properties:
 
 # entries that have to be in the config file for successful validation
 required:
-  - samples
+  - samplesheet 

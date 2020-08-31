@@ -1,17 +1,27 @@
+--- 
 $schema: "http://json-schema.org/draft-04/schema#"
-
-description: an entry in the sample sheet
-
-# columns that the config/samples.tsv file can have and which type they should be
-properties:
-  sample:
+description: "an entry in the sample sheet"
+properties: 
+  PATIENT_ID: 
+    description: "Patient identifier (Can be duplicated)"
     type: string
-    description: sample name/identifier
-  condition:
+  SAMPLE_ID: 
+    description: "Unique sample name/identifier"
     type: string
-    description: sample condition that will be compared during differential analysis (e.g. a treatment, a tissue time, a disease)
+    uniqueItems: true
+  TP53freq: 
+    type: number 
+    maximum: 1.0
+    minimum: 0 
+    description: "Experimental anchoring allele frequency for each sample"
+  file: 
+    description: "Path for each samples bam file"
+    type: string
+  smooth: 
+    description: "True or fale boolean as to apply segment smoothing or not"
+    type: boolean
+required: 
+  - SAMPLE_ID
+  - smooth
+  - file
 
-# columns that the config/samples.tsv file must have to pass schema validation
-required:
-  - sample
-  - condition

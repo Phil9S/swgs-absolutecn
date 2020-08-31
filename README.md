@@ -1,6 +1,6 @@
 # Snakemake workflow: sWGS-absoluteCN
 
-[![Snakemake](https://img.shields.io/badge/snakemake-≥5.7.0-brightgreen.svg)](https://snakemake.bitbucket.io)
+[![Snakemake](https://img.shields.io/badge/snakemake-≥5.10.0-brightgreen.svg)](https://snakemake.bitbucket.io)
 [![Build Status](https://travis-ci.org/snakemake-workflows/sWGS-absoluteCN.svg?branch=master)](https://travis-ci.org/snakemake-workflows/sWGS-absoluteCN)
 
 ## Authors
