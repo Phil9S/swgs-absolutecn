@@ -1,0 +1,23 @@
+# The main entry point of your workflow.
+# After configuring, running snakemake -n in a clone of this repository should successfully execute a dry-run of the workflow.
+include: "rules/common.smk"
+
+#Load sample sheet and set index
+samplesheet = pd.read_table(config["samplesheet"]).set_index(["SAMPLE_ID"], drop=False)
+validate(samplesheet, schema="schemas/samples.schema.yaml")
+SAMPLES = list(samplesheet['SAMPLE_ID'].unique())
+
+def get_bam(wildcards):
+    files = list(samplesheet.loc[(wildcards.sample), ["file"]])
+    return files
+
+rule all:
+    input:
+        expand(OUT_DIR+"sWGS_fitting/{project}_{bin}kb/full_rd/{project}_filtered_results.tsv",project=config["project_name"],bin=config["bins"]),
+        expand(OUT_DIR+"sWGS_fitting/{project}_{bin}kb/full_rd/{project}_fit_QC_predownsample.tsv",project=config["project_name"],bin=config["bins"])
+
+# pipeline rules
+include: "rules/symlink.smk"
+include: "rules/rel_rds.smk"
+include: "rules/gridsearch.smk"
+include: "rules/filter_gridsearch.smk"
