@@ -12,12 +12,13 @@ out_dir: "/mnt/scratcha/fmlab/smith10/"
 bins: ["30"]
 
 # Project name
-project_name: "britroc"
+project_name: ["britroc"]
 
 # qdnaseq params
-qdnaseq:
-    resources:
-        threads: 12
-        chunk_size: 300000000
-    params:
-        custom_bin: "/mnt/scratcha/fmlab/smith10/custom_bin_data/"
+resources:
+    threads: 12
+    chunk_size: 300000000
+
+# misc params
+params:
+    custom_bin: "/mnt/scratcha/fmlab/smith10/custom_bin_data/"
