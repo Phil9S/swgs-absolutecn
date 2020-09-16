@@ -34,12 +34,20 @@ install_dependencies.sh
 
 ### Step 4: Preparing the input files
 
+#### Sample sheet
+
 The workflow requires a single input file `sample_sheet.tsv` which is a tab-separated document detailing sample names, patient names, smoothing booleans, TP53 allele frequencies, and BAM file locations. The table below demonstrates the basic schema required and the workflow will validate this file prior to running.
 
 |PATIENT_ID|SAMPLE_ID|TP53freq|smooth|file         |
 |----------|---------|--------|------|-------------|
 |PAT1      |SAM1     |0.45    |TRUE  |data/SAM1.bam|
-|PAT1      |SAM2     |0.55    |FALSE |data/SAM2.ba |
+|PAT1      |SAM2     |0.55    |FALSE |data/SAM2.bam|
+
+An example sample_sheet.tsv is included in this repository.
+
+#### config.yaml
+
+
 
 ### Step 5: Copy number profile generate
 

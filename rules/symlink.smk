@@ -2,10 +2,8 @@ rule sym_link:
     input:
         bam=get_bam
     output:
-        expand(OUT_DIR+"sWGS_fitting/{{project}}_{{bin}}kb/full_rd/bams/{{sample}}.bam")
-        #expand(OUT_DIR+"sWGS_fitting/{{project}}_{{bin}}kb/full_rd/bams/{{sample}}.bai")
+        expand(OUT_DIR+"sWGS_fitting/bams/{{sample}}.bam")
     params:
         bin=config["bins"]
     shell:
-        "#ls {input}"
-        "#touch {output}"
+        "ln -s {input} {output}"
