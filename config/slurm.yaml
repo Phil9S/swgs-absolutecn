@@ -1,0 +1,14 @@
+---
+__default__:
+  mem: 2G
+  time: '2:0:0'
+  partition: general
+relRDS:
+  time: '8:0:0'
+  mem: 32G
+ds_relRDS:
+  time: '8:0:0'
+  mem: 32G
+gridsearch_fitting:
+  time: '8:0:0'
+  mem: 32G
