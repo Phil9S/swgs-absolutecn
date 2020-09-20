@@ -20,5 +20,3 @@ OUT_DIR=config["out_dir"]
 #Load sample sheet and set index
 samplesheet = pd.read_table(config["samplesheet"]).set_index(["SAMPLE_ID"], drop=False)
 validate(samplesheet, schema="../schemas/samples.schema.yaml")
-SAMPLES = list(samplesheet['SAMPLE_ID'].unique())
-

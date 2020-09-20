@@ -1,7 +1,6 @@
 # Snakemake workflow: sWGS-absoluteCN
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥5.10.0-brightgreen.svg)](https://snakemake.bitbucket.io)
-[![Build Status](https://travis-ci.org/snakemake-workflows/sWGS-absoluteCN.svg?branch=master)](https://travis-ci.org/snakemake-workflows/sWGS-absoluteCN)
 
 ## Authors
 
@@ -19,7 +18,9 @@ Generate absolute copy number profiles from shallow whole genome sequencing data
 
 Install Snakemake using [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html):
 
-    conda create -c bioconda -c conda-forge -n snakemake snakemake
+```
+conda create -c bioconda -c conda-forge -n snakemake snakemake
+```
 
 For installation details, see the [instructions in the Snakemake documentation](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html).
 
@@ -28,7 +29,6 @@ For installation details, see the [instructions in the Snakemake documentation](
 Run the following lines to add R packages which are unavailble from conda or are customised for this workflow to the conda environment path.
 
 ```
-conda activate your_conda_env
 install_dependencies.sh
 ```
 
@@ -47,7 +47,7 @@ An example sample_sheet.tsv is included in this repository.
 
 #### config.yaml
 
-
+The config.yaml should be edited to contain the necessary information for the pipeline you wish to run. This includes the location of the samplesheet.tsv, bin size, project name, and output directory.
 
 ### Step 5: Copy number profile generate
 
@@ -57,13 +57,13 @@ With the conda environment run the following code:
 snakemake -n --snakefile relativeQC --use-conda
 ```
 
-### Step 6: QC1 and fit selection
+### Step 6: Stage 1 - QC1 and fit selection
 
 
-### Step 7: Downsampling and QC2
+### Step 7: Stage 2 - Downsampling and QC2
 
 
-### Step 8: Absolute fit generation
+### Step 8: Stage 3 - Cohort-level filtering absolute fit generation
 
 ## Quality control methodologies
 

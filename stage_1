@@ -6,6 +6,10 @@ def get_bam(wildcards):
     files = list(samplesheet.loc[(wildcards.sample), ["file"]])
     return files
 
+SAMPLES = list(samplesheet['SAMPLE_ID'].unique())
+
+localrules: sym_link, all
+
 rule all:
     input:
         expand(OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/{project}_fit_QC_predownsample.tsv",project=config["project_name"],bin=config["bins"])

@@ -9,15 +9,10 @@ samplesheet: "sample_sheet.tsv"
 out_dir: "/mnt/scratcha/fmlab/smith10/"
 
 # Bin sizes
-bins: [30]
+bins: 30
 
 # Project name
-project_name: ["britroc"]
-
-# qdnaseq params
-resources:
-    threads: 12
-    chunk_size: 300000000
+project_name: "britroc"
 
 # misc params
 params:

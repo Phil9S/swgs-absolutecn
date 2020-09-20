@@ -12,15 +12,18 @@ for fl in filelist:
                 if all(~ftb.SAMPLE_ID.duplicated()):
                     break
                 else:
-                    sys.exit("QC file contains duplicated sample ids marked 'TRUE'")    
+                    sys.exit("QC file contains duplicated sample ids marked 'TRUE'")
             else:
                 sys.exit("QC file 'use' column contains non-boolean values")
         else:
             sys.exit("QC file from stage 1 is missing")
-        
 
-tb = pd.read_table("/mnt/scratcha/fmlab/smith10/sWGS_fitting/britroc_30kb/absolute_PRE_down_sampling/britroc_fit_QC_predownsample.tsv").set_index(["SAMPLE_ID"], drop=False)
-    
+# Set new sample list based on filtered QC from stage 1
+PROJECT=config["project_name"]
+BIN=config["bins"]
+f = pd.read_table(OUT_DIR+"sWGS_fitting/"+PROJECT+"_"+str(BIN)+"kb/absolute_PRE_down_sampling/"+PROJECT+"_fit_QC_predownsample.tsv")
+ftb = f[(f['use'] == True)]
+SAMPLES = list(ftb['SAMPLE_ID'])
 
 rule all:
     input:

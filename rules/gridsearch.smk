@@ -4,7 +4,9 @@ rule gridsearch_fitting:
     output:
         OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/clonality_results/{project}_clonality.csv",
     params:
-        bin=config["bins"]
-    threads: config["resources"]["threads"]
+        bin=config["bins"],
+        outdir=OUT_DIR,
+        project=config["project_name"]
+    threads: 20
     shell:
-        "touch {output}"
+        "Rscript scripts/ploidy_purity_search_standard_error.R {threads} {input} {params.bin} {params.outdir} {params.project}"
