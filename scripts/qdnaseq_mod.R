@@ -1,7 +1,6 @@
 #Rscript qdnaseq.R -m metadata.csv" -b 30 -n 5
 args = commandArgs(trailingOnly=TRUE)
 
-bam_list <- args[6:length(args)]
 bin.size <- as.numeric(args[1])
 ncores <- as.numeric(args[2])
 output_dir <- args[3]
@@ -9,7 +8,8 @@ output_dir <- args[3]
 project <- args[4]
 metafile <- args[5]
 metadata <- read.table(file = metafile,header=T,sep="\t")
-
+bam_list <- args[6]
+sample_name <- args[7]
 
 #if(!dir.exists(output_dir)){
 #  dir.create(output_dir)
@@ -44,10 +44,10 @@ readCountsFiltered <- mclapply(X=readCountsFiltered, FUN=estimateCorrection, mc.
 # apply the correction for GC content and mappability
 copyNumbers <- mclapply(X=readCountsFiltered, FUN=correctBins, mc.cores=1)
 
-#bring back to readcount space 
-for (i in 1:length(copyNumbers)){
-  assayDataElement(copyNumbers[[i]],"copynumber") <- assayDataElement(copyNumbers[[i]],"copynumber") * median(assayDataElement(readCountsFiltered[[i]], "fit"), na.rm=T)
-}
+# bring back to readcount space 
+#for (i in 1:length(copyNumbers)){
+assayDataElement(copyNumbers[[1]],"copynumber") <- assayDataElement(copyNumbers[[1]],"copynumber") * median(assayDataElement(readCountsFiltered[[1]], "fit"), na.rm=T)
+#}
 
 # smooth outliers (Data is now ready to be analyzed with a downstream package of choice (exportBins))
 copyNumbersSmooth <- mclapply(X=copyNumbers, FUN=smoothOutlierBins, mc.cores=1)
@@ -101,8 +101,8 @@ collapse_rds <- function(rds.list){
   return(rds.obj)
 }
 
-print("Combining QDNAseq objects")
+#print("Combining QDNAseq objects")
 # Combine and load rds objects
-outrds <- collapse_rds(copyNumbersSegmentedSmooth)
+#outrds <- collapse_rds(copyNumbersSegmentedSmooth)
 
-saveRDS(outrds,paste0(output_dir,"sWGS_fitting/",project,"_",bin.size,"kb/absolute_PRE_down_sampling/relative_cn_rds/",project,"_",bin.size,"kb_relSmoothedCN.rds"))
+saveRDS(copyNumbersSegmentedSmooth,paste0(output_dir,"sWGS_fitting/",project,"_",bin.size,"kb/absolute_PRE_down_sampling/relative_cn_rds/",project,"_",sample_name,"_",bin.size,"kb_relSmoothedCN.rds"))

@@ -2,36 +2,46 @@
 rm(list = ls())
 args = commandArgs(trailingOnly=TRUE)
 
-#rds.list <- list.files(path = ".",pattern = "*.rds")
-rdsdata <- args[1]
-qc.data <- read.table(args[2],header = T,sep = "\t")
-output_dir <- args[3]
-bin <- as.numeric(args[4])
-project <- args[5]
-
-qc.data <- qc.data[qc.data$use == "TRUE",]
-#refit.params <- read.table("refitting_parameters_updated.csv",header = T,sep = ",")
-
-#paste0(output_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_POST_down_sampling/abs_cn_rds/",project,"_",bin,"kb_ds_abs_fits.tsv")
-
-if(!dir.exists(paste0(output_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_POST_down_sampling/abs_cn_rds/plots"))){
-	dir.create(paste0(output_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_POST_down_sampling/abs_cn_rds/plots"))
-}
-
 #load libraries
 library(QDNAseqmod)
 library(Biobase)
 library(ggplot2)
 library(stringr)
 
+qc.data <- read.table(args[1],header = T,sep = "\t")
+output_dir <- args[2]
+bin <- as.numeric(args[3])
+project <- args[4]
+
+qc.data <- qc.data[qc.data$use == "TRUE",]
+
+rds.filename <- list.files(pattern="*relSmoothedCN.rds",path=paste0(output_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_POST_down_sampling/relative_cn_rds/"))
+rds.list <- lapply(rds.filename,FUN=function(x){readRDS(paste0(output_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_POST_down_sampling/relative_cn_rds/",x))})
+
+collapse_rds <- function(rds.list){
+  comb <- rds.list[[1]][[1]]
+  if(length(rds.list) > 1){
+    for(i in 2:length(rds.list)){
+      add <- rds.list[[i]][[1]]
+      comb <- combine(comb,add)
+    }
+    rds.obj <- comb
+  }
+  return(rds.obj)
+}
+
+# Combine and load rds objects
+rds.rel <- collapse_rds(rds.list)
+
+if(!dir.exists(paste0(output_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_POST_down_sampling/abs_cn_rds/plots"))){
+	dir.create(paste0(output_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_POST_down_sampling/abs_cn_rds/plots"))
+}
+
 # convert depth to abs cn
 depthtocn<-function(x,purity,seqdepth) #converts readdepth to copy number given purity and single copy depth
 {
   (x/seqdepth-2*(1-purity))/purity
 }
-
-# Combine and load rds objects
-rds.rel <- readRDS(rdsdata)
 
 # List samples
 samples <- qc.data[which(qc.data$SAMPLE_ID %in% colnames(rds.rel)),]

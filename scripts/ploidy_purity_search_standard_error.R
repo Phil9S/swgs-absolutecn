@@ -10,6 +10,7 @@ rds.filename <- args[2]
 bin <- as.numeric(args[3])
 out_dir <- args[4]
 project <- args[5]
+sample <- args[6]
 
 #load libraries
 suppressPackageStartupMessages(library(QDNAseqmod))
@@ -24,14 +25,14 @@ options(scipen = 999)
 
 #read in relative copy number
 rds.obj <- readRDS(rds.filename)
-colnames(rds.obj)<-str_replace(colnames(rds.obj),"[(]","_")
-colnames(rds.obj)<-str_replace(colnames(rds.obj),"[)]","_")
-rds.pdata <- pData(rds.obj)
+sampleNames(rds.obj)<-str_replace(sampleNames(rds.obj),"[(]","_")
+sampleNames(rds.obj)<-str_replace(sampleNames(rds.obj),"[)]","_")
+rds.pdata <- pData(rds.obj[[1]])
 
 #set parameters for fixed bin size
 bin_size <- bin*1000
 bins<-getBinAnnotations(binSize = bin)
-nbins_ref_genome <- sum(fData(rds.obj)$use)
+nbins_ref_genome <- sum(fData(rds.obj[[1]])$use)
 nbins<-nrow(bins)
 
 #define helper functions
@@ -110,13 +111,13 @@ cntodepth<-function(cn,purity,seqdepth) #converts copy number to read depth give
 }
 
 #estimate absolute copy number fits for all samples in parallel
-foreach(sample=row.names(rds.pdata))%dopar%
-{
+#foreach(sample=row.names(rds.pdata))%dopar%
+#{
     ploidies<-seq(1.6,8,0.1)
     purities<-seq(0.05,1,0.01)
     clonality<-c()
-    ind<-which(colnames(rds.obj)==sample)
-    relcn<-rds.obj[,ind]
+    #ind<-which(colnames(rds.obj)==sample)
+    relcn<-rds.obj[[1]]
     # added by PS
     to_use <- fData(relcn)$use #
     relcn <- relcn[to_use,] #
@@ -166,17 +167,17 @@ foreach(sample=row.names(rds.pdata))%dopar%
     dev.off()
     
     #write table of clonality scores
-    print(paste0("Writing clonality table for sample: ",sample))
-    write.table(res,paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/",sample,"_clonality.csv"),sep="\t",quote=F,row.names=FALSE)
-}
+    #print(paste0("Writing clonality table for sample: ",sample))
+    write.table(res,paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/",project,"_",sample,"_clonality.csv"),sep="\t",quote=F,row.names=FALSE)
+#}
 
-filelist <- list.files(pattern="*clonality.csv",path=paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/"))
-clonality <- do.call(rbind,
-			lapply(filelist,FUN = function(x){
-				n <- gsub(pattern="_clonality.csv",rep="",x=x)
-				tab <- read.table(paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/",x),sep="\t",skip=1)
-				tab <- cbind(rep(n,times=nrow(tab)),tab)
-				return(tab)
-			}))
-colnames(clonality) <- c("SAMPLE_ID","ploidy","purity","clonality","downsample_depth","powered","TP53cn","expected_TP53_AF")
-write.table(clonality,paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/",project,"_clonality.csv"),sep="\t",quote=F,row.names=FALSE)
+#filelist <- list.files(pattern="*clonality.csv",path=paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/"))
+#clonality <- do.call(rbind,
+#			lapply(filelist,FUN = function(x){
+#				n <- gsub(pattern="_clonality.csv",rep="",x=x)
+#				tab <- read.table(paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/",x),sep="\t",skip=1)
+#				tab <- cbind(rep(n,times=nrow(tab)),tab)
+#				return(tab)
+#			}))
+#colnames(clonality) <- c("SAMPLE_ID","ploidy","purity","clonality","downsample_depth","powered","TP53cn","expected_TP53_AF")
+#write.table(clonality,paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/",project,"_clonality.csv"),sep="\t",quote=F,row.names=FALSE)

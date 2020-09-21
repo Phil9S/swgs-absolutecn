@@ -5,15 +5,43 @@ library(QDNAseqmod)
 ## Added by PS
 args = commandArgs(trailingOnly=TRUE)
 
-clonality <- read.table(args[1],sep="\t",header=T)
-rds.filename <- args[2]
-metadata <- read.table(args[3],sep="\t",header=T)
-bin <- as.numeric(args[4])
-out_dir <- args[5]
-project <- args[6]
+metadata <- read.table(args[1],sep="\t",header=T)
+bin <- as.numeric(args[2])
+out_dir <- args[3]
+project <- args[4]
+samples <- args[5:length(args)]
 
 # read in relative CN data
-relative_smoothed <- readRDS(rds.filename)
+# collapse rds files function
+rds.filename <- list.files(pattern="*relSmoothedCN.rds",path=paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/relative_cn_rds/"))
+rds.list <- lapply(rds.filename,FUN=function(x){readRDS(paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/relative_cn_rds/",x))})
+
+collapse_rds <- function(rds.list){
+  comb <- rds.list[[1]][[1]]
+  if(length(rds.list) > 1){
+    for(i in 2:length(rds.list)){
+      add <- rds.list[[i]][[1]]
+      comb <- combine(comb,add)
+    }
+    rds.obj <- comb
+  }
+  return(rds.obj)
+}
+# Combine and load rds objects
+relative_smoothed <- collapse_rds(rds.list)
+saveRDS(relative_smoothed,paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/",project,"_",bin,"kb_relSmoothedCN.rds"))
+
+#relative_smoothed <- readRDS(rds.filename)
+filelist <- list.files(pattern="*clonality.csv",path=paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/"))
+clonality <- do.call(rbind,
+			lapply(filelist,FUN = function(x){
+				n <- gsub(pattern="_clonality.csv",rep="",x=x)
+        n <- gsub(pattern=paste0(project,"_"),rep="",x=n)
+				tab <- read.table(paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/",x),sep="\t",skip=1)
+				tab <- cbind(rep(n,times=nrow(tab)),tab)
+				return(tab)
+			}))
+colnames(clonality) <- c("SAMPLE_ID","ploidy","purity","clonality","downsample_depth","powered","TP53cn","expected_TP53_AF")
 
 clonality <- left_join(clonality,metadata,by="SAMPLE_ID") %>%
                 select(SAMPLE_ID,PATIENT_ID,ploidy,purity,clonality,downsample_depth,powered,TP53cn,expected_TP53_AF,TP53freq,smooth)
@@ -59,23 +87,20 @@ if(!dir.exists(paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_d
 	dir.create(paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/plots"))
 }
 
+#relative_smoothed
 #Plot absolute CN fits for assessment
 for(i in unique(pruned_results$SAMPLE_ID)){
-
   dat <-  pruned_results %>%
     filter(SAMPLE_ID == i) %>%
-    #arrange(ploidy)
-    arrange(rank_clonality)
+    arrange(ploidy)
+    #arrange(rank_clonality)
   x <- relative_smoothed[, i]
-  
   cn <- assayDataElement(x,"copynumber")
   seg <- assayDataElement(x,"segmented")
   rel_ploidy <- mean(cn,na.rm=T)
-  
   ll <- nrow(dat)
   png(paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/plots/", i, ".png"), w= 450*ll, h = 350)
   par(mfrow = c(1,ll)) 
-
   for(n in 1:nrow(dat)){
     
     ploidy <- dat[n,]$ploidy
