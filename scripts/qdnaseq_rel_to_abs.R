@@ -7,11 +7,16 @@ library(QDNAseqmod)
 library(Biobase)
 library(ggplot2)
 library(stringr)
+suppressWarnings(library(doMC))
+suppressWarnings(library(foreach))
 
 qc.data <- read.table(args[1],header = T,sep = "\t")
 output_dir <- args[2]
 bin <- as.numeric(args[3])
 project <- args[4]
+cores <- args[5]
+
+registerDoMC(cores)
 
 qc.data <- qc.data[qc.data$use == "TRUE",]
 
@@ -59,7 +64,7 @@ pData(rds.rel)$PATIENT_ID <- samples$PATIENT_ID[match(samples$SAMPLE_ID,pData(rd
 res <- data.frame(matrix(ncol = 9, nrow = 0))
 abs_profiles <- rds.rel[fData(rds.rel)$use,]
 # For each
-for(sample in pData(rds.rel)$name){
+foreach(sample=pData(rds.rel)$name) %dopar% {
   # Index and subselect sample
   ind <- which(colnames(rds.rel)==sample)
   relcn <- rds.rel[,ind]

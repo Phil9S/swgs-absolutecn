@@ -14,23 +14,19 @@ Generate absolute copy number profiles from shallow whole genome sequencing data
 
 [Clone](https://help.github.com/en/articles/cloning-a-repository) this repository to your local system.
 
-### Step 2: Install Snakemake
+### Step 2: Install conda 
 
-Install Snakemake using [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html):
-
-```
-conda create -c bioconda -c conda-forge -n snakemake snakemake
-```
-
-For installation details, see the [instructions in the Snakemake documentation](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html).
+Install [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html):
 
 ### Step 3: Installing additional dependencies
 
-Run the following lines to add R packages which are unavailble from conda or are customised for this workflow to the conda environment path.
+Run the `install_ev.sh` script to generate a conda environment and install custom packages.
 
 ```
 install_dependencies.sh
 ```
+
+*To be replaced with a built-in snakemake solution once possible*
 
 ### Step 4: Preparing the input files
 
@@ -51,24 +47,21 @@ The config.yaml should be edited to contain the necessary information for the pi
 
 ### Step 5: Copy number profile generate
 
-With the conda environment run the following code:
+With the `swgs-abscn` conda environment active, run the following code:
 
 ```
-snakemake -n --snakefile relativeQC --use-conda
+snakemake --profile config/slurm/ --snakefile stage_1
 ```
 
 ### Step 6: Stage 1 - QC1 and fit selection
 
-
 ### Step 7: Stage 2 - Downsampling and QC2
 
-
-### Step 8: Stage 3 - Cohort-level filtering absolute fit generation
+### Step 8: Stage 3 - Cohort-level filtering
 
 ## Quality control methodologies
 
 ### Quality control (smoothing)
 
-### Qaulity control (fit selection)
-
+### Quality control (fit selection)
 

@@ -11,9 +11,9 @@ metadata <- read.table(file = metafile,header=T,sep="\t")
 bam_list <- args[6]
 sample_name <- args[7]
 
-#if(!dir.exists(output_dir)){
-#  dir.create(output_dir)
-#}
+if(is.null(output_dir)){
+  output_dir <- ""
+}
 
 suppressMessages(library(parallel))
 suppressMessages(library(tidyverse))

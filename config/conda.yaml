@@ -1,0 +1,15 @@
+name: swgs-abscn
+channels:
+  - conda-forge
+  - bioconda 
+dependencies:
+  - r-base=3.6.2
+  - snakemake=5.10.0
+  - pandas=1.1.1
+  - samtools=1.9-12
+  - bioconductor-all=1.22.0
+  - r-tidyverse=1.2.1
+  - r-matrixstats=0.56.0
+  - r-plyr=1.8.6
+  - r-domc=1.3.5
+  - r-foreach=1.5.0

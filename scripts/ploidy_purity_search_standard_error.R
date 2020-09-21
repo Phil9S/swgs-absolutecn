@@ -12,6 +12,10 @@ out_dir <- args[4]
 project <- args[5]
 sample <- args[6]
 
+if(is.null(out_dir)){
+  out_dir <- ""
+}
+
 #load libraries
 suppressPackageStartupMessages(library(QDNAseqmod))
 suppressPackageStartupMessages(library(Biobase))
@@ -113,23 +117,23 @@ cntodepth<-function(cn,purity,seqdepth) #converts copy number to read depth give
 #estimate absolute copy number fits for all samples in parallel
 #foreach(sample=row.names(rds.pdata))%dopar%
 #{
-    ploidies<-seq(1.6,8,0.1)
-    purities<-seq(0.05,1,0.01)
-    clonality<-c()
-    #ind<-which(colnames(rds.obj)==sample)
-    relcn<-rds.obj[[1]]
-    # added by PS
-    to_use <- fData(relcn)$use #
-    relcn <- relcn[to_use,] #
-    # added by PS
-    copynumber<-assayDataElement(relcn,"copynumber")
-    rel_ploidy<-mean(copynumber,na.rm=T)
-    num_reads<-sum(copynumber,na.rm=T)
-    #print(sample)
-    #print(num_reads)
-    
-    res<-foreach(i=1:length(ploidies),.combine=rbind)%do%
-    {
+ploidies<-seq(1.6,8,0.1)
+purities<-seq(0.05,1,0.01)
+clonality<-c()
+#ind<-which(colnames(rds.obj)==sample)
+relcn<-rds.obj[[1]]
+# added by PS
+to_use <- fData(relcn)$use #
+relcn <- relcn[to_use,] #
+# added by PS
+copynumber<-assayDataElement(relcn,"copynumber")
+rel_ploidy<-mean(copynumber,na.rm=T)
+num_reads<-sum(copynumber,na.rm=T)
+#print(sample)
+#print(num_reads)
+   
+res<-foreach(i=1:length(ploidies),.combine=rbind)%do%
+{
         ploidy<-ploidies[i]
         rowres<-foreach(j=1:length(purities),.combine=rbind)%do%
         {
@@ -151,24 +155,24 @@ cntodepth<-function(cn,purity,seqdepth) #converts copy number to read depth give
             c(ploidy,purity,clonality,downsample_depth,downsample_depth<rds.pdata$total.reads[row.names(rds.pdata)==sample],TP53cn,expected_TP53_AF)
         }
         rowres
-    }
+}
     
-    colnames(res)<-c("ploidy","purity","clonality","downsample_depth","powered","TP53cn","expected_TP53_AF")
-    rownames(res)<-1:nrow(res)
-    res<-data.frame(res,stringsAsFactors = F)
-    res<-data.frame(apply(res,2,as.numeric,stringsAsFactors=F))
-    res<-res[order(res$clonality,decreasing=FALSE),]
+colnames(res)<-c("ploidy","purity","clonality","downsample_depth","powered","TP53cn","expected_TP53_AF")
+rownames(res)<-1:nrow(res)
+res<-data.frame(res,stringsAsFactors = F)
+res<-data.frame(apply(res,2,as.numeric,stringsAsFactors=F))
+res<-res[order(res$clonality,decreasing=FALSE),]
 
-    #output plot of clonality error landscape
-    pdf(paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/",sample,"_clonality.pdf"))
-    print(ggplot(res,aes(x=ploidy,y=purity,fill=clonality))+geom_tile()+
-              scale_fill_gradient(low = "blue", high = "white",trans="log10")+
-              theme_bw())
-    dev.off()
+#output plot of clonality error landscape
+pdf(paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/",sample,"_clonality.pdf"))
+print(ggplot(res,aes(x=ploidy,y=purity,fill=clonality))+geom_tile()+
+               scale_fill_gradient(low = "blue", high = "white",trans="log10")+
+               theme_bw())
+dev.off()
     
     #write table of clonality scores
     #print(paste0("Writing clonality table for sample: ",sample))
-    write.table(res,paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/",project,"_",sample,"_clonality.csv"),sep="\t",quote=F,row.names=FALSE)
+write.table(res,paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/",project,"_",sample,"_clonality.csv"),sep="\t",quote=F,row.names=FALSE)
 #}
 
 #filelist <- list.files(pattern="*clonality.csv",path=paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/"))

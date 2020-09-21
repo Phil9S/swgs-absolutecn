@@ -11,7 +11,7 @@ singularity: "docker://continuumio/miniconda3"
 
 ##### load config and sample sheets #####
 
-configfile: "config.yaml"
+configfile: "config/config.yaml"
 validate(config, schema="../schemas/config.schema.yaml")
 
 #Predefine output folders (TEMP)

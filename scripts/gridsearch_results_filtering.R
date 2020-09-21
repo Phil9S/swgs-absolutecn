@@ -1,6 +1,8 @@
 library(tidyverse)
 library(Biobase)
 library(QDNAseqmod)
+suppressWarnings(library(doMC))
+suppressWarnings(library(foreach))
 
 ## Added by PS
 args = commandArgs(trailingOnly=TRUE)
@@ -9,8 +11,9 @@ metadata <- read.table(args[1],sep="\t",header=T)
 bin <- as.numeric(args[2])
 out_dir <- args[3]
 project <- args[4]
-samples <- args[5:length(args)]
+cores <- args[5]
 
+registerDoMC(cores)
 # read in relative CN data
 # collapse rds files function
 rds.filename <- list.files(pattern="*relSmoothedCN.rds",path=paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/relative_cn_rds/"))
@@ -89,7 +92,7 @@ if(!dir.exists(paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_d
 
 #relative_smoothed
 #Plot absolute CN fits for assessment
-for(i in unique(pruned_results$SAMPLE_ID)){
+foreach(i=unique(pruned_results$SAMPLE_ID)) %dopar% {
   dat <-  pruned_results %>%
     filter(SAMPLE_ID == i) %>%
     arrange(ploidy)
