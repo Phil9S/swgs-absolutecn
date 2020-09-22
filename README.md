@@ -10,21 +10,29 @@
 
 Generate absolute copy number profiles from shallow whole genome sequencing data using a read depth normalised and allele frequency-anchored approach.
 
-### Step 1: Clone the repo
-
-[Clone](https://help.github.com/en/articles/cloning-a-repository) this repository to your local system.
-
-### Step 2: Install conda 
+### Step 1: Install conda
 
 Install [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html):
 
+Make a note of where the miniconda directory is installed as this directory location is required later.
+
+### Step 2: Clone the repo
+
+[Clone](https://help.github.com/en/articles/cloning-a-repository) this repository to your local system.
+
+```
+wget https://github.com/Phil9S/sWGS-absoluteCN.git
+cd sWGS-absoluteCN/
+```
 ### Step 3: Installing additional dependencies
 
-Run the `install_ev.sh` script to generate a conda environment and install custom packages.
+From within the repository directory, run the `install_env.sh` script to generate a conda environment and install custom packages*.
 
 ```
-install_dependencies.sh
+install_env.sh /home/miniconda_directory/
 ```
+
+Use the conda/miniconda directory noted earlier when running this section to correctly initialise the conda environment.
 
 *To be replaced with a built-in snakemake solution once possible*
 
@@ -45,7 +53,10 @@ An example sample_sheet.tsv is included in this repository.
 
 The config.yaml should be edited to contain the necessary information for the pipeline you wish to run. This includes the location of the samplesheet.tsv, bin size, project name, and output directory.
 
-### Step 5: Copy number profile generate
+#### slurm config.yaml
+
+
+### Step 5: Stage_1
 
 With the `swgs-abscn` conda environment active, run the following code:
 

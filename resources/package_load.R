@@ -6,10 +6,10 @@ listOfAllPackages = c("Biobase","dplyr","tidyverse","QDNAseq","QDNAseqmod",
 for(thisPackage in listOfAllPackages) {
   
   if(thisPackage %in% rownames(installed.packages()) == FALSE) {
-	cat(paste("[./install_env.sh] Package", thisPackage, "needs installing.\n"))
+	cat(paste("[install_env] Package", thisPackage, "needs installing.\n"))
 	install.packages(thisPackage, repos="https://cran.ma.imperial.ac.uk/")
   } else {
-	cat(paste("[./install_env.sh] Package", thisPackage, "is installed.\n"))
+	cat(paste("[install_env] Package", thisPackage, "is installed.\n"))
   }
 }
 a <- lapply(listOfAllPackages,FUN = function(x){suppressPackageStartupMessages(require(x, character.only = TRUE))})

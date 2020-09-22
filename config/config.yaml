@@ -6,14 +6,10 @@
 samplesheet: "sample_sheet.tsv"
 
 # Output location
-out_dir: "./"
+out_dir: "/mnt/scratcha/fmlab/smith10/"
 
 # Bin sizes
 bins: 30
 
 # Project name
 project_name: "britroc"
-
-# misc params
-params:
-    custom_bin: "/mnt/scratcha/fmlab/smith10/custom_bin_data/"
