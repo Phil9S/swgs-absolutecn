@@ -1,0 +1,19 @@
+# Check if packages are installed
+listOfAllPackages = c("Biobase","dplyr","tidyverse","QDNAseq","QDNAseqmod",
+		      "doMC","foreach","ggplot2","stringr","matrixStats","parallel",
+		      "plyr")
+
+for(thisPackage in listOfAllPackages) {
+  
+  if(thisPackage %in% rownames(installed.packages()) == FALSE) {
+	cat(paste("[./install_env.sh] Package", thisPackage, "needs installing.\n"))
+	install.packages(thisPackage, repos="https://cran.ma.imperial.ac.uk/")
+  } else {
+	cat(paste("[./install_env.sh] Package", thisPackage, "is installed.\n"))
+  }
+}
+a <- lapply(listOfAllPackages,FUN = function(x){suppressPackageStartupMessages(require(x, character.only = TRUE))})
+
+if(!is.null(warnings())){
+	print(warnings())
+}
