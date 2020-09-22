@@ -64,7 +64,7 @@ pData(rds.rel)$PATIENT_ID <- samples$PATIENT_ID[match(samples$SAMPLE_ID,pData(rd
 res <- data.frame(matrix(ncol = 9, nrow = 0))
 abs_profiles <- rds.rel[fData(rds.rel)$use,]
 # For each
-foreach(sample=pData(rds.rel)$name) %dopar% {
+foreach(sample in pData(rds.rel)$name){
   # Index and subselect sample
   ind <- which(colnames(rds.rel)==sample)
   relcn <- rds.rel[,ind]
