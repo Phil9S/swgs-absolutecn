@@ -6,31 +6,33 @@
 
 * Philip Smith (@phil9s)
 
+## Description
+
+Generate absolute copy number profiles from shallow whole genome sequencing data using a read depth normalised and allele frequency-anchored approach.
+
 ## Table of contents
 
-* [Usage](#usage)
-  + [Step 1 Clone the repo](#step-1--clone-the-repo)
-  + [Step 2 Install conda](#step-2--install-conda)
-    + [For those with Conda already installed](#for-those-with-conda-already-installed)
-  + [Step 3 Installing additional dependencies](#step-3--installing-additional-dependencies)
-  + [Step 4 Preparing the input files](#step-4--preparing-the-input-files)
+* [Pipeline setup](#pipeline-setup)
+  + [Step 1 Clone the repo](#step-1-clone-the-repo)
+  + [Step 2 Install conda](#step-2-install-conda)
+    - [For those with Conda already installed](#for-those-with-conda-already-installed)
+  + [Step 3 Installing additional dependencies](#step-3-installing-additional-dependencies)
+  + [Step 4 Preparing the input files](#step-4-preparing-the-input-files)
     - [Sample sheet](#sample-sheet)
     - [config.yaml](#configyaml)
     - [slurm config.yaml](#slurm-configyaml)
     - [Updating the pipeline configuration](#updating-the-pipeline-configuration)
-  + [Step 5 Stage_1](#step-5--stage-1)
-  + [Step 6 Stage 1 - QC1 and fit selection](#step-6--stage-1---qc1-and-fit-selection)
-    - [Quality control - smoothing](#quality-control---smoothing)
-    - [Quality control - fit selection](#quality-control---fit-selection)
-  + [Step 7 Stage 2](#step-7--stage-2)
-  + [Step 8 QC2](#step-8--qc2)
-  + [Step 9 Stage 3 - Cohort-level filtering](#step-8--stage-3---cohort-level-filtering)
-    - [COMING SOON](#coming-soon)
-* [addendum](#addendum)
+* [Running the pipeline](#running-the-pipeline)
+  + [Step 5 Stage 1](#step-5-stage-1)
+  + [Step 6 QC1](#step-6-qc1)
+    - [Smoothing](#smoothing)
+    - [Fit selection](#fit-selection)
+  + [Step 7 Stage 2](#step-7-stage-2)
+  + [Step 8 QC2](#step-8-qc2)
+  + [Step 9 Stage 3 - Cohort-level filtering](#step-9-stage-3---cohort-level-filtering)
+* [Addendum](#addendum)
 
-## Usage
-
-Generate absolute copy number profiles from shallow whole genome sequencing data using a read depth normalised and allele frequency-anchored approach.
+## Pipeline setup
 
 ### Step 1 Clone the repo
 
@@ -114,7 +116,7 @@ The config.yaml (`config/config.yaml`) contains the necessary information for th
 
 The slurm config.yaml (`profile/slurm/config.yaml`) contains the necessary information to configure the job submission parameters passed to `sbatch` on slurm-managed cluster enviroments. This includes the number of concurrently sumbitted jobs, slurm account name, slurm partition name, and default job resources (though these are low and should work on almost any cluster).
 
-### Updating the pipeline configuration
+#### Updating the pipeline configuration
 
 Environment-specific and pipeline-specific parameters need to be set for each run of this pipeline. While it is possible to manually edit the YAML files, a script has been provided to update the most frequently altered parameters programmatically. The script will iteratively list the parameter and its current value, asking for a user submitted new value should it be needed. If the value is already acceptable or does not need to be changed then an empty value (enter return without typing) will keep the current setting.
 
@@ -124,7 +126,9 @@ With the `swgs-abscn` conda environment active, run the following code:
 python update_configs.py
 ```
 
-### Step 5 Stage_1
+## Running the pipeline
+
+### Step 5 Stage 1
 
 Once the pipeline and cluster parameters have been set and the samplesheet is prepared, the first stage of the pipeline is ready to run.
 
@@ -142,11 +146,11 @@ If the previous step ran without error then run the following:
 snakemake --profile config/slurm/ --snakefile stage_1
 ```
 
-### Step 6 Stage 1 - QC1 and fit selection
+### Step 6 QC1
 
 At the conclusion of stage 1, files and fits will be generated for all samples present in the `samplesheet.tsv` provided. This will include grid search-generated fits, copy number profile plots, and a `QDNAseq` RDS file containing the copy number fit data. This data is not immediately usable in downstream processes and fits must undergo quality control and fit selection, as samples may generate more than one viable copy number profile.
 
-#### Quality control - smoothing
+#### Smoothing
 
 Prior to fit selection, a subset of samples will likely require smoothing of segments in order to be viable. Read the guide provided here to select and update which samples require smoothing [here](resources/smoothing_guide.md). Once the `samplesheet.tsv` has been updated with the new `smooth` values, rerun stage 1 using the following:
 
@@ -154,7 +158,7 @@ Prior to fit selection, a subset of samples will likely require smoothing of seg
 snakemake --profile config/slurm/ -F all --snakefile stage_1
 ```
 
-#### Quality control - fit selection
+#### Fit selection
 
 After running stage 1 with the appropraite smoothing values, copy number fits will have been generated for each sample. In most cases, multiple viable fits will have been selected for each sample and a semi-qualitative quality control process needs to be applied to select the best fitting solution or exclude a sample should no fit be good enough.
 
@@ -182,10 +186,10 @@ To confirm the quality of newly generated downsampled absolute copy number profi
 
 ### Step 9 Stage 3 - Cohort-level filtering
 
-#### COMING SOON
+COMING SOON
 
 This stage has not yet been implemented and performs profile filtering based on step 8 and cohort-level outlier detection to remove specious samples.
 
-## addendum
+## Addendum
 
 None
