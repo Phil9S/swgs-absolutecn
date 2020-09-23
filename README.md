@@ -1,4 +1,4 @@
-# Snakemake workflow: sWGS-absoluteCN
+# sWGS-absoluteCN pipeline
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥5.10.0-brightgreen.svg)](https://snakemake.bitbucket.io)
 
