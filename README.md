@@ -12,6 +12,12 @@ Generate absolute copy number profiles from shallow whole genome sequencing data
 
 ### Step 1: Install conda
 
+Run the following to install conda
+
+```
+wget -c -q 
+bash Miniconda3-latest-Linux-x86_64.sh
+```
 Install [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html):
 
 Make a note of where the miniconda directory is installed as this directory location is required later.
@@ -55,6 +61,8 @@ The config.yaml should be edited to contain the necessary information for the pi
 
 #### slurm config.yaml
 
+
+#### Config 
 
 ### Step 5: Stage_1
 

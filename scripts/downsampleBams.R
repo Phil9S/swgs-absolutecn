@@ -10,16 +10,6 @@ outdir <- args[5]
 bin <- as.numeric(args[6])
 project <- args[7]
 
-#downsample_dir <- "absolute_POST_down_sampling/downsampled_bams/"
-
-#if(!dir.exists("absolute_POST_down_sampling")){
-#	dir.create("absolute_POST_down_sampling")
-#}
-
-#if(!dir.exists("absolute_POST_down_sampling/downsampled_bams")){
-#	dir.create("absolute_POST_down_sampling/downsampled_bams")
-#}
-
 fit.qc <- read.table(file = meta,header = T,sep = "\t",na.strings = "")
 
 relative_smoothed <- readRDS(rds)
@@ -35,9 +25,6 @@ if(!sample_name %in% fit.qc.filt$SAMPLE_ID){
 
 fit.qc.filt$total.reads <- read.data$total.reads[match(x = fit.qc.filt$SAMPLE_ID,read.data$name)]
 fit.qc.filt$ratio <- round(fit.qc.filt$downsample_depth / fit.qc.filt$total.reads,digits = 2)
-
-# extension is bwamem.bam or .bam
-#ext <- ".bam"
 
 perc <- fit.qc.filt %>%
    filter(SAMPLE_ID == sample_name) %>%

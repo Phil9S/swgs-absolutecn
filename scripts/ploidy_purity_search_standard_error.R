@@ -175,13 +175,3 @@ dev.off()
 write.table(res,paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/",project,"_",sample,"_clonality.csv"),sep="\t",quote=F,row.names=FALSE)
 #}
 
-#filelist <- list.files(pattern="*clonality.csv",path=paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/"))
-#clonality <- do.call(rbind,
-#			lapply(filelist,FUN = function(x){
-#				n <- gsub(pattern="_clonality.csv",rep="",x=x)
-#				tab <- read.table(paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/",x),sep="\t",skip=1)
-#				tab <- cbind(rep(n,times=nrow(tab)),tab)
-#				return(tab)
-#			}))
-#colnames(clonality) <- c("SAMPLE_ID","ploidy","purity","clonality","downsample_depth","powered","TP53cn","expected_TP53_AF")
-#write.table(clonality,paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/",project,"_clonality.csv"),sep="\t",quote=F,row.names=FALSE)

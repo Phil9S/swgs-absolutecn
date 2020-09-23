@@ -21,10 +21,6 @@ suppressMessages(library(Biobase))
 suppressMessages(library(QDNAseqmod))
 suppressMessages(library(plyr))
 
-#metadata <- read.table(file = "sample_sheet.tsv",header=T,sep="\t")
-#bam_list <- as.character(metadata$file)
-#sampleIds <- unique(metadata$SAMPLE_ID)
-
 ## generate annotation file either by preloading calculated files or generating new one
 bins <- getBinAnnotations(binSize=bin.size)
 
@@ -87,22 +83,5 @@ smooth_samples <- function(obj){
 }
 
 copyNumbersSegmentedSmooth <- mclapply(X=copyNumbersSegmented, FUN=smooth_samples, mc.cores=ncores)
-
-# collapse rds files function
-collapse_rds <- function(rds.list){
-  comb <- rds.list[[1]]
-  if(length(rds.list) > 1){
-    for(i in 2:length(rds.list)){
-      add <- rds.list[[i]]
-      comb <- combine(comb,add)
-    }
-    rds.obj <- comb
-  }
-  return(rds.obj)
-}
-
-#print("Combining QDNAseq objects")
-# Combine and load rds objects
-#outrds <- collapse_rds(copyNumbersSegmentedSmooth)
 
 saveRDS(copyNumbersSegmentedSmooth,paste0(output_dir,"sWGS_fitting/",project,"_",bin.size,"kb/absolute_PRE_down_sampling/relative_cn_rds/",project,"_",sample_name,"_",bin.size,"kb_relSmoothedCN.rds"))

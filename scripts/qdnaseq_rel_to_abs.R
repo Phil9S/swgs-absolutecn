@@ -51,9 +51,6 @@ depthtocn<-function(x,purity,seqdepth) #converts readdepth to copy number given 
 # List samples
 samples <- qc.data[which(qc.data$SAMPLE_ID %in% colnames(rds.rel)),]
 
-# List smoothed samples
-#smoothed_samples <- refit.params$name[refit.params$smooth == "TRUE"]
-
 # Add pheno information
 pData(rds.rel)$purity <- samples$purity[match(samples$SAMPLE_ID,pData(rds.rel)$name)]
 pData(rds.rel)$ploidy <- samples$ploidy[match(samples$SAMPLE_ID,pData(rds.rel)$name)]
