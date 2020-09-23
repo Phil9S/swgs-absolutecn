@@ -6,11 +6,33 @@
 
 * Philip Smith (@phil9s)
 
+## Table of contents
+
+* [Usage](#usage)
+  + [Step 1 Clone the repo](#step-1--clone-the-repo)
+  + [Step 2 Install conda](#step-2--install-conda)
+    + [For those with Conda already installed](#for-those-with-conda-already-installed)
+  + [Step 3 Installing additional dependencies](#step-3--installing-additional-dependencies)
+  + [Step 4 Preparing the input files](#step-4--preparing-the-input-files)
+    - [Sample sheet](#sample-sheet)
+    - [config.yaml](#configyaml)
+    - [slurm config.yaml](#slurm-configyaml)
+    - [Updating the pipeline configuration](#updating-the-pipeline-configuration)
+  + [Step 5 Stage_1](#step-5--stage-1)
+  + [Step 6 Stage 1 - QC1 and fit selection](#step-6--stage-1---qc1-and-fit-selection)
+    - [Quality control - smoothing](#quality-control---smoothing)
+    - [Quality control - fit selection](#quality-control---fit-selection)
+  + [Step 7 Stage 2](#step-7--stage-2)
+  + [Step 8 QC2](#step-8--qc2)
+  + [Step 9 Stage 3 - Cohort-level filtering](#step-8--stage-3---cohort-level-filtering)
+    - [COMING SOON](#coming-soon)
+* [addendum](#addendum)
+
 ## Usage
 
 Generate absolute copy number profiles from shallow whole genome sequencing data using a read depth normalised and allele frequency-anchored approach.
 
-### Step 1: Clone the repo
+### Step 1 Clone the repo
 
 [Clone](https://help.github.com/en/articles/cloning-a-repository) this repository to your local system.
 
@@ -19,7 +41,7 @@ wget https://github.com/Phil9S/sWGS-absoluteCN.git
 cd sWGS-absoluteCN/
 ```
 
-### Step 2: Install conda
+### Step 2 Install conda
 
 Run the following to install conda whilst following the on-screen instructions.
 - When asked to run `conda init` and initialise conda please respond with 'yes'
@@ -51,7 +73,7 @@ Find your installation directory using the following:
 whereis conda | sed 's%condabin/conda%%'
 ```
 
-### Step 3: Installing additional dependencies
+### Step 3 Installing additional dependencies
 
 From within the repository directory, run the `install_env.sh` script to generate a conda environment and install custom packages:
 
@@ -63,7 +85,13 @@ If you used a previously installed conda build please use the conda or miniconda
 
 *To be replaced with a built-in snakemake solution once possible*
 
-### Step 4: Preparing the input files
+The newly installed conda environment can be activated using the following:
+
+```
+conda activate swgs-abscn
+```
+
+### Step 4 Preparing the input files
 
 #### Sample sheet
 
@@ -84,11 +112,11 @@ The config.yaml (`config/config.yaml`) contains the necessary information for th
 
 #### slurm config.yaml
 
-The slurm config.yaml (`profile/slurm/config.yaml`) contains the necessary information to configure the job submission parameters passed to `sbatch` on slurm-managed cluster enviroments. This includes the number of cocurrently sumbitted jobs, slurm account name, slurm partition name, and default job resources (though these are low and should work on almost any cluster).
+The slurm config.yaml (`profile/slurm/config.yaml`) contains the necessary information to configure the job submission parameters passed to `sbatch` on slurm-managed cluster enviroments. This includes the number of concurrently sumbitted jobs, slurm account name, slurm partition name, and default job resources (though these are low and should work on almost any cluster).
 
 ### Updating the pipeline configuration
 
-Environment-specific and pipeline-specific parameters need to be set for each run of this pipeline. While it is possible to manually edit the YAML files, a script has been provided to update the most frequently altered parameters programmatically.
+Environment-specific and pipeline-specific parameters need to be set for each run of this pipeline. While it is possible to manually edit the YAML files, a script has been provided to update the most frequently altered parameters programmatically. The script will iteratively list the parameter and its current value, asking for a user submitted new value should it be needed. If the value is already acceptable or does not need to be changed then an empty value (enter return without typing) will keep the current setting.
 
 With the `swgs-abscn` conda environment active, run the following code:
 
@@ -96,7 +124,7 @@ With the `swgs-abscn` conda environment active, run the following code:
 python update_configs.py
 ```
 
-### Step 5: Stage_1
+### Step 5 Stage_1
 
 Once the pipeline and cluster parameters have been set and the samplesheet is prepared, the first stage of the pipeline is ready to run.
 
@@ -114,15 +142,50 @@ If the previous step ran without error then run the following:
 snakemake --profile config/slurm/ --snakefile stage_1
 ```
 
-### Step 6: Stage 1 - QC1 and fit selection
+### Step 6 Stage 1 - QC1 and fit selection
 
-### Step 7: Stage 2 - Downsampling and QC2
+At the conclusion of stage 1, files and fits will be generated for all samples present in the `samplesheet.tsv` provided. This will include grid search-generated fits, copy number profile plots, and a `QDNAseq` RDS file containing the copy number fit data. This data is not immediately usable in downstream processes and fits must undergo quality control and fit selection, as samples may generate more than one viable copy number profile.
 
-### Step 8: Stage 3 - Cohort-level filtering
+#### Quality control - smoothing
 
-## Quality control methodologies
+Prior to fit selection, a subset of samples will likely require smoothing of segments in order to be viable. Read the guide provided here to select and update which samples require smoothing [here](resources/smoothing_guide.md). Once the `samplesheet.tsv` has been updated with the new `smooth` values, rerun stage 1 using the following:
 
-### Quality control (smoothing)
+```
+snakemake --profile config/slurm/ -F all --snakefile stage_1
+```
 
-### Quality control (fit selection)
+#### Quality control - fit selection
 
+After running stage 1 with the appropraite smoothing values, copy number fits will have been generated for each sample. In most cases, multiple viable fits will have been selected for each sample and a semi-qualitative quality control process needs to be applied to select the best fitting solution or exclude a sample should no fit be good enough.
+
+Follow the guide on fit selection [here](resources/quality_control_guide.md) to perform quality control and update the `{project}__fit_QC_predownsample.tsv` file. Once this step has been performed and a single acceptable fit has been selected for each sample, proceed to step 7.
+
+### Step 7 Stage 2
+
+Provided quality control and fit selection was performed correctly, stage 2 of the pipeline can be performed which refits all copy number profiles using downsampled BAM files and the selected fits from stage 1.
+
+As before, confirm the pipeline is configured correctly by running with the `dry-run` mode.
+
+```
+snakemake -n --profile config/slurm/ --snakefile stage_2
+```
+
+and if the previous step ran without error then run the following:
+
+```
+snakemake --profile config/slurm/ --snakefile stage_2
+```
+
+### Step 8 QC2
+
+To confirm the quality of newly generated downsampled absolute copy number profiles generated by stage 2, an evalution of outputted fits should be performed as described previously in step 6 [here](resources/quality_control_guide.md). The output `{}` should be updated accordingly, with poor fits being excluded.
+
+### Step 9 Stage 3 - Cohort-level filtering
+
+#### COMING SOON
+
+This stage has not yet been implemented and performs profile filtering based on step 8 and cohort-level outlier detection to remove specious samples.
+
+## addendum
+
+None
