@@ -139,13 +139,13 @@ With the `swgs-abscn` conda environment active, run the following:
 Confirm the pipeline is configured correctly, run the first stage using the `dry-run` mode.
 
 ```
-snakemake -n --profile config/slurm/ --snakefile stage_1
+snakemake -n --profile profile/slurm/ --snakefile stage_1
 ```
 
 If the previous step ran without error then run the following:
 
 ```
-snakemake --profile config/slurm/ --snakefile stage_1
+snakemake --profile profile/slurm/ --snakefile stage_1
 ```
 
 ### Step 6 QC1
@@ -157,7 +157,7 @@ At the conclusion of stage 1, files and fits will be generated for all samples p
 Prior to fit selection, a subset of samples will likely require smoothing of segments in order to be viable. Read the guide provided here to select and update which samples require smoothing [here](resources/smoothing_guide.md). Once the `samplesheet.tsv` has been updated with the new `smooth` values, rerun stage 1 using the following:
 
 ```
-snakemake --profile config/slurm/ -F all --snakefile stage_1
+snakemake --profile profile/slurm/ -F all --snakefile stage_1
 ```
 
 #### Fit selection
@@ -173,13 +173,13 @@ Provided quality control and fit selection was performed correctly, stage 2 of t
 As before, confirm the pipeline is configured correctly by running with the `dry-run` mode.
 
 ```
-snakemake -n --profile config/slurm/ --snakefile stage_2
+snakemake -n --profile profile/slurm/ --snakefile stage_2
 ```
 
 and if the previous step ran without error then run the following:
 
 ```
-snakemake --profile config/slurm/ --snakefile stage_2
+snakemake --profile profile/slurm/ --snakefile stage_2
 ```
 
 ### Step 8 QC2
