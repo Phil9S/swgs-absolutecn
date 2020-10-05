@@ -2,28 +2,29 @@
 
 include: "rules/common.smk"
 
-## check completed QC sheet exists
-filelist=expand(OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/{project}_fit_QC_predownsample.tsv",project=config["project_name"],bin=config["bins"])
-for fl in filelist:
+def get_ds_bams(P,B):
+    d = {}
+    for b in B:
+        fl = OUT_DIR+"sWGS_fitting/"+P+"_"+str(b)+"kb/absolute_PRE_down_sampling/"+P+"_fit_QC_predownsample.tsv"
+        print(fl)
         if os.path.isfile(fl):
             f = pd.read_table(fl).set_index(["SAMPLE_ID"], drop=False)
             if f["use"].dtype == bool and all(~f.use.isnull()):
                 ftb = f[(f['use'] == True)]
                 if all(~ftb.SAMPLE_ID.duplicated()):
-                    break
+                    d[str(b)] = list(ftb['SAMPLE_ID'])
                 else:
                     sys.exit("QC file contains duplicated sample ids marked 'TRUE'")
             else:
                 sys.exit("QC file 'use' column contains non-boolean values")
         else:
             sys.exit("QC file from stage 1 is missing")
+    return(d)
 
 # Set new sample list based on filtered QC from stage 1
 PROJECT=config["project_name"]
 BIN=config["bins"]
-f = pd.read_table(OUT_DIR+"sWGS_fitting/"+PROJECT+"_"+str(BIN)+"kb/absolute_PRE_down_sampling/"+PROJECT+"_fit_QC_predownsample.tsv")
-ftb = f[(f['use'] == True)]
-SAMPLES = list(ftb['SAMPLE_ID'])
+SAMPLE_LISTS=get_ds_bams(PROJECT,BIN)
 
 rule all:
     input:

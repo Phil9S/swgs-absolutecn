@@ -1,19 +1,23 @@
 #Rscript qdnaseq.R -m metadata.csv" -b 30 -n 5
 args = commandArgs(trailingOnly=TRUE)
 
-bin.size <- as.numeric(args[1])
-ncores <- as.numeric(args[2])
-output_dir <- args[3]
-#output_dir <- "absolute_PRE_down_sampling"
-project <- args[4]
-metafile <- args[5]
+bin.size <- as.numeric(snakemake@params[["bin"]])
+ncores <- as.numeric(snakemake@resources[["cpus"]])
+output_dir <- snakemake@params[["outdir"]]
+project <- snakemake@params[["project"]]
+metafile <- snakemake@params[["meta"]]
 metadata <- read.table(file = metafile,header=T,sep="\t")
-bam_list <- args[6]
-sample_name <- args[7]
+bam_list <- snakemake@input[[1]]
+outname <- snakemake@output[[1]]
 
-if(is.null(output_dir)){
-  output_dir <- ""
-}
+#bin.size <- as.numeric(args[1])
+#ncores <- as.numeric(args[2])
+#output_dir <- args[3]
+#project <- args[4]
+#metafile <- args[5]
+#metadata <- read.table(file = metafile,header=T,sep="\t")
+#bam_list <- args[6]
+#sample_name <- args[7]
 
 suppressMessages(library(parallel))
 suppressMessages(library(tidyverse))
@@ -84,4 +88,4 @@ smooth_samples <- function(obj){
 
 copyNumbersSegmentedSmooth <- mclapply(X=copyNumbersSegmented, FUN=smooth_samples, mc.cores=ncores)
 
-saveRDS(copyNumbersSegmentedSmooth,paste0(output_dir,"sWGS_fitting/",project,"_",bin.size,"kb/absolute_PRE_down_sampling/relative_cn_rds/",project,"_",sample_name,"_",bin.size,"kb_relSmoothedCN.rds"))
+saveRDS(copyNumbersSegmentedSmooth,outname)

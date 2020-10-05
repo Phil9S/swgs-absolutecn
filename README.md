@@ -22,9 +22,11 @@ Generate absolute copy number profiles from shallow whole genome sequencing data
   + [Step 4 Preparing the input files](#step-4-preparing-the-input-files)
     - [Sample sheet](#sample-sheet)
     - [config.yaml](#configyaml)
-    - [slurm config.yaml](#slurm-configyaml)
+    - [profile config.yaml](#profile-configyaml)
+    - [workflow management](#workflow-management)
     - [Updating the pipeline configuration](#updating-the-pipeline-configuration)
 * [Running the pipeline](#running-the-pipeline)
+  + [workflow management](#workflow-management)
   + [Step 5 Stage 1](#step-5-stage-1)
   + [Step 6 QC1](#step-6-qc1)
     - [Smoothing](#smoothing)
@@ -41,7 +43,7 @@ Generate absolute copy number profiles from shallow whole genome sequencing data
 [Clone](https://help.github.com/en/articles/cloning-a-repository) this repository to your local system.
 
 ```
-wget https://github.com/Phil9S/sWGS-absoluteCN.git
+git clone https://github.com/Phil9S/sWGS-absoluteCN.git
 cd sWGS-absoluteCN/
 ```
 
@@ -114,9 +116,14 @@ An example sample_sheet.tsv is included in this repository.
 
 The config.yaml (`config/config.yaml`) contains the necessary information for the pipeline you wish to run. This includes the location of the samplesheet.tsv, bin size, project name, and output directory.
 
-#### slurm config.yaml
+#### profile config.yaml
 
-The slurm config.yaml (`profile/slurm/config.yaml`) contains the necessary information to configure the job submission parameters passed to `sbatch` on slurm-managed cluster enviroments. This includes the number of concurrently sumbitted jobs, slurm account name, slurm partition name, and default job resources (though these are low and should work on almost any cluster).
+The profile config.yaml (`profile/*/config.yaml`) contains the necessary information to configure the job submission parameters passed to a given workload manager (or lack thereof). This includes the number of concurrently sumbitted jobs, account/project name, partition/queue name, and default job resources (though these are low and should work on almost any cluster).
+
+#### Workflow management
+
+This pipeline was primarily developed using the [SLURM][https://slurm.schedmd.com/documentation.html] work load manager for job submission by snakemake. For individuals running on non-workload managed clusters or utilising other workload managers, such as [LSF](https://www.ibm.com/uk-en/marketplace/hpc-workload-management) or [pbs-torque](), a different profile config.yaml will need to be updated and provided to the pipeline. Currently supported profiles are `local`, `slurm`, and `pbs`. These can be edited via the script described in the next section.
+
 
 #### Updating the pipeline configuration
 
@@ -138,14 +145,15 @@ With the `swgs-abscn` conda environment active, run the following:
 
 Confirm the pipeline is configured correctly, run the first stage using the `dry-run` mode.
 
+#### For SLURM users
 ```
-snakemake -n --profile config/slurm/ --snakefile stage_1
+snakemake -n --profile profile/slurm/ --snakefile stage_1
 ```
 
 If the previous step ran without error then run the following:
 
 ```
-snakemake --profile config/slurm/ --snakefile stage_1
+snakemake --profile profile/slurm/ --snakefile stage_1
 ```
 
 ### Step 6 QC1
@@ -157,7 +165,7 @@ At the conclusion of stage 1, files and fits will be generated for all samples p
 Prior to fit selection, a subset of samples will likely require smoothing of segments in order to be viable. Read the guide provided here to select and update which samples require smoothing [here](resources/smoothing_guide.md). Once the `samplesheet.tsv` has been updated with the new `smooth` values, rerun stage 1 using the following:
 
 ```
-snakemake --profile config/slurm/ -F all --snakefile stage_1
+snakemake --profile profile/slurm/ -F all --snakefile stage_1
 ```
 
 #### Fit selection
@@ -173,13 +181,13 @@ Provided quality control and fit selection was performed correctly, stage 2 of t
 As before, confirm the pipeline is configured correctly by running with the `dry-run` mode.
 
 ```
-snakemake -n --profile config/slurm/ --snakefile stage_2
+snakemake -n --profile profile/slurm/ --snakefile stage_2
 ```
 
 and if the previous step ran without error then run the following:
 
 ```
-snakemake --profile config/slurm/ --snakefile stage_2
+snakemake --profile profile/slurm/ --snakefile stage_2
 ```
 
 ### Step 8 QC2
@@ -195,3 +203,4 @@ This stage has not yet been implemented and performs profile filtering based on 
 ## Addendum
 
 None
+

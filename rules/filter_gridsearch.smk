@@ -13,6 +13,6 @@ rule gridsearch_filter:
         cpus=20,
         mem_mb=32000,
         time_min=200
-    shell: 
-        "Rscript scripts/gridsearch_results_filtering.R {params.meta} {params.bin} {params.outdir} {params.project} {resources.cpus}"
+    script: 
+        "../scripts/gridsearch_results_filtering.R"
         

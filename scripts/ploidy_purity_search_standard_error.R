@@ -5,16 +5,20 @@
 #grab commandline arguments
 args = commandArgs(trailingOnly=TRUE)
 
-cores <- as.numeric(args[1])
-rds.filename <- args[2]
-bin <- as.numeric(args[3])
-out_dir <- args[4]
-project <- args[5]
-sample <- args[6]
+cores <- as.numeric(snakemake@resources[["cpus"]])
+rds.filename <- snakemake@input[[1]]
+bin <- as.numeric(snakemake@params[["bin"]])
+out_dir <- snakemake@params[["outdir"]]
+project <- snakemake@params[["project"]]
 
-if(is.null(out_dir)){
-  out_dir <- ""
-}
+#sample <- args[6]
+
+#cores <- as.numeric(args[1])
+#rds.filename <- args[2]
+#bin <- as.numeric(args[3])
+#out_dir <- args[4]
+#project <- args[5]
+#sample <- args[6]
 
 #load libraries
 suppressPackageStartupMessages(library(QDNAseqmod))
@@ -129,19 +133,19 @@ relcn <- relcn[to_use,] #
 copynumber<-assayDataElement(relcn,"copynumber")
 rel_ploidy<-mean(copynumber,na.rm=T)
 num_reads<-sum(copynumber,na.rm=T)
-#print(sample)
-#print(num_reads)
-   
-res<-foreach(i=1:length(ploidies),.combine=rbind)%do%
+sample <- sampleNames(relcn)
+print(sample)
+
+res<-foreach(i=1:length(ploidies),.combine=rbind) %do%
 {
         ploidy<-ploidies[i]
+        print(1)
         rowres<-foreach(j=1:length(purities),.combine=rbind)%do%
         {
             purity<-purities[j]
             downsample_depth<-(((2*(1-purity)+purity*ploidy)/(ploidy*purity))/purity)*15*(2*(1-purity)+purity*ploidy)*nbins_ref_genome*(1/0.91)
             cellploidy<-ploidy*purity+2*(1-purity)
             seqdepth<-rel_ploidy/cellploidy
-
             cn<-assayDataElement(relcn,"copynumber")
             seg<-assayDataElement(relcn,"segmented")
             cn<-as.numeric(cn[!is.na(cn),])
@@ -152,11 +156,11 @@ res<-foreach(i=1:length(ploidies),.combine=rbind)%do%
             TP53cn<-round(depthtocn(seg[73504],purity,seqdepth),1) # to 1 decimal place
             expected_TP53_AF<-TP53cn*purity/(TP53cn*purity+2*(1-purity))
             clonality<-mean(diffs)
-            c(ploidy,purity,clonality,downsample_depth,downsample_depth<rds.pdata$total.reads[row.names(rds.pdata)==sample],TP53cn,expected_TP53_AF)
+            c(ploidy,purity,clonality,downsample_depth,downsample_depth < rds.pdata$total.reads[row.names(rds.pdata)==sample],TP53cn,expected_TP53_AF)
         }
         rowres
 }
-    
+
 colnames(res)<-c("ploidy","purity","clonality","downsample_depth","powered","TP53cn","expected_TP53_AF")
 rownames(res)<-1:nrow(res)
 res<-data.frame(res,stringsAsFactors = F)
@@ -164,14 +168,10 @@ res<-data.frame(apply(res,2,as.numeric,stringsAsFactors=F))
 res<-res[order(res$clonality,decreasing=FALSE),]
 
 #output plot of clonality error landscape
-pdf(paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/",sample,"_clonality.pdf"))
+pdf(snakemake@output[["pdf"]])
 print(ggplot(res,aes(x=ploidy,y=purity,fill=clonality))+geom_tile()+
                scale_fill_gradient(low = "blue", high = "white",trans="log10")+
                theme_bw())
 dev.off()
-    
-    #write table of clonality scores
-    #print(paste0("Writing clonality table for sample: ",sample))
-write.table(res,paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/",project,"_",sample,"_clonality.csv"),sep="\t",quote=F,row.names=FALSE)
-#}
 
+write.table(res,snakemake@output[["csv"]],sep="\t",quote=F,row.names=FALSE)

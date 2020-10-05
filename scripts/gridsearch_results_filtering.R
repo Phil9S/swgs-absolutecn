@@ -7,17 +7,19 @@ suppressWarnings(library(foreach))
 ## Added by PS
 args = commandArgs(trailingOnly=TRUE)
 
-metadata <- read.table(args[1],sep="\t",header=T)
-bin <- as.numeric(args[2])
-out_dir <- args[3]
-project <- args[4]
-cores <- args[5]
-
+metafile <- snakemake@params[["meta"]]
+metadata <- read.table(file = metafile,header=T,sep="\t")
+bin <- as.numeric(snakemake@params[["bin"]])
+out_dir <- snakemake@params[["outdir"]]
+project <- snakemake@params[["project"]]
+cores <- as.numeric(snakemake@resources[["cpus"]])
 registerDoMC(cores)
+
 # read in relative CN data
 # collapse rds files function
-rds.filename <- list.files(pattern="*relSmoothedCN.rds",path=paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/relative_cn_rds/"))
-rds.list <- lapply(rds.filename,FUN=function(x){readRDS(paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/relative_cn_rds/",x))})
+rds.filename <- snakemake@input[["rds"]]
+
+rds.list <- lapply(rds.filename,FUN=function(x){readRDS(x)})
 
 collapse_rds <- function(rds.list){
   comb <- rds.list[[1]][[1]]
@@ -34,13 +36,13 @@ collapse_rds <- function(rds.list){
 relative_smoothed <- collapse_rds(rds.list)
 saveRDS(relative_smoothed,paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/",project,"_",bin,"kb_relSmoothedCN.rds"))
 
-#relative_smoothed <- readRDS(rds.filename)
-filelist <- list.files(pattern="*clonality.csv",path=paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/"))
+filelist <- snakemake@input[["cl"]]
 clonality <- do.call(rbind,
 			lapply(filelist,FUN = function(x){
 				n <- gsub(pattern="_clonality.csv",rep="",x=x)
-        n <- gsub(pattern=paste0(project,"_"),rep="",x=n)
-				tab <- read.table(paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/",x),sep="\t",skip=1)
+        prefix <- paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/",project,"_")
+        n <- gsub(pattern=prefix,rep="",x=n)
+				tab <- read.table(x,sep="\t",skip=1)
 				tab <- cbind(rep(n,times=nrow(tab)),tab)
 				return(tab)
 			}))
@@ -84,6 +86,14 @@ pruned_results <- filtered_results %>%
 
 pruned_results$use <- rep(NA,times=nrow(pruned_results))
 pruned_results$notes <- rep(NA,times=nrow(pruned_results))
+
+write.table(filtered_results,
+  paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/",project,"_filtered_results.tsv"),
+  sep="\t",col.names=T,row.names=F,quote=F)
+
+write.table(pruned_results,
+  paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/",project,"_fit_QC_predownsample.tsv"),
+  sep="\t",col.names=T,row.names=F,quote=F)
 
 ## ADDED by PS - adding output folder for results
 if(!dir.exists(paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/plots"))){
@@ -144,8 +154,3 @@ foreach(i=unique(pruned_results$SAMPLE_ID)) %dopar% {
   }
   dev.off()
 }
-
-write.table(filtered_results,
-  paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/",project,"_filtered_results.tsv"),sep="\t",col.names=T,row.names=F,quote=F)
-write.table(pruned_results,
-  paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/",project,"_fit_QC_predownsample.tsv"),sep="\t",col.names=T,row.names=F,quote=F)

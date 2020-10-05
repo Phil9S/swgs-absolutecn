@@ -1,5 +1,4 @@
 # Clean env
-rm(list = ls())
 args = commandArgs(trailingOnly=TRUE)
 
 #load libraries
@@ -10,18 +9,17 @@ library(stringr)
 suppressWarnings(library(doMC))
 suppressWarnings(library(foreach))
 
-qc.data <- read.table(args[1],header = T,sep = "\t")
-output_dir <- args[2]
-bin <- as.numeric(args[3])
-project <- args[4]
-cores <- args[5]
-
+qc.data <- read.table(snakemake@input[["meta"]],header = T,sep = "\t")
+output_dir <- snakemake@params[["outdir"]]
+bin <- as.numeric(snakemake@params[["bin"]])
+project <- snakemake@params[["project"]]
+cores <- as.numeric(snakemake@resources[["cpus"]])
 registerDoMC(cores)
 
 qc.data <- qc.data[qc.data$use == "TRUE",]
 
-rds.filename <- list.files(pattern="*relSmoothedCN.rds",path=paste0(output_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_POST_down_sampling/relative_cn_rds/"))
-rds.list <- lapply(rds.filename,FUN=function(x){readRDS(paste0(output_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_POST_down_sampling/relative_cn_rds/",x))})
+rds.filename <- snakemake@input[["rds"]]
+rds.list <- lapply(rds.filename,FUN=function(x){readRDS(x)})
 
 collapse_rds <- function(rds.list){
   comb <- rds.list[[1]][[1]]

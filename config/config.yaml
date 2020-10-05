@@ -4,13 +4,13 @@
 # one row per sample. It can be parsed easily via pandas.
 
 # Sample sheet
-samplesheet: "sample_sheet.tsv"
+samplesheet: "sample_sheet_short.tsv"
 
 # Output location
 out_dir: "/mnt/scratcha/fmlab/smith10/"
 
 # Bin sizes
-bins: 30
+bins: [30]
 
 # Project name
 project_name: "britroc"
