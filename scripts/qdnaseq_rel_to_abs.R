@@ -50,10 +50,15 @@ depthtocn<-function(x,purity,seqdepth) #converts readdepth to copy number given 
 samples <- qc.data[which(qc.data$SAMPLE_ID %in% colnames(rds.rel)),]
 
 # Add pheno information
-pData(rds.rel)$purity <- samples$purity[match(samples$SAMPLE_ID,pData(rds.rel)$name)]
-pData(rds.rel)$ploidy <- samples$ploidy[match(samples$SAMPLE_ID,pData(rds.rel)$name)]
-pData(rds.rel)$TP53freq <- samples$TP53freq[match(samples$SAMPLE_ID,pData(rds.rel)$name)]
-pData(rds.rel)$PATIENT_ID <- samples$PATIENT_ID[match(samples$SAMPLE_ID,pData(rds.rel)$name)]
+pData(rds.rel)$purity <- samples$purity[match(pData(rds.rel)$name,samples$SAMPLE_ID)]
+pData(rds.rel)$ploidy <- samples$ploidy[match(pData(rds.rel)$name,samples$SAMPLE_ID)]
+pData(rds.rel)$TP53freq <- samples$TP53freq[match(pData(rds.rel)$name,samples$SAMPLE_ID)]
+pData(rds.rel)$PATIENT_ID <- samples$PATIENT_ID[match(pData(rds.rel)$name,samples$SAMPLE_ID)]
+
+#pData(rds.rel)$purity <- samples$purity[match(samples$SAMPLE_ID,pData(rds.rel)$name)]
+#pData(rds.rel)$ploidy <- samples$ploidy[match(samples$SAMPLE_ID,pData(rds.rel)$name)]
+#pData(rds.rel)$TP53freq <- samples$TP53freq[match(samples$SAMPLE_ID,pData(rds.rel)$name)]
+#pData(rds.rel)$PATIENT_ID <- samples$PATIENT_ID[match(samples$SAMPLE_ID,pData(rds.rel)$name)]
 
 # Generate abs plot and table of fits
 res <- data.frame(matrix(ncol = 9, nrow = 0))

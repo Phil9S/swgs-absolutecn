@@ -1,16 +1,19 @@
 ---
-# This file should contain everything to configure the workflow on a global scale.
-# In case of sample based data, it should be complemented by a samples.tsv file that contains
-# one row per sample. It can be parsed easily via pandas.
-
 # Sample sheet
-samplesheet: "sample_sheet_short.tsv"
+samplesheet: "sample_sheet.tsv"
 
 # Output location
 out_dir: "/mnt/scratcha/fmlab/smith10/"
 
 # Bin sizes
-bins: [30]
+# By default any in [1,5,15,30,50,100,500,1000]
+bins: [30,50]
 
 # Project name
 project_name: "britroc"
+
+# Pipeline parameters
+af_cutoff: 0.15
+custom_bin: False
+custom_bin_folder: "/custom_bin_data/"
+

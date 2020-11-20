@@ -11,14 +11,6 @@ project <- snakemake@params[["project"]]
 outname <- snakemake@output[[1]]
 sample_name <- snakemake@params[["sample"]]
 
-#bam_in <- as.character(args[1])
-#sample_name <- as.character(args[2])
-#meta <- as.character(args[3])
-#rds <- as.character(args[4])
-#outdir <- args[5]
-#bin <- as.numeric(args[6])
-#project <- args[7]
-
 fit.qc <- read.table(file = meta,header = T,sep = "\t",na.strings = "")
 
 relative_smoothed <- readRDS(rds)

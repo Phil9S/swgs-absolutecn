@@ -9,6 +9,7 @@ rule gridsearch_filter:
         meta=config["samplesheet"],
         project="{project}",
         outdir=OUT_DIR,
+        af_cutoff=config["af_cutoff"]
     resources:
         cpus=20,
         mem_mb=32000,

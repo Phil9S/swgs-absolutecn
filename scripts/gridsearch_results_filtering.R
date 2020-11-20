@@ -12,6 +12,7 @@ metadata <- read.table(file = metafile,header=T,sep="\t")
 bin <- as.numeric(snakemake@params[["bin"]])
 out_dir <- snakemake@params[["outdir"]]
 project <- snakemake@params[["project"]]
+af_cutoff <- as.numeric(snakemake@params[["af_cutoff"]])
 cores <- as.numeric(snakemake@resources[["cpus"]])
 registerDoMC(cores)
 
@@ -69,7 +70,7 @@ filtered_results <- clonality %>%
   top_n(-10, wt = clonality) %>% # select top 10 ploidy states with the lowest clonality values
   mutate(rank_clonality = min_rank(clonality)) %>% # rank by clonality within a sample across ploidies in top 10
  # retain samples without TP53 mutations and where expected and observed TP53freq <=0.15
-  filter(is.na(TP53freq) | near(expected_TP53_AF,TP53freq, tol = 0.15 )) %>%  
+  filter(is.na(TP53freq) | near(expected_TP53_AF,TP53freq, tol = af_cutoff )) %>%  
   arrange(PATIENT_ID, SAMPLE_ID )
 
 #Further limit the results by selecting the ploidy states with the lowest clonality values where multiple similar solutions are present.

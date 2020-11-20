@@ -15,5 +15,5 @@ validate(config, schema="../schemas/config.schema.yaml")
 OUT_DIR=config["out_dir"]
 
 #Load sample sheet and set index
-samplesheet = pd.read_table(config["samplesheet"],dtype={'PATIENT_ID': str,'SAMPLE_ID':str}).set_index(["SAMPLE_ID"], drop=False)
+samplesheet = pd.read_table(config["samplesheet"],dtype={'PATIENT_ID': str,'SAMPLE_ID':str,'TP53freq':float}).set_index(["SAMPLE_ID"], drop=False)
 validate(samplesheet, schema="../schemas/samples.schema.yaml")

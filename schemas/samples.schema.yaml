@@ -11,9 +11,9 @@ properties:
     type: string
     uniqueItems: true
   TP53freq: 
-    type: number 
+    type: number
+    minimum: 0
     maximum: 1.0
-    minimum: 0 
     description: "Experimental anchoring allele frequency for each sample"
   file: 
     description: "Path for each samples bam file"
@@ -21,9 +21,9 @@ properties:
   smooth: 
     description: "True or fale boolean as to apply segment smoothing or not"
     type: boolean
+
 required: 
   - SAMPLE_ID
   - PATIENT_ID
   - smooth
   - file
-

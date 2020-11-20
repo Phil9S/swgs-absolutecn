@@ -8,7 +8,21 @@ type: object
 properties:
   samples:
     type: string
+  out_dir:
+    type: string
+  bins:
+    type: array
+  project_name:
+    type: string
+  af_cutoff:
+    type: number
+    min: 0
+    max: 1.0
 
 # entries that have to be in the config file for successful validation
 required:
-  - samplesheet 
+  - samplesheet
+  - out_dir
+  - bins
+  - project_name
+
