@@ -122,7 +122,7 @@ The profile configs (cluster_config.yaml & config.yaml) (`profile/*/*`) contains
 
 #### Workflow management
 
-This pipeline was primarily developed using the [SLURM][https://slurm.schedmd.com/documentation.html] work load manager for job submission by snakemake. For individuals running on non-workload managed clusters, or utilising other workload managers, profiles are provided to allow for job submission with minimal configuration. Currently supported profiles are `local`, `slurm`, and `pbs`. These can be edited via the script described in the next section.
+This pipeline was primarily developed using the [SLURM](https://slurm.schedmd.com/documentation.html) work load manager for job submission by snakemake. For individuals running on non-workload managed clusters, or utilising other workload managers, profiles are provided to allow for job submission with minimal configuration. Currently supported profiles are `local`, `slurm`, and `pbs`. These can be edited via the script described in the next section.
 
 #### Updating the pipeline configuration
 
