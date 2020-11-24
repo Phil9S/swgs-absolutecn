@@ -118,21 +118,27 @@ The config.yaml (`config/config.yaml`) contains the necessary information for th
 
 #### profile config.yaml
 
-The profile config.yaml (`profile/*/config.yaml`) contains the necessary information to configure the job submission parameters passed to a given workload manager (or lack thereof). This includes the number of concurrently sumbitted jobs, account/project name, partition/queue name, and default job resources (though these are low and should work on almost any cluster).
+The profile configs (cluster_config.yaml & config.yaml) (`profile/*/*`) contains the necessary information to configure the job submission parameters passed to a given workload manager (or lack thereof). This includes the number of concurrently sumbitted jobs, account/project name, partition/queue name, and default job resources (though these are low and should work on almost any cluster).
 
 #### Workflow management
 
-This pipeline was primarily developed using the [SLURM][https://slurm.schedmd.com/documentation.html] work load manager for job submission by snakemake. For individuals running on non-workload managed clusters or utilising other workload managers, such as [LSF](https://www.ibm.com/uk-en/marketplace/hpc-workload-management) or [pbs-torque](), a different profile config.yaml will need to be updated and provided to the pipeline. Currently supported profiles are `local`, `slurm`, and `pbs`. These can be edited via the script described in the next section.
-
+This pipeline was primarily developed using the [SLURM][https://slurm.schedmd.com/documentation.html] work load manager for job submission by snakemake. For individuals running on non-workload managed clusters, or utilising other workload managers, profiles are provided to allow for job submission with minimal configuration. Currently supported profiles are `local`, `slurm`, and `pbs`. These can be edited via the script described in the next section.
 
 #### Updating the pipeline configuration
 
 Environment-specific and pipeline-specific parameters need to be set for each run of this pipeline. While it is possible to manually edit the YAML files, a script has been provided to update the most frequently altered parameters programmatically. The script will iteratively list the parameter and its current value, asking for a user submitted new value should it be needed. If the value is already acceptable or does not need to be changed then an empty value (enter return without typing) will keep the current setting.
 
-With the `swgs-abscn` conda environment active, run the following code:
+With the `swgs-abscn` conda environment active, run one of the following code for the profile you wish to update (typically both the pipeline configuration and one cluster configuration):
 
 ```
-python update_configs.py
+# Pipeline configuration
+python update_configs.py -c config
+# Slurm configuration
+python update_configs.py -c slurm
+# PBS-torque configuration
+python update_configs.py -c pbs
+# Local/non-managed configuration
+python update_configs.py -c local
 ```
 
 ## Running the pipeline
@@ -145,16 +151,17 @@ With the `swgs-abscn` conda environment active, run the following:
 
 Confirm the pipeline is configured correctly, run the first stage using the `dry-run` mode.
 
-#### For SLURM users
 ```
-snakemake -n --profile profile/slurm/ --snakefile stage_1
+snakemake -n --profile profile/*/ --snakefile stage_1
 ```
 
 If the previous step ran without error then run the following:
 
 ```
-snakemake --profile profile/slurm/ --snakefile stage_1
+snakemake --profile profile/*/ --snakefile stage_1
 ```
+
+Where * is replaced with the profile matching your cluster/server configuration. 
 
 ### Step 6 QC1
 
@@ -165,8 +172,10 @@ At the conclusion of stage 1, files and fits will be generated for all samples p
 Prior to fit selection, a subset of samples will likely require smoothing of segments in order to be viable. Read the guide provided here to select and update which samples require smoothing [here](resources/smoothing_guide.md). Once the `samplesheet.tsv` has been updated with the new `smooth` values, rerun stage 1 using the following:
 
 ```
-snakemake --profile profile/slurm/ -F all --snakefile stage_1
+snakemake --profile profile/*/ -F all --snakefile stage_1
 ```
+
+Where * is replaced with the profile matching your cluster/server configuration.
 
 #### Fit selection
 
@@ -181,14 +190,16 @@ Provided quality control and fit selection was performed correctly, stage 2 of t
 As before, confirm the pipeline is configured correctly by running with the `dry-run` mode.
 
 ```
-snakemake -n --profile profile/slurm/ --snakefile stage_2
+snakemake -n --profile profile/*/ --snakefile stage_2
 ```
 
 and if the previous step ran without error then run the following:
 
 ```
-snakemake --profile profile/slurm/ --snakefile stage_2
+snakemake --profile profile/*/ --snakefile stage_2
 ```
+
+Where * is replaced with the profile matching your cluster/server configuration.
 
 ### Step 8 QC2
 
