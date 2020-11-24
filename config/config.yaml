@@ -7,13 +7,13 @@ out_dir: "/mnt/scratcha/fmlab/smith10/"
 
 # Bin sizes
 # By default any in [1,5,15,30,50,100,500,1000]
-bins: [30,50]
-
-# Project name
+bins:
+- 30
 project_name: "britroc"
 
 # Pipeline parameters
 af_cutoff: 0.15
-custom_bin: False
-custom_bin_folder: "/custom_bin_data/"
 
+# Not implemented
+#custom_bin: false
+#custom_bin_folder: "/custom_bin_data/"

@@ -1,4 +1,6 @@
 ---
 jobs: 200
-cluster: "sbatch -A fmlab -p general -t {resources.time_min} --mem={resources.mem_mb} -c {resources.cpus} -o logs/{rule}_{wildcards} -e logs/{rule}_{wildcards}"
-default-resources: [cpus=1, mem_mb=2000, time_min=60]
+jobscript: slurm-jobscript.sh
+cluster: slurm-submit.py
+local-cores: 1
+latency-wait: 60

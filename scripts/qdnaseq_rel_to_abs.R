@@ -13,7 +13,7 @@ qc.data <- read.table(snakemake@input[["meta"]],header = T,sep = "\t")
 output_dir <- snakemake@params[["outdir"]]
 bin <- as.numeric(snakemake@params[["bin"]])
 project <- snakemake@params[["project"]]
-cores <- as.numeric(snakemake@resources[["cpus"]])
+cores <- as.numeric(snakemake@threads)
 registerDoMC(cores)
 
 qc.data <- qc.data[qc.data$use == "TRUE",]

@@ -7,13 +7,15 @@ suppressWarnings(library(foreach))
 ## Added by PS
 args = commandArgs(trailingOnly=TRUE)
 
+print(snakemake)
+
 metafile <- snakemake@params[["meta"]]
 metadata <- read.table(file = metafile,header=T,sep="\t")
 bin <- as.numeric(snakemake@params[["bin"]])
 out_dir <- snakemake@params[["outdir"]]
 project <- snakemake@params[["project"]]
 af_cutoff <- as.numeric(snakemake@params[["af_cutoff"]])
-cores <- as.numeric(snakemake@resources[["cpus"]])
+cores <- as.numeric(snakemake@threads)
 registerDoMC(cores)
 
 # read in relative CN data

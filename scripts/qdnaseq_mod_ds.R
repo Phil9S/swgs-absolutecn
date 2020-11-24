@@ -2,7 +2,8 @@
 args = commandArgs(trailingOnly=TRUE)
 
 bin.size <- as.numeric(snakemake@params[["bin"]])
-ncores <- as.numeric(snakemake@resources[["cpus"]])
+#ncores <- as.numeric(snakemake@resources[["cpus"]])
+ncores <- 1
 output_dir <- snakemake@params[["outdir"]]
 project <- snakemake@params[["project"]]
 metafile <- snakemake@input[["meta"]]

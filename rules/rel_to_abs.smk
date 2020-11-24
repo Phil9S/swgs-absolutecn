@@ -9,10 +9,7 @@ rule rel_to_abs:
         outdir=OUT_DIR,
         project="{project}",
         bin="{bin}"
-    resources:
-        cpus=20,
-        mem_mb=32000,
-        time_min=200
+    threads: THREADS 
     script:
         "../scripts/qdnaseq_rel_to_abs.R"
 

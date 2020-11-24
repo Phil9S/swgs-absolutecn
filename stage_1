@@ -1,5 +1,4 @@
 # The main entry point of your workflow.
-
 include: "rules/common.smk"
 
 def get_bam(wildcards):

@@ -6,7 +6,6 @@ def get_ds_bams(P,B):
     d = {}
     for b in B:
         fl = OUT_DIR+"sWGS_fitting/"+P+"_"+str(b)+"kb/absolute_PRE_down_sampling/"+P+"_fit_QC_predownsample.tsv"
-        print(fl)
         if os.path.isfile(fl):
             f = pd.read_table(fl).set_index(["SAMPLE_ID"], drop=False)
             if f["use"].dtype == bool and all(~f.use.isnull()):

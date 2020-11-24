@@ -2,22 +2,14 @@
 args = commandArgs(trailingOnly=TRUE)
 
 bin.size <- as.numeric(snakemake@params[["bin"]])
-ncores <- as.numeric(snakemake@resources[["cpus"]])
+#ncores <- as.numeric(snakemake@resources[["cpus"]])
+ncores <- 1
 output_dir <- snakemake@params[["outdir"]]
 project <- snakemake@params[["project"]]
 metafile <- snakemake@params[["meta"]]
 metadata <- read.table(file = metafile,header=T,sep="\t")
 bam_list <- snakemake@input[["bams"]]
 outname <- snakemake@output[[1]]
-
-#bin.size <- as.numeric(args[1])
-#ncores <- as.numeric(args[2])
-#output_dir <- args[3]
-#project <- args[4]
-#metafile <- args[5]
-#metadata <- read.table(file = metafile,header=T,sep="\t")
-#bam_list <- args[6]
-#sample_name <- args[7]
 
 suppressMessages(library(parallel))
 suppressMessages(library(tidyverse))
@@ -45,9 +37,7 @@ readCountsFiltered <- mclapply(X=readCountsFiltered, FUN=estimateCorrection, mc.
 copyNumbers <- mclapply(X=readCountsFiltered, FUN=correctBins, mc.cores=1)
 
 # bring back to readcount space 
-#for (i in 1:length(copyNumbers)){
 assayDataElement(copyNumbers[[1]],"copynumber") <- assayDataElement(copyNumbers[[1]],"copynumber") * median(assayDataElement(readCountsFiltered[[1]], "fit"), na.rm=T)
-#}
 
 # smooth outliers (Data is now ready to be analyzed with a downstream package of choice (exportBins))
 copyNumbersSmooth <- mclapply(X=copyNumbers, FUN=smoothOutlierBins, mc.cores=1)

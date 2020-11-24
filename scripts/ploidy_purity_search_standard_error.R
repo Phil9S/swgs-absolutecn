@@ -4,21 +4,10 @@
 
 #grab commandline arguments
 args = commandArgs(trailingOnly=TRUE)
-
-cores <- as.numeric(snakemake@resources[["cpus"]])
 rds.filename <- snakemake@input[[1]]
 bin <- as.numeric(snakemake@params[["bin"]])
 out_dir <- snakemake@params[["outdir"]]
 project <- snakemake@params[["project"]]
-
-#sample <- args[6]
-
-#cores <- as.numeric(args[1])
-#rds.filename <- args[2]
-#bin <- as.numeric(args[3])
-#out_dir <- args[4]
-#project <- args[5]
-#sample <- args[6]
 
 #load libraries
 suppressPackageStartupMessages(library(QDNAseqmod))
@@ -119,8 +108,6 @@ cntodepth<-function(cn,purity,seqdepth) #converts copy number to read depth give
 }
 
 #estimate absolute copy number fits for all samples in parallel
-#foreach(sample=row.names(rds.pdata))%dopar%
-#{
 ploidies<-seq(1.6,8,0.1)
 purities<-seq(0.05,1,0.01)
 clonality<-c()

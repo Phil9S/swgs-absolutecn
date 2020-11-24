@@ -10,10 +10,7 @@ rule gridsearch_filter:
         project="{project}",
         outdir=OUT_DIR,
         af_cutoff=config["af_cutoff"]
-    resources:
-        cpus=20,
-        mem_mb=32000,
-        time_min=200
+    threads: THREADS 
     script: 
         "../scripts/gridsearch_results_filtering.R"
         
