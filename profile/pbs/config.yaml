@@ -1,0 +1,6 @@
+---
+jobs: 200
+jobscript: pbs-jobscript.sh
+cluster: pbs-submit.py
+local-cores: 1
+latency-wait: 60

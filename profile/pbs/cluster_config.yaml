@@ -1,0 +1,15 @@
+---
+# Default job submissions
+__default__:
+  #q: general # partition
+  A: fmlab   # hpc account
+  l: nodes=1:ppn=1,wallclock=01:00:00,mem=2gb
+  o: logs/{rule}_{wildcards}.log   # output log
+  e: logs/{rule}_{wildcards}.err   # error log
+
+# High resource job submissions
+gridsearch_filter:
+  l: nodes=1:ppn=20,wallclock=03:00:00,mem=32gb
+
+rel_to_abs:
+  l: nodes=1:ppn=20,wallclock=03:00:00,mem=32gb

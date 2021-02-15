@@ -1,0 +1,27 @@
+---
+# Default job submissions
+__default__:
+  account: fmlab # hpc account
+  partition: general # slurm partition
+  time: 60   # time mins
+  nodes: 1   # nodes to use
+  cpus-per-task: 1   # ncpus
+  ntasks: 1   # num of tasks
+  mem: 2000   # memory MB
+  output: logs/{rule}_{wildcards}.log # output log
+  error: logs/{rule}_{wildcards}.err # error log
+
+# High resource job submissions
+gridsearch_filter:
+  time: 180
+  mem: 32000
+  nodes: 1
+  ntasks: 1
+  cpus-per-task: 20
+
+rel_to_abs:
+  time: 180
+  mem: 32000
+  nodes: 1
+  ntasks: 1
+  cpus-per-task: 20

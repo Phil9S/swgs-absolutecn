@@ -8,6 +8,7 @@ rds.filename <- snakemake@input[[1]]
 bin <- as.numeric(snakemake@params[["bin"]])
 out_dir <- snakemake@params[["outdir"]]
 project <- snakemake@params[["project"]]
+cores <- as.numeric(snakemake@threads) 
 
 #load libraries
 suppressPackageStartupMessages(library(QDNAseqmod))
@@ -106,6 +107,33 @@ cntodepth<-function(cn,purity,seqdepth) #converts copy number to read depth give
 {
     seqdepth*((1-purity)*2+purity*cn)
 }
+## TP53 target bin
+target <- c("17:7565097-7590863")
+get_gene_seg <- function(target=NULL,abs_data=NULL){
+  to_use <- fData(abs_data)$use
+  cn_obj <- abs_data[to_use,]
+  bin_pos <- fData(cn_obj)[,c("chromosome","start","end")]
+  chr <- as.numeric(str_split(string = target,pattern = ":",simplify = T)[1])
+  start <- as.numeric(str_split(string = target,pattern = ":|-",simplify = T)[2])
+  end <- as.numeric(str_split(string = target,pattern = ":|-",simplify = T)[3])
+  
+  gene_chr_pos <- bin_pos[bin_pos$chromosome == chr,]
+  min_start <- min(which(min(abs(gene_chr_pos$start - start)) == abs(gene_chr_pos$start - start)))
+  min_end <- max(which(min(abs(gene_chr_pos$end - end)) == abs(gene_chr_pos$end - end)))
+  if(gene_chr_pos$start[min_start] > start & min_start != 1){
+    min_start <- min_start - 1
+  }
+  if(gene_chr_pos$end[min_end] < end & min_end != length(gene_chr_pos$end)){
+    min_end <- min_end + 1
+  }
+  index_min <- which(bin_pos$chromosome == chr & bin_pos$start == gene_chr_pos[min_start,2])
+  index_max <- which(bin_pos$chromosome == chr & bin_pos$end == gene_chr_pos[min_end,3])
+  gene_pos <- seq.int(index_min,index_max,1)
+  return(gene_pos)
+}
+
+#Get target anchor gene segments
+gene_bin_seg <- get_gene_seg(target = target,abs_data = rds.obj[[1]])
 
 #estimate absolute copy number fits for all samples in parallel
 ploidies<-seq(1.6,8,0.1)
@@ -140,7 +168,7 @@ res<-foreach(i=1:length(ploidies),.combine=rbind) %do%
             integer_cn<-round(depthtocn(seg,purity,seqdepth))
             abs_cn<-depthtocn(seg,purity,seqdepth)
             diffs<-abs(abs_cn-integer_cn)
-            TP53cn<-round(depthtocn(seg[73504],purity,seqdepth),1) # to 1 decimal place
+            TP53cn<-round(depthtocn(median(seg[gene_bin_seg]),purity,seqdepth),1) # to 1 decimal place
             expected_TP53_AF<-TP53cn*purity/(TP53cn*purity+2*(1-purity))
             clonality<-mean(diffs)
             c(ploidy,purity,clonality,downsample_depth,downsample_depth < rds.pdata$total.reads[row.names(rds.pdata)==sample],TP53cn,expected_TP53_AF)
