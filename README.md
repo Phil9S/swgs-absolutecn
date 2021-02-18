@@ -36,6 +36,13 @@ Generate absolute copy number profiles from shallow whole genome sequencing data
   + [Step 9 Stage 3 - Cohort-level filtering](#step-9-stage-3---cohort-level-filtering)
 * [Addendum](#addendum)
 
+## Compatibility
+
+### Reference genome
+
+This pipeline is currently only compatible with BAM files aligned with `hg19` or `GRCh37` genomes.
+There are no checks in place for using the correct genome and results will be likely be extremely poor or incorrect if done using an unsupported reference genome.
+
 ## Pipeline setup
 
 ### Step 1 Clone the repo
