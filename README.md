@@ -10,7 +10,7 @@
 
 ## Description
 
-*summary*
+*Summary*
 
 Generate absolute copy number profiles from shallow whole genome sequencing data using a read depth normalised and allele frequency-anchored approach.
 
