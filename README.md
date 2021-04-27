@@ -1,4 +1,4 @@
-# sWGS-absoluteCN pipeline
+# swgs-absolutecn pipeline
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥5.10.0-brightgreen.svg)](https://snakemake.bitbucket.io)
 
@@ -62,8 +62,8 @@ There are no checks in place for using the correct genome and results will be li
 [Clone](https://help.github.com/en/articles/cloning-a-repository) this repository to your local system.
 
 ```
-git clone https://github.com/Phil9S/sWGS-absoluteCN.git
-cd sWGS-absoluteCN/
+git clone https://github.com/Phil9S/swgs-absolutecn.git
+cd swgs-absolutecn/
 ```
 
 ### Step 2 Install conda
