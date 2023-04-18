@@ -2,12 +2,6 @@
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥5.10.0-brightgreen.svg)](https://snakemake.bitbucket.io)
 
-**READ - This repository contains unpublished methodologies and should only be shared with relevant parties (those involved with the BriTROC study). Please do not distribute or share this repository with external users or individuals with no connection to associated publications.**
-
-## Authors
-
-* Philip Smith (@phil9s)
-
 ## Description
 
 *Summary*
@@ -233,4 +227,8 @@ This stage has not yet been implemented and performs profile filtering based on 
 ## Addendum
 
 None
+
+## Authors
+
+* Philip Smith (@phil9s)
 
