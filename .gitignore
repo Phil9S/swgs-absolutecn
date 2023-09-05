@@ -1,3 +1,3 @@
 logs/*
 .snakemake/
-
+profile/slurm/__pycache__/

@@ -55,6 +55,7 @@ validate(config, schema="../schemas/config.schema.yaml")
 
 #Predefine output folders
 OUT_DIR=config["out_dir"]
+OUT_DIR=os.path.join(OUT_DIR,"")
 
 #Load sample sheet and set index
 samplesheet = pd.read_table(config["samplesheet"],dtype={'PATIENT_ID': str,'SAMPLE_ID':str,'TP53freq':float}).set_index(["SAMPLE_ID"], drop=False)
