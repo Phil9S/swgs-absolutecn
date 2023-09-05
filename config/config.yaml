@@ -3,12 +3,12 @@
 samplesheet: "sample_sheet.tsv"
 
 # Output location
-out_dir: "/mnt/scratcha/fmlab/smith10/"
+out_dir: "/mnt/scratcha/fmlab/smith10/britroc/"
 
 # Bin sizes
 # By default any in [1,5,15,30,50,100,500,1000]
 bins:
-- 100
+- 30
 project_name: "britroc"
 
 # Pipeline parameters

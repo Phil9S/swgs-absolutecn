@@ -1,5 +1,5 @@
 ---
-jobs: 200
+jobs: 100
 jobscript: slurm-jobscript.sh
 cluster: slurm-submit.py
 local-cores: 1
