@@ -89,4 +89,9 @@ smooth_samples <- function(obj){
 
 copyNumbersSegmentedSmooth <- mclapply(X=copyNumbersSegmented, FUN=smooth_samples, mc.cores=ncores)
 
+if(is.na(pData(object=copyNumbersSegmentedSmooth[[1]])$loess.span)){
+        stop(paste0(sampleNames(copyNumbersSegmented)," BAM failed loess fitting. Remove this file from sample sheet"))
+}
+
+
 saveRDS(copyNumbersSegmentedSmooth,outname)
