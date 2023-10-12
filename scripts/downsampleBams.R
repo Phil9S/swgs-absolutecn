@@ -20,7 +20,7 @@ fit.qc.filt <- fit.qc %>%
   filter(use == TRUE)
 
 fit.qc.filt$total.reads <- read.data$total.reads[match(x = fit.qc.filt$SAMPLE_ID,read.data$name)]
-fit.qc.filt$ratio <- round(fit.qc.filt$downsample_depth / fit.qc.filt$total.reads,digits = 2)
+fit.qc.filt$ratio <- round(fit.qc.filt$downsample_depth / fit.qc.filt$total.reads,digits = 3)
 
 perc <- fit.qc.filt %>%
    filter(SAMPLE_ID == sample_name) %>%
