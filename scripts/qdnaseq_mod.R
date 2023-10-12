@@ -23,7 +23,7 @@ bins <- getBinAnnotations(binSize=bin.size)
 # Samples to smooth
 smoothed_samples <- as.character(metadata$SAMPLE_ID[metadata$smooth == "TRUE"])
 
-readCounts <- mclapply(X=bam_list, FUN=binReadCounts, bins=bins, mc.cores=ncores)
+readCounts <- mclapply(X=bam_list, FUN=binReadCounts, bins=bins, mc.cores=ncores,chunkSize=1e7)
 
 ## if copyNumbersSegment file exists read it else generate it
 # apply filter based on loess fit residuals and encode/1000-genome balcklist
