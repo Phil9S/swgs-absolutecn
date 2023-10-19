@@ -86,7 +86,8 @@ elif [ $1 == "conda" ]; then
     conda activate swgs-abscn
 
 else
-    echo -e "[${script}] Error - neither mamba or conda specified\n"
+    echo -e "[${script}] Error - neither mamba or conda specified"
+    exit 1
 fi
 
 echo -e "[${script}] Installing modified QDNAseq package"
