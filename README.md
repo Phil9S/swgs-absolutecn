@@ -39,8 +39,6 @@ Samples passing all filtering criteria then undergo read downsampling to the spe
     - [Fit selection](#fit-selection)
   + [Step 7 Stage 2](#step-7-stage-2)
   + [Step 8 QC2](#step-8-qc2)
-  + [Step 9 Stage 3 - Cohort-level filtering](#step-9-stage-3---cohort-level-filtering)
-* [Addendum](#addendum)
 
 ## Compatibility
 
