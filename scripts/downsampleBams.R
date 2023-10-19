@@ -35,5 +35,7 @@ if( perc <= 0.96){
     
  }else{
   cmd.copy <- paste0("cp ",bam_in," ",outname)
+  cmd.index <- paste0("samtools index ",outname)
   system(cmd.copy)
+  system(cmd.index)
  }
