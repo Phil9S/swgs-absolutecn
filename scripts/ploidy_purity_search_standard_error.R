@@ -154,7 +154,7 @@ print(sample)
 res<-foreach(i=1:length(ploidies),.combine=rbind) %do%
 {
         ploidy<-ploidies[i]
-        print(1)
+        #print(ploidy)
         rowres<-foreach(j=1:length(purities),.combine=rbind)%do%
         {
             purity<-purities[j]
