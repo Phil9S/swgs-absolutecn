@@ -23,8 +23,7 @@ Samples passing all filtering criteria then undergo read downsampling to the spe
 * [Pipeline setup](#pipeline-setup)
   + [Step 1 Clone the repo](#step-1-clone-the-repo)
   + [Step 2 Install conda](#step-2-install-conda)
-    - [For those with Conda already installed](#for-those-with-conda-already-installed)
-  + [Step 3 Installing additional dependencies](#step-3-installing-additional-dependencies)
+  + [Step 3 Installing environment](#step-3-installing-environment)
   + [Step 4 Preparing the input files](#step-4-preparing-the-input-files)
     - [Sample sheet](#sample-sheet)
     - [config.yaml](#configyaml)
@@ -65,7 +64,7 @@ Our recommendation is to use micromamba or, ideally, the installed conda version
 
 See installing [micromamba](https://mamba.readthedocs.io/en/latest/user_guide/micromamba.html) or [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) for more information.
 
-### Step 3 Installing environment & additional dependencies
+### Step 3 Installing environment
 
 From within the repository directory, run the `install_env.sh` script to generate a conda environment and install custom packages:
 
@@ -203,5 +202,5 @@ To confirm the quality of newly generated downsampled absolute copy number profi
 
 ## Citation
 
-Please cite this pipeline using the following zenodo repository `10.5281/zenodo.10040893`
+Please cite this pipeline using the publication ["The copy-number landscape of recurrent ovarian high grade serous carcinoma"](https://doi.org/10.1038/s41467-023-39867-7) Smith & Bradley et al. 2023 - _Nature Communications_ and/or the version controlled zenodo repository [10.5281/zenodo.10040893](https://zenodo.org/doi/10.5281/zenodo.10040893).
 
