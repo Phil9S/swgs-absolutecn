@@ -1,6 +1,6 @@
 # swgs-absolutecn pipeline
 
-[![Snakemake](https://img.shields.io/badge/snakemake-≥5.10.0-brightgreen.svg)](https://snakemake.bitbucket.io)
+[![Snakemake](https://img.shields.io/badge/snakemake-≥5.10.0-brightgreen.svg)](https://snakemake.bitbucket.io) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10040893.svg)](https://doi.org/10.5281/zenodo.10040893)
 
 ## Description
 
@@ -200,4 +200,8 @@ To confirm the quality of newly generated downsampled absolute copy number profi
 ## Authors
 
 * Philip Smith (@phil9s)
+
+## Citation
+
+Please cite this pipeline using the following zenodo repository `10.5281/zenodo.10040893`
 
