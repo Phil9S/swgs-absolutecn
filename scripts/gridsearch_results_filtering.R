@@ -32,7 +32,9 @@ collapse_rds <- function(rds.list){
       comb <- combine(comb,add)
     }
     rds.obj <- comb
-  }
+  } else {
+    rds.obj <- comb
+  } 
   return(rds.obj)
 }
 # Combine and load rds objects
@@ -103,57 +105,109 @@ if(!dir.exists(paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_d
 	dir.create(paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/plots"))
 }
 
-#relative_smoothed
-#Plot absolute CN fits for assessment
-foreach(i=unique(pruned_results$SAMPLE_ID)) %dopar% {
+if(length(unique(pruned_results$SAMPLE_ID)) == 1){
+  i <- unique(pruned_results$SAMPLE_ID)
   dat <-  pruned_results %>%
     filter(SAMPLE_ID == i) %>%
     arrange(ploidy)
     #arrange(rank_clonality)
-  x <- relative_smoothed[, i]
+  x <- relative_smoothed
   cn <- assayDataElement(x,"copynumber")
   seg <- assayDataElement(x,"segmented")
   rel_ploidy <- mean(cn,na.rm=T)
   ll <- nrow(dat)
   png(paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/plots/", i, ".png"), w= 450*ll, h = 350)
-  par(mfrow = c(1,ll)) 
+  par(mfrow = c(1,ll))
   for(n in 1:nrow(dat)){
-    
     ploidy <- dat[n,]$ploidy
     purity <- dat[n,]$purity
     cellploidy <- ploidy*purity+2*(1-purity)
     seqdepth <- rel_ploidy/cellploidy
-    
     expTP53 <- round(dat[n,]$expected_TP53_AF, 2)
     TP53 <- dat[n,]$TP53freq
-    
+
     #convert to abs
-    
+
     pData(x)$ploidy <- ploidy
     pData(x)$purity <- purity
-    
+
     temp <- x
     abs_cn <- depthtocn(cn,purity,seqdepth)
     abs_seg <- depthtocn(seg,purity,seqdepth)
     assayDataElement(temp,"copynumber") <- abs_cn
     assayDataElement(temp,"segmented") <- abs_seg
-    
+
     #tmp_abs <- convert_rd_to_cn(x)
- # plot   
+    # plot
     if(ploidy>5){
       yrange=15
-    }else
-    {
+    } else {
       yrange=10
     }
-  plot(temp,doCalls=FALSE,showSD=TRUE,logTransform=FALSE,ylim=c(0,yrange),ylab="Absolute tumour CN",
-         main=paste(i, " eTP53=",round(expTP53,2),
-                    " AF=", round(TP53,2),
-                    " p=",round(purity,2),
-                    " pl=",round(ploidy,2),
-                    sep=""),cex.main=0.8)
-  abline(h=1:9,col = "blue")
-  
+    plot(temp,doCalls=FALSE,showSD=TRUE,logTransform=FALSE,ylim=c(0,yrange),ylab="Absolute tumour CN",
+           main=paste(i, " eTP53=",round(expTP53,2),
+                      " AF=", round(TP53,2),
+                      " p=",round(purity,2),
+                      " pl=",round(ploidy,2),
+                      sep=""),cex.main=0.8)
+    abline(h=1:9,col = "blue")
+
   }
   dev.off()
+} else {
+  #relative_smoothed
+  #Plot absolute CN fits for assessment
+  foreach(i=unique(pruned_results$SAMPLE_ID)) %dopar% {
+    dat <-  pruned_results %>%
+      filter(SAMPLE_ID == i) %>%
+      arrange(ploidy)
+      #arrange(rank_clonality)
+    x <- relative_smoothed[, i]
+    cn <- assayDataElement(x,"copynumber")
+    seg <- assayDataElement(x,"segmented")
+    rel_ploidy <- mean(cn,na.rm=T)
+    ll <- nrow(dat)
+    png(paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/plots/", i, ".png"), w= 450*ll, h = 350)
+    par(mfrow = c(1,ll)) 
+    for(n in 1:nrow(dat)){
+    
+      ploidy <- dat[n,]$ploidy
+      purity <- dat[n,]$purity
+      cellploidy <- ploidy*purity+2*(1-purity)
+      seqdepth <- rel_ploidy/cellploidy
+    
+      expTP53 <- round(dat[n,]$expected_TP53_AF, 2)
+      TP53 <- dat[n,]$TP53freq
+    
+      #convert to abs
+    
+      pData(x)$ploidy <- ploidy
+      pData(x)$purity <- purity
+    
+      temp <- x
+      abs_cn <- depthtocn(cn,purity,seqdepth)
+      abs_seg <- depthtocn(seg,purity,seqdepth)
+      assayDataElement(temp,"copynumber") <- abs_cn
+      assayDataElement(temp,"segmented") <- abs_seg
+    
+      #tmp_abs <- convert_rd_to_cn(x)
+    # plot   
+      if(ploidy>5){
+        yrange=15
+      } else {
+        yrange=10
+      }
+    plot(temp,doCalls=FALSE,showSD=TRUE,logTransform=FALSE,ylim=c(0,yrange),ylab="Absolute tumour CN",
+           main=paste(i, " eTP53=",round(expTP53,2),
+                      " AF=", round(TP53,2),
+                      " p=",round(purity,2),
+                      " pl=",round(ploidy,2),
+                      sep=""),cex.main=0.8)
+    abline(h=1:9,col = "blue")
+  
+    }
+    dev.off()
+  }
 }
+
+#END

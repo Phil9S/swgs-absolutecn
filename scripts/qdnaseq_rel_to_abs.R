@@ -17,8 +17,8 @@ cores <- as.numeric(snakemake@threads)
 registerDoMC(cores)
 
 qc.data <- qc.data[qc.data$use == "TRUE",]
-
 rds.filename <- snakemake@input[["rds"]]
+
 rds.list <- lapply(rds.filename,FUN=function(x){readRDS(x)})
 
 collapse_rds <- function(rds.list){
@@ -28,6 +28,8 @@ collapse_rds <- function(rds.list){
       add <- rds.list[[i]][[1]]
       comb <- combine(comb,add)
     }
+    rds.obj <- comb
+  } else {
     rds.obj <- comb
   }
   return(rds.obj)
