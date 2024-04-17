@@ -44,7 +44,7 @@ saveRDS(relative_smoothed,paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/abs
 filelist <- snakemake@input[["cl"]]
 clonality <- do.call(rbind,
 			lapply(filelist,FUN = function(x){
-				n <- gsub(pattern="_clonality.csv",rep="",x=x)
+				n <- gsub(pattern="_clonality.tsv",rep="",x=x)
         prefix <- paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/",project,"_")
         n <- gsub(pattern=prefix,rep="",x=n)
 				tab <- read.table(x,sep="\t",skip=1)
