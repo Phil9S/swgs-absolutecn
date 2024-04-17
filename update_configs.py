@@ -43,6 +43,8 @@ if args.config[0] == "config":
     config['out_dir'] = DoubleQuotedScalarString(get_input(config['out_dir'],'out_dir'))
     config['project_name'] = DoubleQuotedScalarString(get_input(config['project_name'],'project_name'))
     config['af_cutoff'] = float(get_input(config['af_cutoff'],'af_cutoff'))
+    config['use_seed'] = DoubleQuotedScalarString(get_input(config['use_seed'],'use_seed'))
+    config['seed_val'] = DoubleQuotedScalarString(get_input(config['seed_val'],'seed_val'))
     # Save updated yaml
     with open('config/config.yaml', 'w') as fp:
         yaml.dump(config, fp)

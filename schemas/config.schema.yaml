@@ -18,6 +18,12 @@ properties:
     type: number
     min: 0
     max: 1.0
+  use_seed:
+    type: string
+    enum: ["TRUE","FALSE"]
+  seed_val:
+    type: string
+    
 
 # entries that have to be in the config file for successful validation
 required:
@@ -25,4 +31,5 @@ required:
   - out_dir
   - bins
   - project_name
-
+  - use_seed
+  - seed_val

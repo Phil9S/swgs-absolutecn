@@ -1,7 +1,7 @@
 args <- commandArgs(trailingOnly=T)
 library(yaml)
 
-cat("report segments - use 'report_seg_counts.R all' for individal seg counts\n")
+cat("report segments - use 'report_seg_counts.R all' for individual seg counts\n")
 
 config <- read_yaml(file="config/config.yaml")
 

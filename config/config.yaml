@@ -3,16 +3,21 @@
 samplesheet: "sample_sheet.tsv"
 
 # Output location
-out_dir: "/mnt/scratcha/fmlab/smith10/britroc/"
+out_dir: "/mnt/scratcha/fmlab/smith10/swgs_test/"
 
 # Bin sizes
 # By default any in [1,5,15,30,50,100,500,1000]
 bins:
 - 30
-project_name: "britroc"
+project_name: "nm_test"
 
 # Pipeline parameters
 af_cutoff: 0.15
+
+# Set seed for CBS - TRUE or FALSE
+# default TRUE
+use_seed: "TRUE"
+seed_val: "9999"
 
 # Not implemented
 #custom_bin: false

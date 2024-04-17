@@ -7,6 +7,8 @@ rule ds_relRDS:
     params:
         outdir=OUT_DIR,
         project="{project}",
-        bin="{bin}"
+        bin="{bin}",
+        use_seed=config["use_seed"],
+        seed_val=config["seed_val"]
     script:
         "../scripts/qdnaseq_mod_ds.R"

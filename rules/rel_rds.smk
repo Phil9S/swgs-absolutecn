@@ -7,7 +7,9 @@ rule relRDS:
         bin="{bin}",
         outdir=OUT_DIR,
         project="{project}",
-        meta=config["samplesheet"]
+        meta=config["samplesheet"],
+        use_seed=config["use_seed"],
+        seed_val=config["seed_val"]
     script:
         "../scripts/qdnaseq_mod.R"
 
