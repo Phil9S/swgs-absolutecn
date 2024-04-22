@@ -9,7 +9,8 @@ rule gridsearch_filter:
         meta=config["samplesheet"],
         project="{project}",
         outdir=OUT_DIR,
-        af_cutoff=config["af_cutoff"]
+        af_cutoff=config["af_cutoff"],
+        filter_underpowered=config["filter_underpowered"]
     threads: THREADS 
     script: 
         "../scripts/gridsearch_results_filtering.R"

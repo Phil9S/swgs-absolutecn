@@ -14,9 +14,17 @@ metadata <- read.table(file = metafile,header=T,sep="\t")
 bin <- as.numeric(snakemake@params[["bin"]])
 out_dir <- snakemake@params[["outdir"]]
 project <- snakemake@params[["project"]]
+filter_underpowered <- snakemake@params[["filter_underpowered"]]
 af_cutoff <- as.numeric(snakemake@params[["af_cutoff"]])
 cores <- as.numeric(snakemake@threads)
 registerDoMC(cores)
+
+# Filter for powered fits only
+if(filter_underpowered == "TRUE"){
+  filter_underpowered <- TRUE
+} else {
+  filter_underpowered <- FALSE
+}
 
 # read in relative CN data
 # collapse rds files function
@@ -63,20 +71,30 @@ depthtocn<-function(x,purity,seqdepth) #converts readdepth to copy number given 
 }
 
 #Top 10 when ranking by clonality and TP53
+print(filter_underpowered)
+print(clonality)
 
-filtered_results <- clonality %>%
+filtered_results <- clonality
+
+if(filter_underpowered){
+  filtered_results <- filtered_results %>%
+    filter(powered == 1) 
+}
+
+filtered_results <- filtered_results %>% # filter underpowered fits when config variable is TRUE
   select(SAMPLE_ID, PATIENT_ID, everything()) %>%
-  filter(powered ==1) %>%
   group_by(SAMPLE_ID, ploidy) %>%
   mutate(rank_clonality = min_rank(clonality)) %>% #rank clonality within a unique ploidy state 
-  filter(rank_clonality ==1) %>% #select ploidy with the lowest clonality within a unique ploidy state 
+  filter(rank_clonality == 1) %>% #select ploidy with the lowest clonality within a unique ploidy state 
   group_by(SAMPLE_ID) %>%
   top_n(-10, wt = clonality) %>% # select top 10 ploidy states with the lowest clonality values
   mutate(rank_clonality = min_rank(clonality)) %>% # rank by clonality within a sample across ploidies in top 10
- # retain samples without TP53 mutations and where expected and observed TP53freq <=0.15
+  filter(expected_TP53_AF > 0) %>% # keep fits where TP53 is positive
+  # retain samples without TP53 mutations and where expected and observed TP53freq <=0.15
   filter(is.na(TP53freq) | near(expected_TP53_AF,TP53freq, tol = af_cutoff )) %>%  
   arrange(PATIENT_ID, SAMPLE_ID )
 
+print(filtered_results)
 #Further limit the results by selecting the ploidy states with the lowest clonality values where multiple similar solutions are present.
 #Threshold of 0.3 used to select different states
 

@@ -107,7 +107,7 @@ cntodepth<-function(cn,purity,seqdepth) #converts copy number to read depth give
 {
     seqdepth*((1-purity)*2+purity*cn)
 }
-## TP53 target bin
+## TP53 target bin - hg19@30kb
 target <- c("17:7565097-7590863")
 get_gene_seg <- function(target=NULL,abs_data=NULL){
   to_use <- fData(abs_data)$use
@@ -137,7 +137,7 @@ gene_bin_seg <- get_gene_seg(target = target,abs_data = rds.obj[[1]])
 
 #estimate absolute copy number fits for all samples in parallel
 ploidies<-seq(1.6,8,0.1)
-purities<-seq(0.05,1,0.01)
+purities<-seq(0.15,1,0.01)
 clonality<-c()
 #ind<-which(colnames(rds.obj)==sample)
 relcn<-rds.obj[[1]]

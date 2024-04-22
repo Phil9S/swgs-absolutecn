@@ -26,6 +26,7 @@ perc <- fit.qc.filt %>%
    filter(SAMPLE_ID == sample_name) %>%
    .$ratio
 
+# If read ratio is greater than 0.96 (i.e close to original or higher than available reads)
 if( perc <= 0.96){
   cmd.downsample <- paste("samtools view -s ", perc," -b ",bam_in," > ",outname)
   cmd.index <- paste0("samtools index ",outname)

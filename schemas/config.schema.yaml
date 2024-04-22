@@ -23,6 +23,9 @@ properties:
     enum: ["TRUE","FALSE"]
   seed_val:
     type: string
+  filter_underpowered:
+    type: string
+    enum: ["TRUE","FALSE"]
     
 
 # entries that have to be in the config file for successful validation
@@ -33,3 +36,4 @@ required:
   - project_name
   - use_seed
   - seed_val
+  - filter_underpowered

@@ -19,6 +19,10 @@ af_cutoff: 0.15
 use_seed: "TRUE"
 seed_val: "9999"
 
+# fitler underpowered solutions - TRUE or FALSE
+# Default TRUE
+filter_underpowered: "FALSE"
+
 # Not implemented
 #custom_bin: false
 #custom_bin_folder: "/custom_bin_data/"
