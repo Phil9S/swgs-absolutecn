@@ -34,79 +34,11 @@ nbins_ref_genome <- sum(fData(rds.obj[[1]])$use)
 nbins<-nrow(bins)
 
 #define helper functions
-getSegTable<-function(x) #returns a table containing copy number segments
-{
-    dat<-x
-    sn<-assayDataElement(dat,"segmented")
-    fd <- fData(dat)
-    fd$use -> use
-    fdfiltfull<-fd[use,]
-    sn<-sn[use,]
-    segTable<-c()
-    for(c in unique(fdfiltfull$chromosome))
-    {
-        snfilt<-sn[fdfiltfull$chromosome==c]
-        fdfilt<-fdfiltfull[fdfiltfull$chromosome==c,]
-        sn.rle<-rle(snfilt)
-        starts <- cumsum(c(1, sn.rle$lengths[-length(sn.rle$lengths)]))
-        ends <- cumsum(sn.rle$lengths)
-        lapply(1:length(sn.rle$lengths), function(s) {
-            from <- fdfilt$start[starts[s]]
-            to <- fdfilt$end[ends[s]]
-            segValue <- sn.rle$value[s]
-            c(fdfilt$chromosome[starts[s]], from, to, segValue)
-        }) -> segtmp
-        segTableRaw <- data.frame(matrix(unlist(segtmp), ncol=4, byrow=T),stringsAsFactors=F)
-        segTable<-rbind(segTable,segTableRaw)
-    }
-    colnames(segTable) <- c("chromosome", "start", "end", "segVal")
-    segTable
-}
-
-getPloidy<-function(abs_profiles) #returns the ploidy of a sample from segTab or QDNAseq object
-{
-    out<-c()
-    samps<-getSampNames(abs_profiles)
-    for(i in samps)
-    {
-        if(class(abs_profiles)=="QDNAseqCopyNumbers")
-        {
-            segTab<-getSegTable(abs_profiles[,which(colnames(abs_profiles)==i)])
-        }
-        else
-        {
-            segTab<-abs_profiles[[i]]
-            colnames(segTab)[4]<-"segVal"
-        }
-        segLen<-(as.numeric(segTab$end)-as.numeric(segTab$start))
-        ploidy<-sum((segLen/sum(segLen))*as.numeric(segTab$segVal))
-        out<-c(out,ploidy)
-    }
-    data.frame(out,stringsAsFactors = F)
-}
-
-getSampNames<-function(abs_profiles) # convenience function for getting sample names from QDNAseq or segTab list
-{
-    if(class(abs_profiles)=="QDNAseqCopyNumbers")
-    {
-        samps<-colnames(abs_profiles)
-    }
-    else
-    {
-        samps<-names(abs_profiles)
-    }
-    samps
-}
-
 depthtocn<-function(x,purity,seqdepth) #converts readdepth to copy number given purity and single copy depth
 {
     (x/seqdepth-2*(1-purity))/purity
 }
 
-cntodepth<-function(cn,purity,seqdepth) #converts copy number to read depth given purity and single copy depth
-{
-    seqdepth*((1-purity)*2+purity*cn)
-}
 ## TP53 target bin - hg19@30kb
 target <- c("17:7565097-7590863")
 get_gene_seg <- function(target=NULL,abs_data=NULL){
