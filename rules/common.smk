@@ -67,4 +67,17 @@ BIN_VALS = config["bins"]
 BIN_DEF = [1,5,15,30,50,100,500,1000]
 
 if not set(BIN_VALS).issubset(BIN_DEF):
-    sys.exit("Some bin values are not available")
+    sys.exit("Config error - Some specified bin values are not available")
+
+##### CHECK MAX > MIN #####
+PLMIN=config["ploidy_min"]
+PLMAX=config["ploidy_max"]
+PUMIN=config["purity_min"]
+PUMAX=config["purity_max"]
+
+if PLMIN > PLMAX:
+    sys.exit("Config error - Minimum ploidy exceeds or is equal to maximum ploidy")
+
+if PUMIN > PUMAX:
+    sys.exit("Config error - Minimum purity exceeds or is equal to maximum purity")
+

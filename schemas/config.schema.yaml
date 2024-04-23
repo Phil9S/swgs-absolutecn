@@ -12,12 +12,15 @@ properties:
     type: string
   bins:
     type: array
+    items:
+      type: number
+    uniqueItems: true
   project_name:
     type: string
   af_cutoff:
     type: number
-    min: 0
-    max: 1.0
+    minimum: 0
+    maximum: 1.0
   use_seed:
     type: string
     enum: ["TRUE","FALSE"]
@@ -26,7 +29,22 @@ properties:
   filter_underpowered:
     type: string
     enum: ["TRUE","FALSE"]
-    
+  ploidy_min:
+    type: number
+    minimum: 1
+    maximum: 20
+  ploidy_max:
+    type: number
+    minimum: 1
+    maximum: 20
+  purity_min:
+    type: number
+    minimum: 0
+    maximum: 1.0
+  purity_max:
+    type: number
+    minimum: 0
+    maximum: 1.0
 
 # entries that have to be in the config file for successful validation
 required:
@@ -37,3 +55,8 @@ required:
   - use_seed
   - seed_val
   - filter_underpowered
+  - ploidy_min
+  - ploidy_max
+  - purity_min
+  - purity_max
+
