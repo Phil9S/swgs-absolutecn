@@ -21,7 +21,7 @@ seed_val: "9999"
 
 # fitler underpowered solutions - TRUE or FALSE
 # Default TRUE
-filter_underpowered: "FALSE"
+filter_underpowered: "TRUE"
 
 # Not implemented
 #custom_bin: false
