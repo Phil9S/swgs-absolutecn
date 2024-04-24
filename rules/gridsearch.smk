@@ -7,6 +7,10 @@ rule gridsearch_fitting:
     params:
         bin="{bin}",
         outdir=OUT_DIR,
-        project="{project}"
+        project="{project}",
+        ploidy_min=config["ploidy_min"],
+        ploidy_max=config["ploidy_max"],
+        purity_min=config["purity_min"],
+        purity_max=config["purity_max"]
     script:
         "../scripts/ploidy_purity_search_standard_error.R"

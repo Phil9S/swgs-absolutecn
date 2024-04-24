@@ -10,6 +10,13 @@ out_dir <- snakemake@params[["outdir"]]
 project <- snakemake@params[["project"]]
 cores <- as.numeric(snakemake@threads) 
 
+# gridsearch params
+pl_min <- snakemake@params[["ploidy_min"]] # default 1.6
+pl_max <- snakemake@params[["ploidy_max"]] # default 8
+pu_min <- snakemake@params[["purity_min"]] # default 0.15
+pu_max <- snakemake@params[["purity_max"]] # deafult 1
+#print(c(pl_min,pl_max,pu_min,pu_max))
+
 #load libraries
 suppressPackageStartupMessages(library(QDNAseqmod))
 suppressPackageStartupMessages(library(Biobase))
@@ -68,8 +75,8 @@ get_gene_seg <- function(target=NULL,abs_data=NULL){
 gene_bin_seg <- get_gene_seg(target = target,abs_data = rds.obj[[1]])
 
 #estimate absolute copy number fits for all samples in parallel
-ploidies<-seq(1.6,8,0.1)
-purities<-seq(0.15,1,0.01)
+ploidies<-seq(pl_min,pl_max,0.1)
+purities<-seq(pu_min,pu_max,0.01)
 clonality<-c()
 #ind<-which(colnames(rds.obj)==sample)
 relcn<-rds.obj[[1]]
