@@ -1,5 +1,10 @@
 # swgs-absolutecn pipeline
 
+_*THIS IS THE PUBLICATION RELEASE BRANCH AND HAS SINCE BEEN UPDATED*_
+
+_*IF YOU ARE NOT REPLICATING THE PUBLICATION THEN PLEASE USE THE MASTER OR DEV BRANCH*_
+
+
 [![Snakemake](https://img.shields.io/badge/snakemake-≥5.10.0-brightgreen.svg)](https://snakemake.bitbucket.io)
 
 ## Description
