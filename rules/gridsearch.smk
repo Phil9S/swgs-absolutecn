@@ -8,6 +8,7 @@ rule gridsearch_fitting:
         bin="{bin}",
         outdir=OUT_DIR,
         project="{project}",
+        meta=config["samplesheet"],
         ploidy_min=config["ploidy_min"],
         ploidy_max=config["ploidy_max"],
         purity_min=config["purity_min"],

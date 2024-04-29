@@ -7,8 +7,6 @@ suppressWarnings(library(foreach))
 ## Added by PS
 args = commandArgs(trailingOnly=TRUE)
 
-print(snakemake)
-
 metafile <- snakemake@params[["meta"]]
 metadata <- read.table(file = metafile,header=T,sep="\t")
 bin <- as.numeric(snakemake@params[["bin"]])
@@ -31,7 +29,6 @@ if(filter_underpowered == "TRUE"){
 rds.filename <- snakemake@input[["rds"]]
 
 rds.list <- lapply(rds.filename,FUN=function(x){readRDS(x)})
-
 collapse_rds <- function(rds.list){
   comb <- rds.list[[1]][[1]]
   if(length(rds.list) > 1){
@@ -63,7 +60,8 @@ colnames(clonality) <- c("SAMPLE_ID","ploidy","purity","clonality","downsample_d
 
 clonality <- left_join(clonality,metadata,by="SAMPLE_ID") %>%
                 select(SAMPLE_ID,PATIENT_ID,ploidy,purity,clonality,downsample_depth,powered,TP53cn,expected_TP53_AF,TP53freq,smooth)
-                
+
+print(clonality)                
 ## Added by PS
 depthtocn<-function(x,purity,seqdepth) #converts readdepth to copy number given purity and single copy depth
 {
@@ -71,9 +69,6 @@ depthtocn<-function(x,purity,seqdepth) #converts readdepth to copy number given 
 }
 
 #Top 10 when ranking by clonality and TP53
-print(filter_underpowered)
-print(clonality)
-
 filtered_results <- clonality
 
 if(filter_underpowered){
@@ -89,7 +84,7 @@ filtered_results <- filtered_results %>% # filter underpowered fits when config 
   group_by(SAMPLE_ID) %>%
   top_n(-10, wt = clonality) %>% # select top 10 ploidy states with the lowest clonality values
   mutate(rank_clonality = min_rank(clonality)) %>% # rank by clonality within a sample across ploidies in top 10
-  filter(expected_TP53_AF > 0) %>% # keep fits where TP53 is positive
+  #filter(expected_TP53_AF > 0) %>% # keep fits where TP53 is positive
   # retain samples without TP53 mutations and where expected and observed TP53freq <=0.15
   filter(is.na(TP53freq) | near(expected_TP53_AF,TP53freq, tol = af_cutoff )) %>%  
   arrange(PATIENT_ID, SAMPLE_ID )

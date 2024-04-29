@@ -1,4 +1,4 @@
-PATIENT_ID	SAMPLE_ID	TP53freq	smooth	file	ploidy	purity
+PATIENT_ID	SAMPLE_ID	TP53freq	smooth	file	precPloidy	precPurity
 PATIENT-1	SAMPLE_3	NA	FALSE	/data/SAMPLE_3.bam	NA	NA
 PATIENT-2	SAMPLE_5	0.97	FALSE	/data/SAMPLE_5.bam	NA	NA
 PATIENT-2	SAMPLE_6	0.94	FALSE	/data/SAMPLE_6.bam	NA	NA

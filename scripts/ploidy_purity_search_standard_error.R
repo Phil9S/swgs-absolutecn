@@ -10,6 +10,9 @@ out_dir <- snakemake@params[["outdir"]]
 project <- snakemake@params[["project"]]
 cores <- as.numeric(snakemake@threads) 
 
+metafile <- snakemake@params[["meta"]]
+metadata <- read.table(file = metafile,header=T,sep="\t")
+
 # gridsearch params
 pl_min <- snakemake@params[["ploidy_min"]] # default 1.6
 pl_max <- snakemake@params[["ploidy_max"]] # default 8
@@ -74,9 +77,30 @@ get_gene_seg <- function(target=NULL,abs_data=NULL){
 #Get target anchor gene segments
 gene_bin_seg <- get_gene_seg(target = target,abs_data = rds.obj[[1]])
 
+#adjust for precomputed pl/pu
+metaSample <- snakemake@wildcards[["sample"]]
+metaflt <- metadata[metadata$SAMPLE_ID == metaSample,]
+
+# set gridsearch limits based on availability of 
+# precomputed pl/pu values
+if(!is.null(metaflt$precPloidy)){
+	if(!is.na(metaflt$precPloidy)){
+    		pl_min <- metaflt$precPloidy
+		pl_max <- metaflt$precPloidy
+  	}
+}
+
+if(!is.null(metaflt$precPurity)){
+	if(!is.na(metaflt$precPurity)){
+    		pu_min <- metaflt$precPurity
+		pu_max <- metaflt$precPurity
+	}
+}
+
 #estimate absolute copy number fits for all samples in parallel
 ploidies<-seq(pl_min,pl_max,0.1)
 purities<-seq(pu_min,pu_max,0.01)
+
 clonality<-c()
 #ind<-which(colnames(rds.obj)==sample)
 relcn<-rds.obj[[1]]
@@ -88,14 +112,11 @@ copynumber<-assayDataElement(relcn,"copynumber")
 rel_ploidy<-mean(copynumber,na.rm=T)
 num_reads<-sum(copynumber,na.rm=T)
 sample <- sampleNames(relcn)
-print(sample)
 
-res<-foreach(i=1:length(ploidies),.combine=rbind) %do%
-{
+#print(sample)
+res<-foreach(i=1:length(ploidies),.combine=rbind) %do% {
         ploidy<-ploidies[i]
-        #print(ploidy)
-        rowres<-foreach(j=1:length(purities),.combine=rbind)%do%
-        {
+	rowres<-foreach(j=1:length(purities),.combine=rbind) %do% {
             purity<-purities[j]
             downsample_depth<-(((2*(1-purity)+purity*ploidy)/(ploidy*purity))/purity)*15*(2*(1-purity)+purity*ploidy)*nbins_ref_genome*(1/0.91)
             cellploidy<-ploidy*purity+2*(1-purity)
@@ -110,16 +131,22 @@ res<-foreach(i=1:length(ploidies),.combine=rbind) %do%
             TP53cn<-round(depthtocn(median(seg[gene_bin_seg]),purity,seqdepth),1) # to 1 decimal place
             expected_TP53_AF<-TP53cn*purity/(TP53cn*purity+2*(1-purity))
             clonality<-mean(diffs)
-            c(ploidy,purity,clonality,downsample_depth,downsample_depth < rds.pdata$total.reads[row.names(rds.pdata)==sample],TP53cn,expected_TP53_AF)
+            r <- c(ploidy,purity,clonality,downsample_depth,downsample_depth < rds.pdata$total.reads[row.names(rds.pdata)==sample],TP53cn,expected_TP53_AF)
+	    r <- as.data.frame(t(r))
+	    return(r)
         }
-        rowres
+	return(as.data.frame(rowres))
 }
 
 colnames(res)<-c("ploidy","purity","clonality","downsample_depth","powered","TP53cn","expected_TP53_AF")
-rownames(res)<-1:nrow(res)
-res<-data.frame(res,stringsAsFactors = F)
-res<-data.frame(apply(res,2,as.numeric,stringsAsFactors=F))
-res<-res[order(res$clonality,decreasing=FALSE),]
+if(nrow(res) > 1){
+	rownames(res)<-1:nrow(res)
+	res<-data.frame(res,stringsAsFactors = F)
+	res<-data.frame(apply(res,2,as.numeric,stringsAsFactors=F))
+	res<-res[order(res$clonality,decreasing=FALSE),]
+} else {
+	rownames(res) <- 1
+}
 
 #output plot of clonality error landscape
 pdf(snakemake@output[["pdf"]])
