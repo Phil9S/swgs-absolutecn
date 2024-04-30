@@ -23,6 +23,15 @@ def get_ds_bams(P,B):
 # Set new sample list based on filtered QC from stage 1
 PROJECT=config["project_name"]
 BIN=config["bins"]
+
+if any(samplesheet.SAMPLE_ID.duplicated()):
+    sys.exit("Sample sheet contains duplicated sample ids")
+
+
+prplpu = "FALSE"
+if all(samplesheet.precPloidy.notna()) and all(samplesheet.precPurity.notna()):
+    prplpu = "TRUE"
+
 SAMPLE_LISTS=get_ds_bams(PROJECT,BIN)
 
 rule all:

@@ -159,6 +159,11 @@ getSegTable<-function(x){
         fd$use -> use
         fdfiltfull<-fd[use,]
         sn<-sn[use,]
+	      if(is.null(ncol(sn))){
+		      sampleNa <- Biobase::sampleNames(x)
+		      sn <- as.data.frame(sn)
+		      colnames(sn) <- sampleNa
+	      }
         segTable<-c()
         for(s in colnames(sn)){
             for(c in unique(fdfiltfull$chromosome))

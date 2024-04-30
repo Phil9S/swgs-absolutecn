@@ -7,6 +7,7 @@ rule downsample:
         OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/downsampled_bams/{sample}.bam"
     params:
         outdir=OUT_DIR,
+        prplpu=prplpu,
         bin="{bin}",
         project="{project}",
         sample="{sample}"
