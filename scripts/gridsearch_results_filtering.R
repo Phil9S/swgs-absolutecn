@@ -47,7 +47,7 @@ collapse_rds <- function(rds.list){
   if(length(rds.list) > 1){
     for(i in 2:length(rds.list)){
       add <- rds.list[[i]][[1]]
-      comb <- combine(comb,add)
+      comb <- Biobase::combine(comb,add)
     }
     rds.obj <- comb
   } else {
