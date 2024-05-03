@@ -12,10 +12,23 @@ metadata <- read.table(file = metafile,header=T,sep="\t")
 bin <- as.numeric(snakemake@params[["bin"]])
 out_dir <- snakemake@params[["outdir"]]
 project <- snakemake@params[["project"]]
-filter_underpowered <- snakemake@params[["filter_underpowered"]]
-af_cutoff <- as.numeric(snakemake@params[["af_cutoff"]])
+
+#threads
 cores <- as.numeric(snakemake@threads)
 registerDoMC(cores)
+
+# Filter parameters
+filter_underpowered <- snakemake@params[["filter_underpowered"]]
+af_cutoff <- as.numeric(snakemake@params[["af_cutoff"]])
+filter_homozygous=snakemake@params[["filter_homozygous"]]
+homozygous_prop=as.numeric(snakemake@params[["homozygous_prop"]])
+
+# filter homozygous loss
+if(filter_homozygous == "TRUE"){
+  filter_homozygous <- TRUE
+} else {
+  filter_homozygous <- FALSE
+} 
 
 # Filter for powered fits only
 if(filter_underpowered == "TRUE"){
@@ -56,13 +69,11 @@ clonality <- do.call(rbind,
 				tab <- cbind(rep(n,times=nrow(tab)),tab)
 				return(tab)
 			}))
-colnames(clonality) <- c("SAMPLE_ID","ploidy","purity","clonality","downsample_depth","powered","TP53cn","expected_TP53_AF")
+colnames(clonality) <- c("SAMPLE_ID","ploidy","purity","clonality","downsample_depth","powered","TP53cn","expected_TP53_AF","homozygousLoss")
 
 clonality <- left_join(clonality,metadata,by="SAMPLE_ID") %>%
-                select(SAMPLE_ID,PATIENT_ID,ploidy,purity,clonality,downsample_depth,powered,TP53cn,expected_TP53_AF,TP53freq,smooth)
+                select(SAMPLE_ID,PATIENT_ID,ploidy,purity,clonality,downsample_depth,powered,TP53cn,expected_TP53_AF,TP53freq,smooth,homozygousLoss)
 
-print(clonality)                
-## Added by PS
 depthtocn<-function(x,purity,seqdepth) #converts readdepth to copy number given purity and single copy depth
 {
   (x/seqdepth-2*(1-purity))/purity
@@ -71,11 +82,20 @@ depthtocn<-function(x,purity,seqdepth) #converts readdepth to copy number given 
 #Top 10 when ranking by clonality and TP53
 filtered_results <- clonality
 
+## Filter underpowered
 if(filter_underpowered){
   filtered_results <- filtered_results %>%
     filter(powered == 1) 
 }
 
+
+## filter homozygous loss
+if(filter_homozygous){
+  filtered_results <- filtered_results %>%
+    filter(homozygousLoss <= homozygous_prop)
+}
+
+# standard filtering
 filtered_results <- filtered_results %>% # filter underpowered fits when config variable is TRUE
   select(SAMPLE_ID, PATIENT_ID, everything()) %>%
   group_by(SAMPLE_ID, ploidy) %>%
@@ -84,12 +104,10 @@ filtered_results <- filtered_results %>% # filter underpowered fits when config 
   group_by(SAMPLE_ID) %>%
   top_n(-10, wt = clonality) %>% # select top 10 ploidy states with the lowest clonality values
   mutate(rank_clonality = min_rank(clonality)) %>% # rank by clonality within a sample across ploidies in top 10
-  #filter(expected_TP53_AF > 0) %>% # keep fits where TP53 is positive
   # retain samples without TP53 mutations and where expected and observed TP53freq <=0.15
   filter(is.na(TP53freq) | near(expected_TP53_AF,TP53freq, tol = af_cutoff )) %>%  
-  arrange(PATIENT_ID, SAMPLE_ID )
+  arrange(PATIENT_ID, SAMPLE_ID)
 
-print(filtered_results)
 #Further limit the results by selecting the ploidy states with the lowest clonality values where multiple similar solutions are present.
 #Threshold of 0.3 used to select different states
 

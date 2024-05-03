@@ -37,6 +37,16 @@ ploidy_max: 8.0
 purity_min: 0.15
 purity_max: 1.0
 
+# Homozygous loss filter - TRUE or FALSE
+# Default "TRUE"
+filter_homozygous: "TRUE"
+# Threshold basepairs lost
+# Default 10000000 / 10Mbase
+homozygous_prop: 10000000
+# Absolute CN homozygous loss threshold
+# Default 0.4
+homozygous_threshold: 0.4
+
 # Not implemented
 #custom_bin: false
 #custom_bin_folder: "/custom_bin_data/"

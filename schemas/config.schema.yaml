@@ -45,6 +45,16 @@ properties:
     type: number
     minimum: 0
     maximum: 1.0
+  filter_homozygous:
+    type: string
+    enum: ["TRUE","FALSE"]
+  homozygous_prop:
+    type: number
+    minimum: 0
+  homozygous_threshold:
+    type: number
+    minimum: 0
+    maximum: 0.99
 
 # entries that have to be in the config file for successful validation
 required:
@@ -59,4 +69,7 @@ required:
   - ploidy_max
   - purity_min
   - purity_max
+  - filter_homozygous
+  - homozygous_prop
+  - homozygous_threshold
 

@@ -12,6 +12,7 @@ rule gridsearch_fitting:
         ploidy_min=config["ploidy_min"],
         ploidy_max=config["ploidy_max"],
         purity_min=config["purity_min"],
-        purity_max=config["purity_max"]
+        purity_max=config["purity_max"],
+        homozygous_threshold=config["homozygous_threshold"]
     script:
         "../scripts/ploidy_purity_search_standard_error.R"

@@ -20,6 +20,9 @@ pu_min <- snakemake@params[["purity_min"]] # default 0.15
 pu_max <- snakemake@params[["purity_max"]] # deafult 1
 #print(c(pl_min,pl_max,pu_min,pu_max))
 
+# homozygous threshold
+hmz_thrsh <- snakemake@params[["homozygous_threshold"]]
+
 #load libraries
 suppressPackageStartupMessages(library(QDNAseqmod))
 suppressPackageStartupMessages(library(Biobase))
@@ -131,14 +134,15 @@ res<-foreach(i=1:length(ploidies),.combine=rbind) %do% {
             TP53cn<-round(depthtocn(median(seg[gene_bin_seg]),purity,seqdepth),1) # to 1 decimal place
             expected_TP53_AF<-TP53cn*purity/(TP53cn*purity+2*(1-purity))
             clonality<-mean(diffs)
-            r <- c(ploidy,purity,clonality,downsample_depth,downsample_depth < rds.pdata$total.reads[row.names(rds.pdata)==sample],TP53cn,expected_TP53_AF)
+	    hmzyg <- sum(abs_cn <= hmz_thrsh) * bin_size
+            r <- c(ploidy,purity,clonality,downsample_depth,downsample_depth < rds.pdata$total.reads[row.names(rds.pdata)==sample],TP53cn,expected_TP53_AF,hmzyg)
 	    r <- as.data.frame(t(r))
 	    return(r)
         }
 	return(as.data.frame(rowres))
 }
 
-colnames(res)<-c("ploidy","purity","clonality","downsample_depth","powered","TP53cn","expected_TP53_AF")
+colnames(res)<-c("ploidy","purity","clonality","downsample_depth","powered","TP53cn","expected_TP53_AF","homozygousLoss")
 if(nrow(res) > 1){
 	rownames(res)<-1:nrow(res)
 	res<-data.frame(res,stringsAsFactors = F)

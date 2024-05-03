@@ -10,7 +10,9 @@ rule gridsearch_filter:
         project="{project}",
         outdir=OUT_DIR,
         af_cutoff=config["af_cutoff"],
-        filter_underpowered=config["filter_underpowered"]
+        filter_underpowered=config["filter_underpowered"],
+        filter_homozygous=config["filter_homozygous"],
+        homozygous_prop=config["homozygous_prop"]
     threads: THREADS 
     script: 
         "../scripts/gridsearch_results_filtering.R"
