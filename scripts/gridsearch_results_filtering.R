@@ -147,7 +147,8 @@ if(length(unique(pruned_results$SAMPLE_ID)) == 1){
   seg <- assayDataElement(x,"segmented")
   rel_ploidy <- mean(cn,na.rm=T)
   ll <- nrow(dat)
-  png(paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/plots/", i, ".png"), w= 450*ll, h = 350)
+  png(paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/plots/", i, ".png"),
+	type="cairo",w= 450*ll, h = 350)
   par(mfrow = c(1,ll))
   for(n in 1:nrow(dat)){
     ploidy <- dat[n,]$ploidy
@@ -198,7 +199,8 @@ if(length(unique(pruned_results$SAMPLE_ID)) == 1){
     seg <- assayDataElement(x,"segmented")
     rel_ploidy <- mean(cn,na.rm=T)
     ll <- nrow(dat)
-    png(paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/plots/", i, ".png"), w= 450*ll, h = 350)
+    png(paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/plots/", i, ".png"),
+	type = "cairo", w= 450*ll, h = 350,)
     par(mfrow = c(1,ll)) 
     for(n in 1:nrow(dat)){
     

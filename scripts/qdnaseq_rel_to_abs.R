@@ -132,7 +132,8 @@ for(sample in pData(rds.rel)$name){
     yrange=10
   }
   # Plot abs fit
-  png(paste0(output_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_POST_down_sampling/abs_cn_rds/plots/",sample,".png"), w= 8, h = 6, unit="in", res = 250)
+  png(paste0(output_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_POST_down_sampling/abs_cn_rds/plots/",sample,".png"),
+	type="cairo",w= 8, h = 6, unit="in", res = 250)
   par(mfrow = c(1,1))
   plot(relcn,doCalls=FALSE,showSD=TRUE,logTransform=FALSE,ylim=c(0,yrange),ylab="Absolute tumour CN",
        main=paste(sample, " eTP53=",round(expected_TP53_AF,2),

@@ -4,6 +4,8 @@ rule gridsearch_fitting:
     output:
         tsv=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/clonality_results/{project}_{sample}_clonality.tsv",
         pdf=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/clonality_results/{project}_{sample}_clonality.pdf"
+    singularity:
+        image_base_url+"swgs-absolutecn:latest"
     params:
         bin="{bin}",
         outdir=OUT_DIR,

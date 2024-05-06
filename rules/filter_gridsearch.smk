@@ -4,6 +4,8 @@ rule gridsearch_filter:
         rds=expand(OUT_DIR+"sWGS_fitting/{{project}}_{{bin}}kb/absolute_PRE_down_sampling/relative_cn_rds/{{project}}_{sample}_{{bin}}kb_relSmoothedCN.rds",sample=SAMPLES)
     output:
         OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/{project}_fit_QC_predownsample.tsv"
+    singularity:
+        image_base_url+"swgs-absolutecn:latest"
     params:
         bin="{bin}",
         meta=config["samplesheet"],

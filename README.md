@@ -88,6 +88,12 @@ or
 conda activate swgs-abscn
 ```
 
+### Step 3a - Singularity-based implementation
+
+```
+--use-singularity --singularity-args "--bind /mnt/scratcha/fmlab/smith10/britroc/"
+```
+
 ### Step 4 Preparing the input files
 
 #### Sample sheet
