@@ -58,6 +58,9 @@ elif args.config[0] == "filters":
     config['ploidy_max'] = float(get_input(config['ploidy_max'],'ploidy_max'))
     config['purity_min'] = float(get_input(config['purity_min'],'purity_min'))
     config['purity_max'] = float(get_input(config['purity_max'],'purity_max'))
+    config['filter_homozygous'] = DoubleQuotedScalarString(get_input(config['filter_homozygous'],'filter_homozygous'))
+    config['homozygous_prop'] = int(get_input(config['homozygous_prop'],'homozygous_prop'))
+    config['homozygous_threshold'] = float(get_input(config['homozygous_threshold'],'homozygous_threshold'))
     # Save updated yaml
     with open('config/config.yaml', 'w') as fp:
         yaml.dump(config, fp)
