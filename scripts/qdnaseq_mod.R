@@ -7,6 +7,8 @@ ncores <- 1
 output_dir <- snakemake@params[["outdir"]]
 project <- snakemake@params[["project"]]
 metafile <- snakemake@params[["meta"]]
+use_seed <- snakemake@params[["use_seed"]]
+seed_val <- snakemake@params[["seed_val"]]
 metadata <- read.table(file = metafile,header=T,sep="\t")
 bam_list <- snakemake@input[["bams"]]
 outname <- snakemake@output[[1]]
@@ -42,8 +44,15 @@ assayDataElement(copyNumbers[[1]],"copynumber") <- assayDataElement(copyNumbers[
 # smooth outliers (Data is now ready to be analyzed with a downstream package of choice (exportBins))
 copyNumbersSmooth <- mclapply(X=copyNumbers, FUN=smoothOutlierBins, mc.cores=1)
 
+# Implement seeding to prevent variable segments on repeated runs
+if(use_seed){
+  seed <- as.character(seed_val)
+} else {
+  seed <- NULL
+}
+
 # perform segmentation on bins and save it
-copyNumbersSegmented <- mclapply(X=copyNumbersSmooth, FUN=segmentBins, transformFun="sqrt", mc.cores=ncores)
+copyNumbersSegmented <- mclapply(X=copyNumbersSmooth, FUN=segmentBins, transformFun="sqrt", mc.cores=ncores,seeds=seed)
 
 # For each
 smooth_samples <- function(obj){
@@ -64,7 +73,7 @@ smooth_samples <- function(obj){
     segnum<-as.numeric(lapply(segments,function(x){length(x$lengths)}))
     while(sum(segnum>maxseg)&sdadjust<5)
     {
-      currsamp<-segmentBins(currsamp, transformFun="sqrt",undo.SD=sdadjust)
+      currsamp<-segmentBins(currsamp, transformFun="sqrt",undo.SD=sdadjust,seeds=seed)
       segments <- assayDataElement(currsamp, "segmented")[condition, , drop=FALSE]
       segments<-apply(segments,2,rle)
       segnum<-as.numeric(lapply(segments,function(x){length(x$lengths)}))

@@ -61,10 +61,26 @@ OUT_DIR=os.path.join(OUT_DIR,"")
 samplesheet = pd.read_table(config["samplesheet"],dtype={'PATIENT_ID': str,'SAMPLE_ID':str,'TP53freq':float}).set_index(["SAMPLE_ID"], drop=False)
 validate(samplesheet, schema="../schemas/samples.schema.yaml")
 
+# set container uri
+image_base_url = config["image_base_url"]
+
 #### Check bin values ####
 
 BIN_VALS = config["bins"]
 BIN_DEF = [1,5,15,30,50,100,500,1000]
 
 if not set(BIN_VALS).issubset(BIN_DEF):
-    sys.exit("Some bin values are not available")
+    sys.exit("Config error - Some specified bin values are not available")
+
+##### CHECK MAX > MIN #####
+PLMIN=config["ploidy_min"]
+PLMAX=config["ploidy_max"]
+PUMIN=config["purity_min"]
+PUMAX=config["purity_max"]
+
+if PLMIN > PLMAX:
+    sys.exit("Config error - Minimum ploidy exceeds or is equal to maximum ploidy")
+
+if PUMIN > PUMAX:
+    sys.exit("Config error - Minimum purity exceeds or is equal to maximum purity")
+

@@ -17,8 +17,8 @@ cores <- as.numeric(snakemake@threads)
 registerDoMC(cores)
 
 qc.data <- qc.data[qc.data$use == "TRUE",]
-
 rds.filename <- snakemake@input[["rds"]]
+
 rds.list <- lapply(rds.filename,FUN=function(x){readRDS(x)})
 
 collapse_rds <- function(rds.list){
@@ -26,8 +26,10 @@ collapse_rds <- function(rds.list){
   if(length(rds.list) > 1){
     for(i in 2:length(rds.list)){
       add <- rds.list[[i]][[1]]
-      comb <- combine(comb,add)
+      comb <- Biobase::combine(comb,add)
     }
+    rds.obj <- comb
+  } else {
     rds.obj <- comb
   }
   return(rds.obj)
@@ -130,7 +132,8 @@ for(sample in pData(rds.rel)$name){
     yrange=10
   }
   # Plot abs fit
-  png(paste0(output_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_POST_down_sampling/abs_cn_rds/plots/",sample,".png"), w= 8, h = 6, unit="in", res = 250)
+  png(paste0(output_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_POST_down_sampling/abs_cn_rds/plots/",sample,".png"),
+	type="cairo",w= 8, h = 6, unit="in", res = 250)
   par(mfrow = c(1,1))
   plot(relcn,doCalls=FALSE,showSD=TRUE,logTransform=FALSE,ylim=c(0,yrange),ylab="Absolute tumour CN",
        main=paste(sample, " eTP53=",round(expected_TP53_AF,2),
@@ -148,6 +151,50 @@ res <- data.frame(res,stringsAsFactors = F)
 
 # Save rds
 saveRDS(abs_profiles,file=paste0(output_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_POST_down_sampling/abs_cn_rds/",project,"_",bin,"kb_ds_absCopyNumber.rds"))
+
+# save segTable
+getSegTable<-function(x){
+    if(inherits(x,what = "QDNAseqCopyNumbers",which = F)){
+        sn<-Biobase::assayDataElement(x,"segmented")
+        fd <- Biobase::fData(x)
+        fd$use -> use
+        fdfiltfull<-fd[use,]
+        sn<-sn[use,]
+	      if(is.null(ncol(sn))){
+		      sampleNa <- Biobase::sampleNames(x)
+		      sn <- as.data.frame(sn)
+		      colnames(sn) <- sampleNa
+	      }
+        segTable<-c()
+        for(s in colnames(sn)){
+            for(c in unique(fdfiltfull$chromosome))
+            {
+                snfilt<-sn[fdfiltfull$chromosome==c,colnames(sn) == s]
+                fdfilt<-fdfiltfull[fdfiltfull$chromosome==c,]
+                sn.rle<-rle(snfilt)
+                starts <- cumsum(c(1, sn.rle$lengths[-length(sn.rle$lengths)]))
+                ends <- cumsum(sn.rle$lengths)
+                lapply(1:length(sn.rle$lengths), function(s) {
+                    from <- fdfilt$start[starts[s]]
+                    to <- fdfilt$end[ends[s]]
+                    segValue <- sn.rle$value[s]
+                    c(fdfilt$chromosome[starts[s]], from, to, segValue)
+                }) -> segtmp
+                segTableRaw <- data.frame(matrix(unlist(segtmp), ncol=4, byrow=T),sample = rep(s,times=nrow(matrix(unlist(segtmp), ncol=4, byrow=T))),stringsAsFactors=F)
+                segTable<-rbind(segTable,segTableRaw)
+            }
+        }
+        colnames(segTable) <- c("chromosome", "start", "end", "segVal","sample")
+        return(segTable)
+    } else {
+        # NON QDNASEQ BINNED DATA FUNCTION
+	stop("segtable error")
+    }
+}
+
+write.table(getSegTable(abs_profiles),
+	paste0(output_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_POST_down_sampling/abs_cn_rds/",project,"_",bin,"kb_ds_absCopyNumber_segTable.tsv"),
+	sep = "\t",quote=F,row.names=FALSE)
 
 #write table of fits
 write.table(res,paste0(output_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_POST_down_sampling/abs_cn_rds/",project,"_",bin,"kb_ds_abs_fits.tsv"),sep = "\t",quote=F,row.names=FALSE)

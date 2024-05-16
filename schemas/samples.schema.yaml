@@ -21,6 +21,22 @@ properties:
   smooth: 
     description: "True or fale boolean as to apply segment smoothing or not"
     type: boolean
+  precPloidy:
+    description: "pre-computed sample ploidy"
+    anyOf:
+      - type: number
+        minimum: 1
+        maximum: 20
+      - type: string
+        enum: ["NA"]
+  precPurity:
+    description: "pre-computed sample purity"
+    anyOf:
+      - type: number
+        minimum: 0
+        maximum: 1.0
+      - type: string
+        enum: ["NA"]
 
 required: 
   - SAMPLE_ID

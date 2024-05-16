@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import argparse
 import re
 import ruamel.yaml
@@ -27,7 +29,7 @@ parser.add_argument("-c","--config", \
     type=str, \
     required=True, \
     nargs=1, \
-    choices=['config','slurm','pbs','lsf','local'])
+    choices=['config','filters','slurm','pbs','lsf','local'])
 parser.add_argument("--advanced", help="Modify advanced cluster configuration",
                     action="store_true")
 args = parser.parse_args()
@@ -42,7 +44,23 @@ if args.config[0] == "config":
     config['bins'] = list(get_input(config['bins'],'bins'))
     config['out_dir'] = DoubleQuotedScalarString(get_input(config['out_dir'],'out_dir'))
     config['project_name'] = DoubleQuotedScalarString(get_input(config['project_name'],'project_name'))
+elif args.config[0] == "filters":
+    # Config file updates
+    print('Update config.yaml values (Return no value to keep the current value)')
+    file_name = 'config/config.yaml'
+    config, ind, bsi = ruamel.yaml.util.load_yaml_guess_indent(open(file_name))
+    # Update config values
     config['af_cutoff'] = float(get_input(config['af_cutoff'],'af_cutoff'))
+    config['use_seed'] = DoubleQuotedScalarString(get_input(config['use_seed'],'use_seed'))
+    config['seed_val'] = DoubleQuotedScalarString(get_input(config['seed_val'],'seed_val'))
+    config['filter_underpowered'] = DoubleQuotedScalarString(get_input(config['filter_underpowered'],'filter_underpowered'))
+    config['ploidy_min'] = float(get_input(config['ploidy_min'],'ploidy_min'))
+    config['ploidy_max'] = float(get_input(config['ploidy_max'],'ploidy_max'))
+    config['purity_min'] = float(get_input(config['purity_min'],'purity_min'))
+    config['purity_max'] = float(get_input(config['purity_max'],'purity_max'))
+    config['filter_homozygous'] = DoubleQuotedScalarString(get_input(config['filter_homozygous'],'filter_homozygous'))
+    config['homozygous_prop'] = int(get_input(config['homozygous_prop'],'homozygous_prop'))
+    config['homozygous_threshold'] = float(get_input(config['homozygous_threshold'],'homozygous_threshold'))
     # Save updated yaml
     with open('config/config.yaml', 'w') as fp:
         yaml.dump(config, fp)

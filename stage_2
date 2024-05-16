@@ -8,14 +8,17 @@ def get_ds_bams(P,B):
         fl = OUT_DIR+"sWGS_fitting/"+P+"_"+str(b)+"kb/absolute_PRE_down_sampling/"+P+"_fit_QC_predownsample.tsv"
         if os.path.isfile(fl):
             f = pd.read_table(fl).set_index(["SAMPLE_ID"], drop=False)
-            if f["use"].dtype == bool and all(~f.use.isnull()):
-                ftb = f[(f['use'] == True)]
-                if all(~ftb.SAMPLE_ID.duplicated()):
-                    d[str(b)] = list(ftb['SAMPLE_ID'])
+            if not f.empty:
+                if f["use"].dtype == bool and all(~f.use.isnull()):
+                    ftb = f[(f['use'] == True)]
+                    if all(~ftb.SAMPLE_ID.duplicated()):
+                        d[str(b)] = list(ftb['SAMPLE_ID'])
+                    else:
+                        sys.exit("QC file contains duplicated sample ids marked 'TRUE'")
                 else:
-                    sys.exit("QC file contains duplicated sample ids marked 'TRUE'")
+                    sys.exit("QC file 'use' column contains non-boolean values")
             else:
-                sys.exit("QC file 'use' column contains non-boolean values")
+                sys.exit("QC file is empty. Filtering criteria may need adjusting")
         else:
             sys.exit("QC file from stage 1 is missing")
     return(d)
@@ -23,6 +26,15 @@ def get_ds_bams(P,B):
 # Set new sample list based on filtered QC from stage 1
 PROJECT=config["project_name"]
 BIN=config["bins"]
+
+if any(samplesheet.SAMPLE_ID.duplicated()):
+    sys.exit("Sample sheet contains duplicated sample ids")
+
+
+prplpu = "FALSE"
+if all(samplesheet.precPloidy.notna()) and all(samplesheet.precPurity.notna()):
+    prplpu = "TRUE"
+
 SAMPLE_LISTS=get_ds_bams(PROJECT,BIN)
 
 rule all:

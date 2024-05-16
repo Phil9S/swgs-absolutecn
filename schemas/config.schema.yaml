@@ -12,12 +12,51 @@ properties:
     type: string
   bins:
     type: array
+    items:
+      type: number
+    uniqueItems: true
   project_name:
     type: string
   af_cutoff:
     type: number
-    min: 0
-    max: 1.0
+    minimum: 0
+    maximum: 1.0
+  use_seed:
+    type: string
+    enum: ["TRUE","FALSE"]
+  seed_val:
+    type: string
+  filter_underpowered:
+    type: string
+    enum: ["TRUE","FALSE"]
+  ploidy_min:
+    type: number
+    minimum: 1
+    maximum: 20
+  ploidy_max:
+    type: number
+    minimum: 1
+    maximum: 20
+  purity_min:
+    type: number
+    minimum: 0
+    maximum: 1.0
+  purity_max:
+    type: number
+    minimum: 0
+    maximum: 1.0
+  filter_homozygous:
+    type: string
+    enum: ["TRUE","FALSE"]
+  homozygous_prop:
+    type: number
+    minimum: 0
+  homozygous_threshold:
+    type: number
+    minimum: 0
+    maximum: 0.99
+  image_base_url:
+    type: string
 
 # entries that have to be in the config file for successful validation
 required:
@@ -25,4 +64,14 @@ required:
   - out_dir
   - bins
   - project_name
+  - use_seed
+  - seed_val
+  - filter_underpowered
+  - ploidy_min
+  - ploidy_max
+  - purity_min
+  - purity_max
+  - filter_homozygous
+  - homozygous_prop
+  - homozygous_threshold
 

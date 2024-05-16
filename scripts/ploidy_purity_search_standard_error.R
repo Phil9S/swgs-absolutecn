@@ -10,6 +10,19 @@ out_dir <- snakemake@params[["outdir"]]
 project <- snakemake@params[["project"]]
 cores <- as.numeric(snakemake@threads) 
 
+metafile <- snakemake@params[["meta"]]
+metadata <- read.table(file = metafile,header=T,sep="\t")
+
+# gridsearch params
+pl_min <- snakemake@params[["ploidy_min"]] # default 1.6
+pl_max <- snakemake@params[["ploidy_max"]] # default 8
+pu_min <- snakemake@params[["purity_min"]] # default 0.15
+pu_max <- snakemake@params[["purity_max"]] # deafult 1
+#print(c(pl_min,pl_max,pu_min,pu_max))
+
+# homozygous threshold
+hmz_thrsh <- snakemake@params[["homozygous_threshold"]]
+
 #load libraries
 suppressPackageStartupMessages(library(QDNAseqmod))
 suppressPackageStartupMessages(library(Biobase))
@@ -34,80 +47,12 @@ nbins_ref_genome <- sum(fData(rds.obj[[1]])$use)
 nbins<-nrow(bins)
 
 #define helper functions
-getSegTable<-function(x) #returns a table containing copy number segments
-{
-    dat<-x
-    sn<-assayDataElement(dat,"segmented")
-    fd <- fData(dat)
-    fd$use -> use
-    fdfiltfull<-fd[use,]
-    sn<-sn[use,]
-    segTable<-c()
-    for(c in unique(fdfiltfull$chromosome))
-    {
-        snfilt<-sn[fdfiltfull$chromosome==c]
-        fdfilt<-fdfiltfull[fdfiltfull$chromosome==c,]
-        sn.rle<-rle(snfilt)
-        starts <- cumsum(c(1, sn.rle$lengths[-length(sn.rle$lengths)]))
-        ends <- cumsum(sn.rle$lengths)
-        lapply(1:length(sn.rle$lengths), function(s) {
-            from <- fdfilt$start[starts[s]]
-            to <- fdfilt$end[ends[s]]
-            segValue <- sn.rle$value[s]
-            c(fdfilt$chromosome[starts[s]], from, to, segValue)
-        }) -> segtmp
-        segTableRaw <- data.frame(matrix(unlist(segtmp), ncol=4, byrow=T),stringsAsFactors=F)
-        segTable<-rbind(segTable,segTableRaw)
-    }
-    colnames(segTable) <- c("chromosome", "start", "end", "segVal")
-    segTable
-}
-
-getPloidy<-function(abs_profiles) #returns the ploidy of a sample from segTab or QDNAseq object
-{
-    out<-c()
-    samps<-getSampNames(abs_profiles)
-    for(i in samps)
-    {
-        if(class(abs_profiles)=="QDNAseqCopyNumbers")
-        {
-            segTab<-getSegTable(abs_profiles[,which(colnames(abs_profiles)==i)])
-        }
-        else
-        {
-            segTab<-abs_profiles[[i]]
-            colnames(segTab)[4]<-"segVal"
-        }
-        segLen<-(as.numeric(segTab$end)-as.numeric(segTab$start))
-        ploidy<-sum((segLen/sum(segLen))*as.numeric(segTab$segVal))
-        out<-c(out,ploidy)
-    }
-    data.frame(out,stringsAsFactors = F)
-}
-
-getSampNames<-function(abs_profiles) # convenience function for getting sample names from QDNAseq or segTab list
-{
-    if(class(abs_profiles)=="QDNAseqCopyNumbers")
-    {
-        samps<-colnames(abs_profiles)
-    }
-    else
-    {
-        samps<-names(abs_profiles)
-    }
-    samps
-}
-
 depthtocn<-function(x,purity,seqdepth) #converts readdepth to copy number given purity and single copy depth
 {
     (x/seqdepth-2*(1-purity))/purity
 }
 
-cntodepth<-function(cn,purity,seqdepth) #converts copy number to read depth given purity and single copy depth
-{
-    seqdepth*((1-purity)*2+purity*cn)
-}
-## TP53 target bin
+## TP53 target bin - hg19@30kb
 target <- c("17:7565097-7590863")
 get_gene_seg <- function(target=NULL,abs_data=NULL){
   to_use <- fData(abs_data)$use
@@ -135,9 +80,30 @@ get_gene_seg <- function(target=NULL,abs_data=NULL){
 #Get target anchor gene segments
 gene_bin_seg <- get_gene_seg(target = target,abs_data = rds.obj[[1]])
 
+#adjust for precomputed pl/pu
+metaSample <- snakemake@wildcards[["sample"]]
+metaflt <- metadata[metadata$SAMPLE_ID == metaSample,]
+
+# set gridsearch limits based on availability of 
+# precomputed pl/pu values
+if(!is.null(metaflt$precPloidy)){
+	if(!is.na(metaflt$precPloidy)){
+    		pl_min <- metaflt$precPloidy
+		pl_max <- metaflt$precPloidy
+  	}
+}
+
+if(!is.null(metaflt$precPurity)){
+	if(!is.na(metaflt$precPurity)){
+    		pu_min <- metaflt$precPurity
+		pu_max <- metaflt$precPurity
+	}
+}
+
 #estimate absolute copy number fits for all samples in parallel
-ploidies<-seq(1.6,8,0.1)
-purities<-seq(0.05,1,0.01)
+ploidies<-seq(pl_min,pl_max,0.1)
+purities<-seq(pu_min,pu_max,0.01)
+
 clonality<-c()
 #ind<-which(colnames(rds.obj)==sample)
 relcn<-rds.obj[[1]]
@@ -149,14 +115,11 @@ copynumber<-assayDataElement(relcn,"copynumber")
 rel_ploidy<-mean(copynumber,na.rm=T)
 num_reads<-sum(copynumber,na.rm=T)
 sample <- sampleNames(relcn)
-print(sample)
 
-res<-foreach(i=1:length(ploidies),.combine=rbind) %do%
-{
+#print(sample)
+res<-foreach(i=1:length(ploidies),.combine=rbind) %do% {
         ploidy<-ploidies[i]
-        #print(ploidy)
-        rowres<-foreach(j=1:length(purities),.combine=rbind)%do%
-        {
+	rowres<-foreach(j=1:length(purities),.combine=rbind) %do% {
             purity<-purities[j]
             downsample_depth<-(((2*(1-purity)+purity*ploidy)/(ploidy*purity))/purity)*15*(2*(1-purity)+purity*ploidy)*nbins_ref_genome*(1/0.91)
             cellploidy<-ploidy*purity+2*(1-purity)
@@ -171,16 +134,23 @@ res<-foreach(i=1:length(ploidies),.combine=rbind) %do%
             TP53cn<-round(depthtocn(median(seg[gene_bin_seg]),purity,seqdepth),1) # to 1 decimal place
             expected_TP53_AF<-TP53cn*purity/(TP53cn*purity+2*(1-purity))
             clonality<-mean(diffs)
-            c(ploidy,purity,clonality,downsample_depth,downsample_depth < rds.pdata$total.reads[row.names(rds.pdata)==sample],TP53cn,expected_TP53_AF)
+	    hmzyg <- sum(abs_cn <= hmz_thrsh) * bin_size
+            r <- c(ploidy,purity,clonality,downsample_depth,downsample_depth < rds.pdata$total.reads[row.names(rds.pdata)==sample],TP53cn,expected_TP53_AF,hmzyg)
+	    r <- as.data.frame(t(r))
+	    return(r)
         }
-        rowres
+	return(as.data.frame(rowres))
 }
 
-colnames(res)<-c("ploidy","purity","clonality","downsample_depth","powered","TP53cn","expected_TP53_AF")
-rownames(res)<-1:nrow(res)
-res<-data.frame(res,stringsAsFactors = F)
-res<-data.frame(apply(res,2,as.numeric,stringsAsFactors=F))
-res<-res[order(res$clonality,decreasing=FALSE),]
+colnames(res)<-c("ploidy","purity","clonality","downsample_depth","powered","TP53cn","expected_TP53_AF","homozygousLoss")
+if(nrow(res) > 1){
+	rownames(res)<-1:nrow(res)
+	res<-data.frame(res,stringsAsFactors = F)
+	res<-data.frame(apply(res,2,as.numeric,stringsAsFactors=F))
+	res<-res[order(res$clonality,decreasing=FALSE),]
+} else {
+	rownames(res) <- 1
+}
 
 #output plot of clonality error landscape
 pdf(snakemake@output[["pdf"]])
@@ -189,4 +159,4 @@ print(ggplot(res,aes(x=ploidy,y=purity,fill=clonality))+geom_tile()+
                theme_bw())
 dev.off()
 
-write.table(res,snakemake@output[["csv"]],sep="\t",quote=F,row.names=FALSE)
+write.table(res,snakemake@output[["tsv"]],sep="\t",quote=F,row.names=FALSE)
