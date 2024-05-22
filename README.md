@@ -272,7 +272,7 @@ Rscript scripts/processPrecomputed.R
 ```
 ```
 # singularity
-SIGCMD="singularity exec --bind "$(pwd -P)" docker://phil9s/swgs-absolutecn:latest"
+SIGCMD="singularity exec --bind "$(pwd -P)" --bind ${INPUTDIR},${OUTPUTDIR} docker://phil9s/swgs-absolutecn:latest"
 $SIGCMD Rscript scripts/processPrecomputed.R
 ```
 
