@@ -18,10 +18,6 @@ if [[ $# -eq 0 ]]; then
 	exit 1
 fi
 
-#echo -e "${MICROMAMBA_VERSION}"
-#echo -e "${MICROMAMBA_VERSION_N}"
-#echo -e "${INSTALLED_MICROMAMBA_VERSION}"
-
 if [ $1 == "mamba" ]; then
     # Check MICROMAMBA available
     if ! [ -x "$(command -v micromamba)" ]; then
@@ -38,7 +34,7 @@ if [ $1 == "mamba" ]; then
 
     echo -e "[${script}] Creating env"
     # micromamba install
-    micromamba env create -y -f config/conda.yaml
+    micromamba env create -y -f config/conda.yaml 1> /dev/null
     eval "$(micromamba shell hook --shell=bash)"
     micromamba activate swgs-abscn
 
@@ -72,7 +68,7 @@ elif [ $1 == "conda" ]; then
     else 
         CONDA_DIR=$2
     fi
-    conda env create -f config/conda.yaml
+    conda env create -f config/conda.yaml 1> /dev/null
     DIR=${CONDA_DIR}etc/profile.d/conda.sh
     if [ -f "${DIR}" ]; then
         echo -e "[${script}] Initialising conda env"
@@ -90,8 +86,12 @@ else
     exit 1
 fi
 
+echo -e "[${script}] Installing QDNAseq.hg38"
+Rscript -e 'remotes::install_github(repo = "asntech/QDNAseq.hg38",quiet=FALSE,upgrade=FALSE,force=TRUE)'
 echo -e "[${script}] Installing modified QDNAseq package"
-Rscript -e 'remotes::install_github(repo = "markowetzlab/QDNAseqmod",quiet=TRUE,upgrade=FALSE)'
+Rscript -e 'remotes::install_github(repo = "markowetzlab/QDNAseqmod",quiet=FALSE,upgrade=FALSE,force=TRUE)'
+
+
 echo -e "[${script}] Testing package installation"
 Rscript resources/package_load.R
 echo -e "[${script}] env ready and all packages installed!"
