@@ -57,6 +57,9 @@ properties:
     maximum: 0.99
   image_base_url:
     type: string
+  genome:
+    type: string
+    enum: ["hg19","hg38"]
 
 # entries that have to be in the config file for successful validation
 required:
@@ -74,4 +77,5 @@ required:
   - filter_homozygous
   - homozygous_prop
   - homozygous_threshold
+  - genome
 

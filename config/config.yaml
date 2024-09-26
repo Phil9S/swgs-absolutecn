@@ -49,6 +49,10 @@ homozygous_threshold: 0.4
 
 # container url for swgs-absolutecn
 image_base_url: docker://phil9s/
+
+# genome build - either hg19 or hg38
+genome: "hg19"
+
 # Not implemented
 #custom_bin: false
 #custom_bin_folder: "/custom_bin_data/"
