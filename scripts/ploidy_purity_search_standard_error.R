@@ -9,7 +9,7 @@ bin <- as.numeric(snakemake@params[["bin"]])
 out_dir <- snakemake@params[["outdir"]]
 project <- snakemake@params[["project"]]
 cores <- as.numeric(snakemake@threads) 
-
+genome <- as.character(snakemake@params[["genome"]])
 metafile <- snakemake@params[["meta"]]
 metadata <- read.table(file = metafile,header=T,sep="\t")
 
@@ -52,8 +52,14 @@ depthtocn<-function(x,purity,seqdepth) #converts readdepth to copy number given 
     (x/seqdepth-2*(1-purity))/purity
 }
 
-## TP53 target bin - hg19@30kb
-target <- c("17:7565097-7590863")
+## TP53 target bin (genome dependent)
+if(genome == "hg19"){
+        target <- c("17:7565097-7590863")
+} else if(genome == "hg38"){
+        target <- c("17:7661779-7687538")
+}
+
+
 get_gene_seg <- function(target=NULL,abs_data=NULL){
   to_use <- fData(abs_data)$use
   cn_obj <- abs_data[to_use,]

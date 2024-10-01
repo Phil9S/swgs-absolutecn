@@ -12,6 +12,7 @@ seed_val <- snakemake@params[["seed_val"]]
 metadata <- read.table(file = metafile,header=T,sep="\t")
 bam_list <- snakemake@input[["bams"]]
 outname <- snakemake@output[[1]]
+genome <- as.character(snakemake@params[["genome"]])
 
 suppressMessages(library(parallel))
 suppressMessages(library(tidyverse))
@@ -20,12 +21,12 @@ suppressMessages(library(QDNAseqmod))
 suppressMessages(library(plyr))
 
 ## generate annotation file either by preloading calculated files or generating new one
-bins <- getBinAnnotations(binSize=bin.size)
+bins <- getBinAnnotations(binSize=bin.size,genome=genome)
 
 # Samples to smooth
 smoothed_samples <- as.character(metadata$SAMPLE_ID[metadata$smooth == "TRUE"])
 
-readCounts <- mclapply(X=bam_list, FUN=binReadCounts, bins=bins, mc.cores=ncores,chunkSize=1e7)
+readCounts <- mclapply(X=bam_list, FUN=binReadCounts, bins=bins,mc.cores=ncores,chunkSize=1e7)
 
 ## if copyNumbersSegment file exists read it else generate it
 # apply filter based on loess fit residuals and encode/1000-genome balcklist

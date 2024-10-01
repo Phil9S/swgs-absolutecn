@@ -87,9 +87,9 @@ else
 fi
 
 echo -e "[${script}] Installing QDNAseq.hg38"
-Rscript -e 'remotes::install_github(repo = "asntech/QDNAseq.hg38",quiet=FALSE,upgrade=FALSE,force=TRUE)'
+Rscript -e 'remotes::install_github(repo = "markowetzlab/QDNAseq.hg38",quiet=TRUE,upgrade=FALSE,force=TRUE)'
 echo -e "[${script}] Installing modified QDNAseq package"
-Rscript -e 'remotes::install_github(repo = "markowetzlab/QDNAseqmod",quiet=FALSE,upgrade=FALSE,force=TRUE)'
+Rscript -e 'remotes::install_github(repo = "markowetzlab/QDNAseqmod",quiet=TRUE,upgrade=FALSE,force=TRUE)'
 
 
 echo -e "[${script}] Testing package installation"

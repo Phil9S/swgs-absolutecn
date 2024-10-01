@@ -11,6 +11,7 @@ rule ds_relRDS:
         project="{project}",
         bin="{bin}",
         use_seed=config["use_seed"],
-        seed_val=config["seed_val"]
+        seed_val=config["seed_val"],
+        genome=config["genome"]
     script:
         "../scripts/qdnaseq_mod_ds.R"
