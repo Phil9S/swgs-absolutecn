@@ -50,6 +50,11 @@ image_base_url: docker://phil9s/
 # genome build - either hg19 or hg38
 genome: "hg19"
 
-# Not implemented
-#custom_bin: false
-#custom_bin_folder: "/custom_bin_data/"
+# filetype - BAM or CRAM
+# Default 'BAM'
+# CRAMs can be used but are temporarily converted to BAMs
+# during the workflow due to Rsamtools limitations
+filetype: 'CRAM'
+# reference - reference used in CRAM generation
+reference: '/mnt/scratcha/fmlab/smith10/britroc/reference_genome/hsa.GRCh37_g1kp2.fa'
+

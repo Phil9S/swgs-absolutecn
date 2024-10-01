@@ -14,7 +14,7 @@ if all(samplesheet.precPloidy.notna()) and all(samplesheet.precPurity.notna()):
 SAMPLES = list(samplesheet['SAMPLE_ID'].unique())
 FILE_LIST = list(samplesheet['file'].unique())
 
-localrules: all, check_bam
+localrules: all, check_bam, sym_link
 
 rule all:
     input:
