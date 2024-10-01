@@ -1,31 +1,28 @@
 ---
 # Sample sheet
-samplesheet: sample_sheet.tsv
+samplesheet: "sample_sheet.tsv"
 
 # Output location
-out_dir: results/
+out_dir: "results/"
 
 # Bin sizes
 # By default any in [1,5,15,30,50,100,500,1000]
 # Add new line for additional bin sizes
 bins:
 - 30
-#- 100 
-
-# Set project dir name
-project_name: nm_test
+project_name: "nm_test"
 
 # Pipeline parameters
 af_cutoff: 0.15
 
 # Set seed for CBS - TRUE or FALSE
 # default TRUE
-use_seed: "TRUE"
-seed_val: "9999"
+use_seed: 'TRUE'
+seed_val: '9999'
 
 # fitler underpowered solutions - TRUE or FALSE
 # Default TRUE
-filter_underpowered: "TRUE"
+filter_underpowered: 'TRUE'
 
 # ploidy range
 # Default min = 1.6 | max = 8
@@ -39,7 +36,7 @@ purity_max: 1.0
 
 # Homozygous loss filter - TRUE or FALSE
 # Default "TRUE"
-filter_homozygous: "TRUE"
+filter_homozygous: 'TRUE'
 # Threshold basepairs lost
 # Default 10000000 / 10Mbase
 homozygous_prop: 10000000

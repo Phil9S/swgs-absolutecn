@@ -44,6 +44,7 @@ if args.config[0] == "config":
     config['bins'] = list(get_input(config['bins'],'bins'))
     config['out_dir'] = DoubleQuotedScalarString(get_input(config['out_dir'],'out_dir'))
     config['project_name'] = DoubleQuotedScalarString(get_input(config['project_name'],'project_name'))
+    config['genome'] = DoubleQuotedScalarString(get_input(config['genome'],'genome'))
     # Save updated yaml
     with open('config/config.yaml', 'w') as fp:
         yaml.dump(config, fp)
