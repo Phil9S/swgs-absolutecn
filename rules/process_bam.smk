@@ -9,6 +9,8 @@ if config['filetype'] in ["CRAM"]:
         output:
             temp(expand(OUT_DIR+"sWGS_fitting/{{project}}_{{bin}}kb/bams/{{sample}}.bam"))
         threads: 1
+        singularity:
+            image_base_url+"swgs-absolutecn:latest"
         shell:
             "samtools view -b -T {params.reference} {input.bam} > {output} && samtools index {output}"
 else:

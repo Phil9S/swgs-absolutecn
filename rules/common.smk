@@ -84,3 +84,6 @@ if PLMIN > PLMAX:
 if PUMIN > PUMAX:
     sys.exit("Config error - Minimum purity exceeds or is equal to maximum purity")
 
+def get_bam(wildcards):
+    files = list(samplesheet.loc[(wildcards.sample), ["file"]])
+    return files

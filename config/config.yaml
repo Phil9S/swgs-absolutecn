@@ -54,7 +54,7 @@ genome: "hg19"
 # Default 'BAM'
 # CRAMs can be used but are temporarily converted to BAMs
 # during the workflow due to Rsamtools limitations
-filetype: 'CRAM'
+filetype: "CRAM"
 # reference - reference used in CRAM generation
-reference: '/mnt/scratcha/fmlab/smith10/britroc/reference_genome/hsa.GRCh37_g1kp2.fa'
+reference: "/mnt/scratcha/fmlab/smith10/britroc/reference_genome/hsa.GRCh37_g1kp2.fa"
 

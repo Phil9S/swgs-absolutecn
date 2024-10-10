@@ -43,6 +43,7 @@ rule all:
         expand(OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/abs_cn_rds/{project}_{bin}kb_ds_abs_fits.tsv",project=config["project_name"],bin=config["bins"])
 
 # pipeline rules
+include: "rules/ds_symlink.smk"
 include: "rules/downsample.smk"
 include: "rules/downsampled_rel_rds.smk"
 include: "rules/rel_to_abs.smk"

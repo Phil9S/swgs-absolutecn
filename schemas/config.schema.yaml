@@ -60,6 +60,12 @@ properties:
   genome:
     type: string
     enum: ["hg19","hg38"]
+  filetype:
+    type: string
+    enum: ["CRAM","BAM"]
+  reference:
+    type: string
+
 
 # entries that have to be in the config file for successful validation
 required:

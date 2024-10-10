@@ -1,10 +1,6 @@
 # The main entry point of your workflow.
 include: "rules/common.smk"
 
-def get_bam(wildcards):
-    files = list(samplesheet.loc[(wildcards.sample), ["file"]])
-    return files
-
 if any(samplesheet.SAMPLE_ID.duplicated()):
     sys.exit("Sample sheet contains duplicated sample ids")
 
@@ -22,7 +18,7 @@ rule all:
 
 # pipeline rules
 include: "rules/bam_check.smk"
-include: "rules/symlink.smk"
+include: "rules/process_bam.smk"
 include: "rules/rel_rds.smk"
 include: "rules/gridsearch.smk"
 include: "rules/filter_gridsearch.smk"
