@@ -10,7 +10,7 @@ out_dir: "results/"
 # Add new line for additional bin sizes
 bins:
 - 30
-project_name: "nm_test"
+project_name: "example_run"
 
 # Pipeline parameters
 af_cutoff: 0.15
@@ -54,7 +54,7 @@ genome: "hg19"
 # Default 'BAM'
 # CRAMs can be used but are temporarily converted to BAMs
 # during the workflow due to Rsamtools limitations
-filetype: "CRAM"
-# reference - reference used in CRAM generation
-reference: "/mnt/scratcha/fmlab/smith10/britroc/reference_genome/hsa.GRCh37_g1kp2.fa"
+filetype: "BAM"
+# reference - reference used in CRAM generation for conversion back to BAM
+reference: "reference/hsa.GRCh37_g1kp2.fa"
 
