@@ -12,7 +12,9 @@ rule downsample:
         prplpu=prplpu,
         bin="{bin}",
         project="{project}",
-        sample="{sample}"
+        sample="{sample}",
+        reference=config["reference"],
+        filetype=config["filetype"]
     script:
         "../scripts/downsampleBams.R"
     

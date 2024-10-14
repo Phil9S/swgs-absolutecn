@@ -13,6 +13,7 @@ qc.data <- read.table(snakemake@input[["meta"]],header = T,sep = "\t")
 output_dir <- snakemake@params[["outdir"]]
 bin <- as.numeric(snakemake@params[["bin"]])
 project <- snakemake@params[["project"]]
+genome <- snakemake@params[["genome"]]
 cores <- as.numeric(snakemake@threads)
 registerDoMC(cores)
 
@@ -35,8 +36,12 @@ collapse_rds <- function(rds.list){
   return(rds.obj)
 }
 
-## TP53 target bin
-target <- c("17:7565097-7590863")
+## TP53 target bin (genome dependent)
+if(genome == "hg19"){
+	target <- c("17:7565097-7590863")
+} else if(genome == "hg38"){
+	target <- c("17:7661779-7687538")
+}
 get_gene_seg <- function(target=NULL,abs_data=NULL){
   to_use <- fData(abs_data)$use
   cn_obj <- abs_data[to_use,]

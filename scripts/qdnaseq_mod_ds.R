@@ -12,7 +12,7 @@ bam_list <- snakemake@input[["bam"]]
 outname <- snakemake@output[[1]]
 use_seed <- snakemake@params[["use_seed"]]
 seed_val <- snakemake@params[["seed_val"]]
-
+genome <- as.character(snakemake@params[["genome"]])
 
 suppressMessages(library(parallel))
 suppressMessages(library(tidyverse))
@@ -25,7 +25,7 @@ metadata <- metadata[metadata$use == "TRUE",]
 sampleIds <- unique(metadata$SAMPLE_ID)
 
 ## generate annotation file either by preloading calculated files or generating new one
-bins <- getBinAnnotations(binSize=bin.size)
+bins <- getBinAnnotations(binSize=bin.size,genome=genome)
 
 # Samples to smooth
 smoothed_samples <- as.character(metadata$SAMPLE_ID[metadata$smooth == "TRUE"])

@@ -11,7 +11,8 @@ rule relRDS:
         project="{project}",
         meta=config["samplesheet"],
         use_seed=config["use_seed"],
-        seed_val=config["seed_val"]
+        seed_val=config["seed_val"],
+        genome=config["genome"]
     script:
         "../scripts/qdnaseq_mod.R"
 

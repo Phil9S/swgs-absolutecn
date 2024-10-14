@@ -7,7 +7,7 @@ __default__:
   nodes: 1   # nodes to use
   cpus-per-task: 1   # ncpus
   ntasks: 1   # num of tasks
-  mem: 2000   # memory MB
+  mem: 32000  # memory MB
   output: logs/{rule}_{wildcards}.log # output log
   error: logs/{rule}_{wildcards}.err # error log
 

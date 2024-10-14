@@ -10,7 +10,8 @@ rule rel_to_abs:
     params:
         outdir=OUT_DIR,
         project="{project}",
-        bin="{bin}"
+        bin="{bin}",
+        genome=config["genome"]
     threads: THREADS 
     script:
         "../scripts/qdnaseq_rel_to_abs.R"
