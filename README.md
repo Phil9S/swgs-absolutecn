@@ -42,13 +42,13 @@ Samples passing all filtering criteria then undergo read downsampling to the spe
 
 ### Reference genome
 
-This pipeline is currently supports both hg19 and hg38 reference genomes by specifying the correct build in the configuration file `config/config.yaml`. Currently there are no checks in place for using files aligned to an unsupported reference genome or to check that reference genomes are correct.
+This pipeline currently supports both hg19 and hg38 reference genomes by specifying the correct build in the configuration file `config/config.yaml`. Currently there are no checks in place for using files aligned to an unsupported reference genome or to check that reference genomes are correct.
 
 ### Aligned read format
 
-The pipeline accepts either BAM or CRAM files as the initial input, though it currently does not support the use of both concurrently. Users should specify the filetype in the `config.yaml` as either BAM or CRAM and provide a reference genome matching the one used in CRAM generation using the reference parameter in the `config.yaml`. If using the containerised implementation, it is recommended to place the reference genome within the input file directory to reduce unnecessary directory binding.
+The pipeline accepts either BAM or CRAM files as the initial input, though it currently does not support the use of both concurrently. Users should specify the filetype in the `config/config.yaml` as either BAM or CRAM and provide a reference genome matching the one used in CRAM generation using the reference parameter in the `config/config.yaml`. If using the containerised implementation, it is recommended to place the reference genome within the input file directory to reduce unnecessary directory binding.
 
-Using the CRAM implementation currently involves the decompresssion of CRAM files to BAM format as the underlying Rsamtools functions in QDNAseq will not load from CRAM. As such, the CRAM implementation will generate a larger diskspace footprint than the BAM implmenetation. The pipeline will currently remove decompressed BAMs once their required outputs are generated. 
+Using the CRAM implementation currently involves the decompresssion of CRAM files to BAM format as the underlying Rsamtools functions in QDNAseq will not load from CRAM. As such, the CRAM implementation will generate a larger diskspace footprint than the BAM implementation. The pipeline will currently remove decompressed BAMs once their required outputs are generated. 
 
 ## Pipeline setup
 
