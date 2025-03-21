@@ -2,6 +2,8 @@ args = commandArgs(trailingOnly=TRUE)
 suppressPackageStartupMessages(library(Biobase))
 suppressPackageStartupMessages(library(dplyr))
 
+options(scipen=999)
+
 bam_in <- snakemake@input[["bam"]]
 meta <- snakemake@input[["meta"]]
 rds <- snakemake@input[["rds"]]
@@ -32,15 +34,20 @@ if(prplpu == "TRUE"){
 }
 
 fit.qc.filt$total.reads <- read.data$total.reads[match(x = fit.qc.filt$SAMPLE_ID,read.data$name)]
-fit.qc.filt$ratio <- round(fit.qc.filt$downsample_depth / fit.qc.filt$total.reads,digits = 3)
+fit.qc.filt$ratio <- round(fit.qc.filt$downsample_depth / fit.qc.filt$total.reads,digits = 4)
 
 perc <- fit.qc.filt %>%
    .$ratio
 
 # If read ratio is greater than 0.96 (i.e close to original or higher than available reads)
 # CRAM files will always be downsampled into bams regardless of ratio between downsample depth and total reads
+# Error catch for read ratios lower than 1e-4 (Large bin / high coverages / Low ploidy / High purity)
+
 if(perc > 1){
   perc <- 1
+} else if(perc == 0){
+  message("downsample ratio too low - set to 0.0001 percent")
+  perc <- 0.0001
 }
 
 if(filetype == "CRAM"){
