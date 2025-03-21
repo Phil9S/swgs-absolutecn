@@ -102,7 +102,7 @@ and then set the singularity args variable
 ```
 SIGBIND="--use-singularity --singularity-args \"--bind ${INPUTDIR},${OUTPUTDIR}\""
 ```
-The containerised environment can be found on docker hub here [phil9s/swgs-absolutecn](https://hub.docker.com/repository/docker/phil9s/swgs-absolutecn/)
+The containerised environment can be found on docker hub here [phil9s/swgs-absolutecn](https://hub.docker.com/r/phil9s/swgs-absolutecn)
 
 ### Step 3 Preparing the input files
 #### Sample sheet
