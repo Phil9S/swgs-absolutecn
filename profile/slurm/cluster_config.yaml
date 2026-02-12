@@ -2,7 +2,7 @@
 # Default job submissions
 __default__:
   account: fmlab # hpc account
-  partition: general # slurm partition
+  partition: epyc    # slurm partition
   time: 60   # time mins
   nodes: 1   # nodes to use
   cpus-per-task: 1   # ncpus

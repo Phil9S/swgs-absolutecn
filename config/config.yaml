@@ -10,7 +10,7 @@ out_dir: "results/"
 # Add new line for additional bin sizes
 bins:
 - 30
-project_name: "example_run"
+project_name: "scUnique_extra"
 
 # Pipeline parameters
 af_cutoff: 0.15
@@ -22,7 +22,7 @@ seed_val: '9999'
 
 # fitler underpowered solutions - TRUE or FALSE
 # Default TRUE
-filter_underpowered: 'TRUE'
+filter_underpowered: 'FALSE'
 
 # ploidy range
 # Default min = 1.6 | max = 8
@@ -56,5 +56,5 @@ genome: "hg19"
 # during the workflow due to Rsamtools limitations
 filetype: "BAM"
 # reference - reference used in CRAM generation for conversion back to BAM
-reference: "reference/hsa.GRCh37_g1kp2.fa"
+reference: "data/reference/hsa.GRCh37_g1kp2.fa"
 
