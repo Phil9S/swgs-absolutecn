@@ -236,7 +236,7 @@ if(length(unique(pruned_results$SAMPLE_ID)) == 1){
                       " p=",round(purity,2),
                       " pl=",round(ploidy,2),
                       sep=""),cex.main=0.8)
-    abline(h=1:9,col = "blue")
+    abline(h=1:yrange-1,col = "blue")
   
     }
     dev.off()
