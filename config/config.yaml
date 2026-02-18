@@ -10,7 +10,7 @@ out_dir: "results/"
 # Add new line for additional bin sizes
 bins:
 - 30
-project_name: "scUnique_extra"
+project_name: "scUnique_extra_PE100"
 
 # Pipeline parameters
 af_cutoff: 0.15

@@ -6,6 +6,7 @@ bin.size <- as.numeric(snakemake@params[["bin"]])
 ncores <- 1
 output_dir <- snakemake@params[["outdir"]]
 project <- snakemake@params[["project"]]
+sample <- snakemake@params[["sample"]]
 metafile <- snakemake@params[["meta"]]
 use_seed <- snakemake@params[["use_seed"]]
 seed_val <- snakemake@params[["seed_val"]]
@@ -20,11 +21,19 @@ suppressMessages(library(Biobase))
 suppressMessages(library(QDNAseqmod))
 suppressMessages(library(plyr))
 
+print(snakemake@params)
+print(snakemake@input)
+print(snakemake@output)
+
+
+smoothed_samples <- metadata$smooth[metadata$SAMPLE_ID == sample]
+print(smoothed_samples)
+
 ## generate annotation file either by preloading calculated files or generating new one
-bins <- getBinAnnotations(binSize=bin.size,genome=genome)
+bins <- getBinAnnotations(binSize=bin.size,genome=genome,type="PE100")
 
 # Samples to smooth
-smoothed_samples <- as.character(metadata$SAMPLE_ID[metadata$smooth == "TRUE"])
+#smoothed_samples <- as.character(metadata$SAMPLE_ID[metadata$smooth == "TRUE"])
 
 readCounts <- mclapply(X=bam_list, FUN=binReadCounts, bins=bins,mc.cores=ncores,chunkSize=1e7)
 
@@ -63,7 +72,7 @@ smooth_samples <- function(obj){
   # Check if smoothing needed
   smooth.bool <- FALSE
   relative_tmp <- NULL
-  if(sampleNames(obj) %in% smoothed_samples){
+  if(smoothed_samples){
     smooth.bool <- TRUE
     currsamp <- relcn
     maxseg<-300

@@ -7,6 +7,7 @@ rule relRDS:
         image_base_url+"swgs-absolutecn:latest"
     params:
         bin="{bin}",
+        sample="{sample}",
         outdir=OUT_DIR,
         project="{project}",
         meta=config["samplesheet"],
