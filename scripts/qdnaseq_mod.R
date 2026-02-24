@@ -6,7 +6,7 @@ bin.size <- as.numeric(snakemake@params[["bin"]])
 output_dir <- snakemake@params[["outdir"]]
 project <- snakemake@params[["project"]]
 sample <- snakemake@params[["sample"]]
-metafile <- snakemake@params[["meta"]]
+metafile <- snakemake@input[["meta"]]
 use_seed <- snakemake@params[["use_seed"]]
 seed_val <- snakemake@params[["seed_val"]]
 metadata <- read.table(file = metafile,header=T,sep="\t")

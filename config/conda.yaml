@@ -3,9 +3,11 @@ channels:
   - conda-forge
   - bioconda 
 dependencies:
-  - r-base>4.2.0
+  - r-base=4.3.3
   - snakemake=5.10
+  - python=3.10
   - pandas
+  - setuptools=81.0
   - ruamel.yaml
   - samtools
   - bioconductor-biobase

@@ -7,9 +7,9 @@ rule ds_relRDS:
     singularity:
         image_base_url+"swgs-absolutecn:latest"
     params:
+        bin="{bin}",
         outdir=OUT_DIR,
         project="{project}",
-        bin="{bin}",
         use_seed=config["use_seed"],
         seed_val=config["seed_val"],
         genome=config["genome"]
