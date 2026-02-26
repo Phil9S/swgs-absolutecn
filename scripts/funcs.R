@@ -1,4 +1,10 @@
-## Functions used by swgs-abscn
+## Functions and vars used by swgs-abscn
+
+# define vars
+fittingColumnNames <- c("SAMPLE_ID","ploidy","purity","clonality","rmse",
+                        "downsample_depth","powered","TP53cn","expected_TP53_AF",
+                        "homozygousLoss","MedianSegVar")
+
 #define helper functions
 # converts readdepth to copy number given purity and single copy depth
 depthtocn<-function(x,purity,seqdepth){
