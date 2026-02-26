@@ -18,4 +18,4 @@ rule gridsearch_fitting:
         homozygous_threshold=config["homozygous_threshold"],
         genome=config["genome"]
     script:
-        "../scripts/ploidy_purity_search_standard_error.R"
+        "../scripts/gridsearch.R"
