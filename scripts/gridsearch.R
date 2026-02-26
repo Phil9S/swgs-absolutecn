@@ -106,15 +106,15 @@ for(i in 1:length(ploidies)){
   res <- rbind(res,rowres)
 }
 # Format gridsearch table
-colnames(res) <- c("ploidy","purity","clonality","rmse","downsample_depth",
-                   "powered","TP53cn","expected_TP53_AF","homozygousLoss","MedianSegVar")
+res <- cbind(rep(metaSample,times=nrow(res)),res)
+colnames(res) <- fittingColumnNames
 res <- res[order(res$clonality,decreasing=FALSE),]
 
 # Output sunrise plot of clonality error landscape
 pdf(snakemake@output[["pdf"]])
 print(ggplot2::ggplot(res,ggplot2::aes(x=ploidy,y=purity,fill=clonality)) +
         ggplot2::geom_tile()+
-        ggplot2::scale_x_continuous(expand = c(0,0),breaks = ploidies[seq.int(1,length(ploidies),2)]) +
+        ggplot2::scale_x_continuous(expand = c(0,0),breaks = ploidies[seq.int(1,length(ploidies),4)]) +
         ggplot2::scale_y_continuous(expand = c(0,0),breaks = purities[seq.int(1,length(purities),5)]) +
         ggplot2::scale_fill_gradient(low = "blue", high = "white",name = "clonality\n(MAE)") +
         ggplot2::theme_bw() +
