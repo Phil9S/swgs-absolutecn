@@ -1,9 +1,3 @@
-library(tidyverse)
-library(Biobase)
-library(QDNAseqmod)
-suppressWarnings(library(doMC))
-suppressWarnings(library(foreach))
-
 ## Added by PS
 args = commandArgs(trailingOnly=TRUE)
 metafile <- snakemake@params[["meta"]]
