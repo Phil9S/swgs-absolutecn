@@ -164,7 +164,6 @@ if(length(unique(pruned_results$SAMPLE_ID)) == 1){
     dat <-  pruned_results %>%
       dplyr::filter(SAMPLE_ID == i) %>%
       dplyr::arrange(ploidy)
-    #arrange(rank_clonality)
     x <- relative_smoothed[, i]
     cn <- Biobase::assayDataElement(x,"copynumber")
     seg <- Biobase::assayDataElement(x,"segmented")
@@ -182,13 +181,6 @@ if(length(unique(pruned_results$SAMPLE_ID)) == 1){
       abs_cn <- depthtocn(cn,purity,seqdepth)
       abs_seg <- depthtocn(seg,purity,seqdepth)
       
-      if(s != 0){
-        print(s)
-        subsample <- sort(sample(x = 1:length(abs_cn),size = s*length(abs_cn)))
-        abs_cn[subsample] <- NA
-      } else {
-        print(s)
-      }
       Biobase::assayDataElement(x,"copynumber") <- abs_cn
       Biobase::assayDataElement(x,"segmented") <- abs_seg
       
