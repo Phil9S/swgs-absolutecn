@@ -5,7 +5,7 @@ fittingColumnNames <- c("SAMPLE_ID","ploidy","purity","clonality","rmse",
                         "downsample_depth","powered","TP53cn","expected_TP53_AF",
                         "homozygousLoss","MedianSegVar")
 
-#define helper functions
+# Define helper functions
 # Performs quickcheck of BAM files
 bamCheck <- function(x=NULL){
   if(is.null(x)){
