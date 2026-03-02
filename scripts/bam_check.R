@@ -8,4 +8,4 @@ bam <- snakemake@input[["bam"]]
 outname <- snakemake@output[[1]]
 
 source("scripts/funcs.R")
-bamCheck(x = bam)
+bamCheck(x = bam,outname = outname)

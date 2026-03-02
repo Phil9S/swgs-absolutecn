@@ -7,7 +7,7 @@ fittingColumnNames <- c("SAMPLE_ID","ploidy","purity","clonality","rmse",
 
 # Define helper functions
 # Performs quickcheck of BAM files
-bamCheck <- function(x=NULL){
+bamCheck <- function(x=NULL,outname=NULL){
   if(is.null(x)){
     stop("no BAMs provided")
   }

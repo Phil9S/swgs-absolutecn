@@ -2,3 +2,4 @@ logs/*
 .snakemake/
 profile/slurm/__pycache__/
 scripts/.Rhistory
+.Rhistory

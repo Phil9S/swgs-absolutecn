@@ -1,70 +1,57 @@
+# processPrecomputed.R
 args <- commandArgs(trailingOnly=TRUE)
 suppressPackageStartupMessages(library(yaml))
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(tidyr))
 suppressPackageStartupMessages(library(QDNAseqmod))
 suppressPackageStartupMessages(library(Biobase))
+source("scripts/funcs.R")
 
 cat("[processPrecomputed] Generating file to skip stage_1\n")
 cat("[processPrecomputed] Reading config and samplesheet files...\n")
-config <- read_yaml(file="config/config.yaml")
-
+config <- yaml::read_yaml(file="config/config.yaml")
 samplesheet <- read.table(config$samplesheet,header=TRUE,sep="\t")
 projectBin <- paste0(config$project_name,"_",config$bin,"kb")
 outputLoc <- paste0(config$out_dir,"sWGS_fitting/",projectBin,"/")
 
-
 if(any(is.na(samplesheet$precPloidy)) | any(is.na(samplesheet$precPurity))){
-	stop("some samples do not have precomputed ploidy and purity values - check the samplesheet")
+  stop(paste0("Missing precomputed ploidy and purity values - check ",
+	            config$samplesheet))
 }
 
 cat("[processPrecomputed] Loading genome bin data...\n")
 bin <- config$bin
-bin_size <- bin*1000
-bins<-getBinAnnotations(binSize = bin)
-# actual number of bins varies in stage_1 due to filtering so total usable bins is adjusted to attempt to fix this
-nbins_ref_genome <- round(sum(bins@data$use) * 0.932) #0.932 ratio between actual usable bins and total usable bins in bin annotation data
+bin_size <- bin * 1000
+bins <- QDNAseqmod::getBinAnnotations(binSize = bin)
+
+# Actual number of bins varies in stage_1 due to filtering so total usable bins
+# is adjusted to attempt to fix this. 0.932 ratio between actual usable bins and
+# total usable bins in bin annotation data
+nbins_ref_genome <- round(sum(bins@data$use) * 0.932)
 
 pre <- "absolute_PRE_down_sampling/"
 preFile <- paste0(outputLoc,pre,config$project_name,"_fit_QC_predownsample.tsv")
 
-
 if(!dir.exists(outputLoc)){
-        dir.create(outputLoc,recursive=TRUE)
+  dir.create(outputLoc,recursive=TRUE)
 }
 
 cat("[processPrecomputed] Verifying BAM files...\n")
 # check bams
 bam <- samplesheet$file
 outname <- paste0(outputLoc,"bam.ok")
-log_vector <- c()
-check_vector <- c()
-for(i in bam){
-        cmd <- paste0("samtools quickcheck -q ",i)
-        if(system(cmd) == 0){
-                log_vector <- append(log_vector, paste0("BAM valid - ",i))
-                check_vector <- append(check_vector,FALSE)
-        } else {
-                log_vector <- append(log_vector,paste0("BAM invalid or missing - ",i))
-                check_vector <- append(check_vector,TRUE)
-        }
-}
-
-if(any(check_vector)){
-        outname <- gsub(pattern = "ok",replacement = "invalid",outname)
-        writeLines(text = as.character(log_vector),con = outname)
-} else {
-        writeLines(text = as.character(log_vector),con = outname)
-}
+bamCheck(x = bam,outname = outname)
 
 cat("[processPrecomputed] Creating BAM file symlinks...\n")
-# generate symlinks for bams
+# generate symlinks for BAMs
 symoutLoc <- paste0(outputLoc,"bams/")
 if(!dir.exists(symoutLoc)){
-        dir.create(symoutLoc,recursive=TRUE)
+  dir.create(symoutLoc,recursive=TRUE)
 }
+
 for(i in 1:nrow(samplesheet)){
-	symcmd <- paste0("ln -s ",samplesheet$file[i]," ",symoutLoc,samplesheet$SAMPLE_ID[i],".bam")
+	symcmd <- paste0("ln -s ",samplesheet$file[i]," ",
+	                 symoutLoc,samplesheet$SAMPLE_ID[i],".bam")
 	system(symcmd)
 }
 
@@ -82,17 +69,21 @@ for(i in 1:nrow(samplesheet)){
 writeLines(text = as.character(samplesheet$SAMPLE_ID),
                 paste0(outputLoc,pre,projectBin,"_relSmoothedCN.rds"))
 
+# generate QC file
 cat("[processPrecomputed] Generating stage_2 QC file input...\n")
-# generate qc file
-preFileCols <- c("clonality","powered","TP53cn","expected_TP53_AF","TP53freq","rank_clonality","pl_diff","pu_diff","new","new_state")
+preFileCols <- c("clonality","powered","TP53cn","expected_TP53_AF","TP53freq",
+                 "rank_clonality","pl_diff","new_state_n","new_state")
+
 samplesheet <- samplesheet %>%
-		dplyr::select(SAMPLE_ID,PATIENT_ID,precPloidy,precPurity,TP53freq,smooth) %>%
-		rename("ploidy"="precPloidy","purity"="precPurity") %>%
-		mutate(!!!setNames(rep(NA, length(preFileCols)), preFileCols)) %>%
-		mutate(downsample_depth = (((2*(1-purity)+purity*ploidy)/(ploidy*purity))/purity)*15*(2*(1-purity)+purity*ploidy)*nbins_ref_genome*(1/0.91)) %>%
-		mutate(use = TRUE) %>%
-		mutate(notes = "using preprocessed ploidy purity values") %>%
-		select(SAMPLE_ID,PATIENT_ID,ploidy,purity,clonality,downsample_depth,powered,TP53cn,expected_TP53_AF,TP53freq,smooth,rank_clonality,pl_diff,pu_diff,new,new_state,use,notes)
+	dplyr::select(SAMPLE_ID,PATIENT_ID,precPloidy,precPurity,TP53freq,smooth) %>%
+  dplyr::rename("ploidy"="precPloidy","purity"="precPurity") %>%
+  dplyr::mutate(!!!setNames(rep(NA, length(preFileCols)), preFileCols)) %>%
+  dplyr::mutate(downsample_depth = getDownsampleDepth(ploidy=ploidy,purity=purity,nbins_ref_genome=nbins_ref_genome))
+  dplyr::mutate(use = TRUE) %>%
+  dplyr::mutate(notes = "using preprocessed ploidy purity values") %>%
+  dplyr::select(SAMPLE_ID,PATIENT_ID,ploidy,purity,clonality,downsample_depth,
+                powered,TP53cn,expected_TP53_AF,TP53freq,smooth,rank_clonality,
+                pl_diff,pu_diff,new,new_state,use,notes)
 
 foutputLoc <- paste0(outputLoc,pre)
 if(!dir.exists(foutputLoc)){
