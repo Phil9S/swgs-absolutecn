@@ -6,6 +6,34 @@ fittingColumnNames <- c("SAMPLE_ID","ploidy","purity","clonality","rmse",
                         "homozygousLoss","MedianSegVar")
 
 #define helper functions
+# Performs quickcheck of BAM files
+bamCheck <- function(x=NULL){
+  if(is.null(x)){
+    stop("no BAMs provided")
+  }
+  
+  log_vector <- c()
+  check_vector <- c()
+  for(i in x){
+    ## Call samtools using cmdline
+    cmd <- paste0("samtools quickcheck -q ",i)
+    if(system(cmd) == 0){
+      log_vector <- append(log_vector, paste0("BAM valid - ",i))
+      check_vector <- append(check_vector,FALSE)
+    } else {
+      log_vector <- append(log_vector,paste0("BAM invalid or missing - ",i))
+      check_vector <- append(check_vector,TRUE)
+    }
+  }
+  
+  if(any(check_vector)){
+    outname <- gsub(pattern = "ok",replacement = "invalid",outname)
+    writeLines(text = as.character(log_vector),con = outname)	
+  } else {
+    writeLines(text = as.character(log_vector),con = outname)
+  }
+}
+
 # converts readdepth to copy number given purity and single copy depth
 depthtocn<-function(x,purity,seqdepth){
   (x/seqdepth-2*(1-purity))/purity
@@ -126,3 +154,4 @@ collapse_rds <- function(rds.list){
   } 
   return(rds.obj)
 }
+

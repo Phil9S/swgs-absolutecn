@@ -1,4 +1,4 @@
-rule check_bam:
+rule bam_check:
     input:
        bam=FILE_LIST
     output:
