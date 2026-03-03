@@ -154,6 +154,7 @@ if(length(unique(pruned_results$SAMPLE_ID)) == 1){
   #relative_smoothed
   #Plot absolute CN fits for assessment -- currently multithreaded as all samples are processed together
   # Future implementation may change this to single thread and use scatter gather instead.
+  library(foreach)
   foreach::foreach(i=unique(pruned_results$SAMPLE_ID)) %dopar%{
     dat <-  pruned_results %>%
       dplyr::filter(SAMPLE_ID == i) %>%
