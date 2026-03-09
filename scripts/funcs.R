@@ -1,6 +1,8 @@
 ## Functions and vars used by swgs-abscn
 
 # define vars
+`%>%` <- dplyr::`%>%`
+
 fittingColumnNames <- c("SAMPLE_ID","ploidy","purity","clonality","rmse",
                         "downsample_depth","powered","TP53cn","expected_TP53_AF",
                         "homozygousLoss","MedianSegVar")

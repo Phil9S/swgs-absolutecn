@@ -1,10 +1,5 @@
 # processPrecomputed.R
 args <- commandArgs(trailingOnly=TRUE)
-suppressPackageStartupMessages(library(yaml))
-suppressPackageStartupMessages(library(dplyr))
-suppressPackageStartupMessages(library(tidyr))
-suppressPackageStartupMessages(library(QDNAseqmod))
-suppressPackageStartupMessages(library(Biobase))
 source("scripts/funcs.R")
 
 cat("[processPrecomputed] Generating file to skip stage_1\n")
@@ -71,19 +66,20 @@ writeLines(text = as.character(samplesheet$SAMPLE_ID),
 
 # generate QC file
 cat("[processPrecomputed] Generating stage_2 QC file input...\n")
-preFileCols <- c("clonality","powered","TP53cn","expected_TP53_AF","TP53freq",
-                 "rank_clonality","pl_diff","new_state_n","new_state")
+preFileCols <- c(fittingColumnNames,"TP53freq",
+"rank_clonality","pl_diff","new_state_n","new_state")
 
-samplesheet <- samplesheet %>%
+exclude <- c("SAMPLE_ID","ploidy","purity")
+
+samplesheetNew <- samplesheet %>%
 	dplyr::select(SAMPLE_ID,PATIENT_ID,precPloidy,precPurity,TP53freq,smooth) %>%
-  dplyr::rename("ploidy"="precPloidy","purity"="precPurity") %>%
-  dplyr::mutate(!!!setNames(rep(NA, length(preFileCols)), preFileCols)) %>%
-  dplyr::mutate(downsample_depth = getDownsampleDepth(ploidy=ploidy,purity=purity,nbins_ref_genome=nbins_ref_genome))
+  dplyr::mutate(ploidy = precPloidy,purity = precPurity) %>%
+  dplyr::relocate(ploidy,purity,.before="precPloidy") %>%
+  dplyr::mutate(!!!setNames(rep(NA, length(preFileCols)), preFileCols[which(!preFileCols %in% exclude)])) %>%
+  dplyr::mutate(downsample_depth = getDownsampleDepth(ploidy=ploidy,purity=purity,nbins_ref_genome=nbins_ref_genome)) %>%
   dplyr::mutate(use = TRUE) %>%
   dplyr::mutate(notes = "using preprocessed ploidy purity values") %>%
-  dplyr::select(SAMPLE_ID,PATIENT_ID,ploidy,purity,clonality,downsample_depth,
-                powered,TP53cn,expected_TP53_AF,TP53freq,smooth,rank_clonality,
-                pl_diff,pu_diff,new,new_state,use,notes)
+  dplyr::select(all_of(preFileCols),use,notes)
 
 foutputLoc <- paste0(outputLoc,pre)
 if(!dir.exists(foutputLoc)){
@@ -91,8 +87,8 @@ if(!dir.exists(foutputLoc)){
 }
 
 cat("[processPrecomputed] Marking run as precomputed...\n")
-write.table(samplesheet,preFile,sep="\t",col.names=T,row.names=F,quote=F)
-write.table(samplesheet[,c("SAMPLE_ID","ploidy","purity")],paste0(foutputLoc,"precomp.ok"),
+write.table(samplesheetNew,preFile,sep="\t",col.names=T,row.names=F,quote=F)
+write.table(samplesheetNew[,c("SAMPLE_ID","ploidy","purity")],paste0(foutputLoc,"precomp.ok"),
 	sep="\t",col.names=T,row.names=F,quote=F)
 writeLines(text = c("PRECOMPUTED"),paste0(foutputLoc,"GENERATED_USING_PRECOMPUTED_PL_PU_RDS_FILES_ARE_EMPTY"))
 
