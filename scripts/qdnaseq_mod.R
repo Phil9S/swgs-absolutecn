@@ -16,7 +16,7 @@ genome <- as.character(snakemake@params[["genome"]])
 
 # Samples to smooth
 #smoothed_samples <- as.character(metadata$SAMPLE_ID[metadata$smooth == "TRUE"])
-smooth <- metadata$smooth[metadata$SAMPLE_ID == sample]
+smooth <- unique(metadata$smooth[metadata$SAMPLE_ID == sample])
 
 # Implement seeding to prevent variable segments on repeated runs
 if(use_seed){

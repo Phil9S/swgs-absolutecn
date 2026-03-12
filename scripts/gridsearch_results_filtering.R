@@ -1,4 +1,8 @@
-## Added by PS
+# gridsearch_filtering.R 
+## Outputs a table of absolute copy number fits across a ploidy and purity gridsearch
+## using mean absolute error (aka clonality) error function, sorted by lowest.
+## it is designed to be used in conjunction with TP53 allele frequency to determine
+## precise purity and ploidy fit
 args = commandArgs(trailingOnly=TRUE)
 metafile <- snakemake@params[["meta"]]
 metadata <- read.table(file = metafile,header=T,sep="\t")
@@ -42,7 +46,6 @@ fitTable <- do.call(rbind,
 			}))
 colnames(fitTable) <- fittingColumnNames
 
-`%>%` <- dplyr::`%>%`
 fitTable <- dplyr::left_join(fitTable,metadata,by="SAMPLE_ID") %>%
   dplyr::select(-file) %>%
   dplyr::relocate(PATIENT_ID,.after = SAMPLE_ID) %>%
@@ -51,7 +54,7 @@ fitTable <- dplyr::left_join(fitTable,metadata,by="SAMPLE_ID") %>%
   #select(SAMPLE_ID,PATIENT_ID,ploidy,purity,clonality,downsample_depth,powered,TP53cn,expected_TP53_AF,TP53freq,smooth,homozygousLoss)
 
 ## Apply hard filters
-##  filter underpowered fits when config variable is TRUE
+##  filter under powered fits when config variable is TRUE
 if(filter_underpowered){
   fitTable <- fitTable %>%
     dplyr::filter(powered == 1) 
