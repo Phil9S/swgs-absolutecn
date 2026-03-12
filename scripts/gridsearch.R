@@ -78,7 +78,7 @@ for(i in 1:length(ploidies)){
   ploidy <- ploidies[i]
   rowres <- data.frame()
 	for(j in 1:length(purities)){
-    purity<-purities[j]
+    purity <- purities[j]
     downsample_depth <- getDownsampleDepth(ploidy,purity,nbins_ref_genome)
     cellploidy <- purity * ploidy + (2 * (1 - purity))
     seqdepth <- rel_ploidy / cellploidy

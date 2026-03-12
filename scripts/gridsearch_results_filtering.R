@@ -28,7 +28,10 @@ outpath <- paste0(out_dir,"sWGS_fitting/",
 # read in relative CN data
 # collapse rds files function
 rds.filename <- snakemake@input[["rds"]]
-rds.list <- lapply(rds.filename,FUN=function(x){readRDS(x)})
+rds.list <- lapply(rds.filename,FUN=function(x){
+  readRDS(x)
+})
+
 # Combine and load rds objects - COULD CHANGE TO one-by-one rather than jointly
 relative_smoothed <- collapse_rds(rds.list)
 saveRDS(relative_smoothed,paste0(outpath,project,"_",bin,"kb_relSmoothedCN.rds"))
@@ -36,12 +39,7 @@ saveRDS(relative_smoothed,paste0(outpath,project,"_",bin,"kb_relSmoothedCN.rds")
 filelist <- snakemake@input[["cl"]]
 fitTable <- do.call(rbind,
 			lapply(filelist,FUN = function(x){
-			  ## ADD SAMPLE NAME IN PREVIOUS STEP RATHER THAN FROM FILE NAME
-				#n <- gsub(pattern="_clonality.tsv",rep="",x=x)
-        #prefix <- paste0(out_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_PRE_down_sampling/clonality_results/",project,"_")
-        #n <- gsub(pattern=prefix,rep="",x=n)
 				tab <- read.table(x,sep="\t",skip=1)
-				#tab <- cbind(rep(n,times=nrow(tab)),tab)
 				return(tab)
 			}))
 colnames(fitTable) <- fittingColumnNames
@@ -51,7 +49,6 @@ fitTable <- dplyr::left_join(fitTable,metadata,by="SAMPLE_ID") %>%
   dplyr::relocate(PATIENT_ID,.after = SAMPLE_ID) %>%
   dplyr::relocate(TP53freq,smooth,.after = expected_TP53_AF) %>%
   dplyr::relocate(precPloidy,precPurity,.after = purity)
-  #select(SAMPLE_ID,PATIENT_ID,ploidy,purity,clonality,downsample_depth,powered,TP53cn,expected_TP53_AF,TP53freq,smooth,homozygousLoss)
 
 ## Apply hard filters
 ##  filter under powered fits when config variable is TRUE
