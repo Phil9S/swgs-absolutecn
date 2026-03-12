@@ -11,7 +11,7 @@ sample_name <- snakemake@params[["sample"]]
 prplpu <- as.logical(snakemake@params[["prplpu"]])
 filetype <- snakemake@params[["filetype"]]
 reference <- snakemake@params[["reference"]]
-
+source("scripts/funcs.R")
 options(scipen=999)
 
 fit.qc <- read.table(file = meta,header = T,sep = "\t",na.strings = "")
