@@ -129,5 +129,5 @@ write.table(segTable,paste0(outpath,project,"_",bin,"kb_ds_absCopyNumber_segTabl
 	sep = "\t",quote=F,row.names=FALSE)
 
 #write table of fits
-write.table(res,paste0(outpath,,project,"_",bin,"kb_ds_abs_fits.tsv"),
+write.table(res,paste0(outpath,project,"_",bin,"kb_ds_abs_fits.tsv"),
   sep = "\t",quote=F,row.names=FALSE)
