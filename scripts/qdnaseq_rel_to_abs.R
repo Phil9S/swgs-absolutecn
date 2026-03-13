@@ -107,13 +107,13 @@ for(sample in Biobase::pData(abs_profiles)$name){
                 " MAE=",round(mae,3)," | ",
                 " RMSE=",round(rmse,3))
   
-  # png(paste0(outpath,"plots/",sample,".png"),type="cairo",w = 8,h = 6,unit="in",res = 250)
-  # par(mfrow = c(1,1))
-  # plot(relcn,doCalls=FALSE,showSD=TRUE,logTransform=FALSE,
-  #      ylim=c(0,yrange),ylab="Absolute tumour CN")
-  # abline(h=1:yrange-1, col = "blue")
-  # mtext(sub,side = 1,line = 3.5)
-  # dev.off()
+  png(paste0(outpath,"plots/",sample,".png"),type="cairo",w = 8,h = 6,unit="in",res = 250)
+  par(mfrow = c(1,1))
+  plot(relcn,doCalls=FALSE,showSD=TRUE,logTransform=FALSE,
+       ylim=c(0,yrange),ylab="Absolute tumour CN")
+  abline(h=1:yrange-1, col = "blue")
+  mtext(sub,side = 1,line = 3.5)
+  dev.off()
   
   # Add to abs RDS
   Biobase::assayDataElement(abs_profiles,"copynumber")[,sample] <- abs_cn
