@@ -83,20 +83,20 @@ for(i in 1:length(ploidies)){
     cellploidy <- purity * ploidy + (2 * (1 - purity))
     seqdepth <- rel_ploidy / cellploidy
     
-    abs_cn <- depthtocn(seg,purity,seqdepth)
-    abs_cnbin <- depthtocn(cn,purity,seqdepth)
-    integer_cn <- round(abs_cn,digits = 0)
+    abs_seg <- depthtocn(seg,purity,seqdepth)
+    abs_cn <- depthtocn(cn,purity,seqdepth)
+    integer_seg <- round(abs_seg,digits = 0)
     
-    errors <- abs_cn - integer_cn
+    errors <- abs_seg - integer_seg
     
     TP53cn <- round(depthtocn(targetCNVal,purity,seqdepth),1) # to 1 decimal place
     expected_TP53_AF<-TP53cn*purity/(TP53cn*purity+2*(1-purity))
     
     clonality <- mean(abs(errors)) # clonality is a legacy name for MAE
     rmse <- sqrt(mean(errors^2)) # Root Mean Squared Error
-    MedianSegVar <- calculateSegmentVar(abs_cn = abs_cn,abs_cnbin = abs_cnbin)
+    MedianSegVar <- calculateSegmentVar(abs_seg = abs_seg,abs_cn = abs_cn)
     
-    hmzyg <- sum(abs_cn <= hmz_thrsh) * bin_size
+    hmzyg <- sum(abs_seg <= hmz_thrsh) * bin_size
     powered <- downsample_depth < total_reads
     
     r <- c(ploidy,purity,clonality,rmse,downsample_depth,powered,TP53cn,expected_TP53_AF,hmzyg,MedianSegVar)
