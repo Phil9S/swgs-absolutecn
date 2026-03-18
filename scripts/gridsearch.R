@@ -129,11 +129,8 @@ dev.off()
 write.table(res,snakemake@output[["tsv"]],sep="\t",quote=F,row.names=FALSE)
 
 ### Gridsearch filtering
-filelist <- res
-
 relative_smoothed <- rds.obj
-
-fitTable <- read.table(filelist,sep="\t",header = TRUE)
+fitTable <- res
 colnames(fitTable) <- fittingColumnNames
 
 filteredTables <- filterFitTable(table = fitTable,metadata = metadata,
