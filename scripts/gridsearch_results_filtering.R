@@ -25,13 +25,14 @@ outpath <- paste0(out_dir,"sWGS_fitting/",
 # read in relative CN data
 # collapse rds files function
 
-rds.list <- lapply(rds.filename,FUN=function(x){
-  readRDS(x)
-})
+# rds.list <- lapply(rds.filename,FUN=function(x){
+#   readRDS(x)
+# })
 
 # Combine and load rds objects - COULD CHANGE TO one-by-one rather than jointly
-relative_smoothed <- collapse_rds(rds.list)
-saveRDS(relative_smoothed,paste0(outpath,project,"_",bin,"kb_relSmoothedCN.rds"))
+#relative_smoothed <- collapse_rds(rds.list)
+relative_smoothed <- readRDS(rds.filename)
+#saveRDS(relative_smoothed,paste0(outpath,project,"_",bin,"kb_relSmoothedCN.rds"))
 
 filelist <- snakemake@input[["cl"]]
 fitTable <- do.call(rbind,
