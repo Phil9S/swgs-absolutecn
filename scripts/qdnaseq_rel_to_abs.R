@@ -91,33 +91,15 @@ for(sample in Biobase::pData(abs_profiles)$name){
   pat <- as.character(Biobase::pData(relcn)$PATIENT_ID)
   res <- rbind(res,matrix(c(sample,pat,ploidy,purity,TP53cn,
                             round(expected_TP53_AF,2),TP53freq,clonality,rmse),nrow = 1,ncol = 9))
-  
-  # Y axis range
-  if(ploidy > 5){
-    yrange = 15
-  } else {
-    yrange = 10
-  }
-  # Plot abs fit
-  
-  mae <- Biobase::pData(relcn)$clonality
-  rmse <- Biobase::pData(relcn)$rmse
-  sub <- paste0("ploidy=",round(ploidy,2)," | ",
-                " purity=",round(purity,2)," | ",
-                " MAE=",round(mae,3)," | ",
-                " RMSE=",round(rmse,3))
-  
-  png(paste0(outpath,"plots/",sample,".png"),type="cairo",w = 8,h = 6,unit="in",res = 250)
-  par(mfrow = c(1,1))
-  plot(relcn,doCalls=FALSE,showSD=TRUE,logTransform=FALSE,
-       ylim=c(0,yrange),ylab="Absolute tumour CN")
-  abline(h=1:yrange-1, col = "blue")
-  mtext(sub,side = 1,line = 3.5)
-  dev.off()
-  
   # Add to abs RDS
   Biobase::assayDataElement(abs_profiles,"copynumber")[,sample] <- abs_cn
   Biobase::assayDataElement(abs_profiles,"segmented")[,sample] <- abs_seg
+  
+  png(paste0(outpath,"plots/",sample,".png"),type="cairo",w = 8,h = 6,unit="in",res = 250)
+  par(mfrow = c(1,1))
+  plotProfile(relcn,ploidy = ploidy,purity = purity,
+              clonality = clonality,rmse = rmse)
+  dev.off()
 }
 
 # Annotated and rename table

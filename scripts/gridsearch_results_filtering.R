@@ -4,6 +4,8 @@
 ## it is designed to be used in conjunction with TP53 allele frequency to determine
 ## precise purity and ploidy fit
 args = commandArgs(trailingOnly=TRUE)
+rds.filename <- snakemake@input[["rds"]]
+filelist <- snakemake@input[["cl"]]
 metafile <- snakemake@params[["meta"]]
 metadata <- read.table(file = metafile,header=T,sep="\t")
 bin <- as.numeric(snakemake@params[["bin"]])
@@ -14,11 +16,6 @@ filter_underpowered <- as.logical(snakemake@params[["filter_underpowered"]]) # F
 filter_homozygous <- as.logical(snakemake@params[["filter_homozygous"]]) # filter homozygous loss
 homozygous_prop <- as.numeric(snakemake@params[["homozygous_prop"]])
 
-#threads
-cores <- as.numeric(snakemake@threads)
-#cores <- 8
-doMC::registerDoMC(cores)
-
 # source functions (temp until moved to package) and set scipen
 source("scripts/funcs.R")
 options(scipen = 999)
@@ -27,7 +24,7 @@ outpath <- paste0(out_dir,"sWGS_fitting/",
 
 # read in relative CN data
 # collapse rds files function
-rds.filename <- snakemake@input[["rds"]]
+
 rds.list <- lapply(rds.filename,FUN=function(x){
   readRDS(x)
 })
@@ -97,74 +94,22 @@ write.table(pruned_results,paste0(outpath,project,"_fit_QC_predownsample.tsv"),
 
 ## ADDED by PS - adding output folder for results
 if(!dir.exists(paste0(outpath,"plots"))){
-	dir.create(paste0(outpath,"plots"))
+	dir.create(paste0(outpath,"plots"),recursive = TRUE)
 }
 
-if(length(unique(pruned_results$SAMPLE_ID)) == 1){
-  i <- unique(pruned_results$SAMPLE_ID)
-  dat <-  pruned_results %>%
-    filter(SAMPLE_ID == i) %>%
-    arrange(ploidy)
-    #arrange(rank_clonality)
-  x <- relative_smoothed
-  cn <- assayDataElement(x,"copynumber")
-  seg <- assayDataElement(x,"segmented")
-  rel_ploidy <- mean(cn,na.rm=T)
-  ll <- nrow(dat)
-  
-  png(paste0(outpath,"plots/", i, ".png"),type="cairo",w= 450*ll, h = 350)
-  par(mfrow = c(1,ll))
-  for(n in 1:nrow(dat)){
-    ploidy <- dat[n,]$ploidy
-    purity <- dat[n,]$purity
-    cellploidy <- ploidy*purity+2*(1-purity)
-    seqdepth <- rel_ploidy/cellploidy
-    expTP53 <- round(dat[n,]$expected_TP53_AF, 2)
-    TP53 <- dat[n,]$TP53freq
-
-    #convert to abs
-
-    pData(x)$ploidy <- ploidy
-    pData(x)$purity <- purity
-
-    temp <- x
-    abs_cn <- depthtocn(cn,purity,seqdepth)
-    abs_seg <- depthtocn(seg,purity,seqdepth)
-    assayDataElement(temp,"copynumber") <- abs_cn
-    assayDataElement(temp,"segmented") <- abs_seg
-
-    #tmp_abs <- convert_rd_to_cn(x)
-    # plot
-    if(ploidy>5){
-      yrange=15
-    } else {
-      yrange=10
-    }
-    plot(temp,doCalls=FALSE,showSD=TRUE,logTransform=FALSE,ylim=c(0,yrange),ylab="Absolute tumour CN",
-           main=paste(i, " eTP53=",round(expTP53,2),
-                      " AF=", round(TP53,2),
-                      " p=",round(purity,2),
-                      " pl=",round(ploidy,2),
-                      sep=""),cex.main=0.8)
-    abline(h=1:9,col = "blue")
-
-  }
-  dev.off()
-} else {
-  #relative_smoothed
-  #Plot absolute CN fits for assessment -- currently multithreaded as all samples are processed together
-  # Future implementation may change this to single thread and use scatter gather instead.
-  library(foreach)
-  foreach::foreach(i=unique(pruned_results$SAMPLE_ID)) %dopar%{
-    dat <-  pruned_results %>%
-      dplyr::filter(SAMPLE_ID == i) %>%
+for(sample in unique(pruned_results$SAMPLE_ID)){
+    dat <- pruned_results %>%
+      dplyr::filter(SAMPLE_ID == sample) %>%
       dplyr::arrange(ploidy)
-    x <- relative_smoothed[, i]
-    cn <- Biobase::assayDataElement(x,"copynumber")
-    seg <- Biobase::assayDataElement(x,"segmented")
+    
+    relcn <- relative_smoothed[Biobase::fData(relative_smoothed)$use,sample]
+    cn <- Biobase::assayDataElement(relcn,"copynumber")
+    seg <- Biobase::assayDataElement(relcn,"segmented")
+    
     rel_ploidy <- mean(cn,na.rm=T)
     ll <- nrow(dat)
-    png(paste0(outpath,"plots/", i, ".png"),type = "cairo", w= 450*ll, h = 350)
+    
+    png(paste0(outpath,"plots/", sample, ".png"),type = "cairo", w= 450*ll, h = 350)
     par(mfrow = c(1,ll)) 
     for(n in 1:nrow(dat)){
       
@@ -176,27 +121,19 @@ if(length(unique(pruned_results$SAMPLE_ID)) == 1){
       abs_cn <- depthtocn(cn,purity,seqdepth)
       abs_seg <- depthtocn(seg,purity,seqdepth)
       
-      Biobase::assayDataElement(x,"copynumber") <- abs_cn
-      Biobase::assayDataElement(x,"segmented") <- abs_seg
+      integer_seg <- round(abs_seg,digits = 0)
       
-      expTP53 <- dat[n,]$expected_TP53_AF
-      TP53 <- dat[n,]$TP53freq
-      # plot   
-      if(ploidy>5){
-        yrange=15
-      } else {
-        yrange=10
-      }
-      plot(x,doCalls=FALSE,showSD=TRUE,logTransform=FALSE,ylim=c(0,yrange),ylab="Absolute tumour CN",
-           main=paste(i, " eTP53=",round(expTP53,2),
-                      " AF=", round(TP53,2),
-                      " p=",round(purity,2),
-                      " pl=",round(ploidy,2),
-                      sep=""),cex.main=0.8)
-      abline(h=1:yrange-1,col = "blue")
+      errors <- abs_seg - integer_seg
+      clonality <- mean(abs(errors)) # clonality is a legacy name for MAE
+      rmse <- sqrt(mean(errors^2)) # Root Mean Squared Error
+      
+      Biobase::assayDataElement(relcn,"copynumber") <- abs_cn
+      Biobase::assayDataElement(relcn,"segmented") <- abs_seg
+      
+      plotProfile(relcn,ploidy = ploidy,purity = purity,
+                  clonality = clonality,rmse = rmse)
     }
     dev.off()
-  }
 }
 
 #END
