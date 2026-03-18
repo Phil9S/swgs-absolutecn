@@ -57,4 +57,5 @@ genome: "hg19"
 filetype: "BAM"
 # reference - reference used in CRAM generation for conversion back to BAM
 reference: "reference/hsa.GRCh37_g1kp2.fa"
-
+# Read data paired end or single end - only affects calculation of expected variance in QDNASeq
+pairedEnd: 'FALSE'

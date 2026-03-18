@@ -3,6 +3,7 @@ args = commandArgs(trailingOnly=TRUE)
 
 ## Load snakemake args
 bin.size <- as.numeric(snakemake@params[["bin"]])
+pairedEnd <- as.logical(snakemake@params[["pairedEnd"]])
 output_dir <- snakemake@params[["outdir"]]
 project <- snakemake@params[["project"]]
 sample <- snakemake@params[["sample"]]
@@ -34,7 +35,8 @@ bins <- QDNAseqmod::getBinAnnotations(binSize=bin.size,genome=genome)
 
 #readCounts <- mclapply(X=bam_list, FUN=binReadCounts, bins=bins,mc.cores=ncores,chunkSize=1e7)
 ##### THIS IS MAKING SOME EXTERNAL CONNECTION ON FIRST USE
-readCounts <- QDNAseqmod::binReadCounts(bamfiles = bam_list,bins = bins,chunkSize = 1e7)
+readCounts <- QDNAseqmod::binReadCounts(bamfiles = bam_list,bins = bins,
+                                        chunkSize = 1e7,pairedEnds = pairedEnd)
 # apply filter based on loess fit residuals and encode/1000-genome blacklist
 readCountsFiltered <- QDNAseqmod::applyFilters(object = readCounts)
 # estimate correction for GC content and mappability
@@ -49,6 +51,7 @@ if(is.na(Biobase::pData(readCountsFiltered)$loess.span)){
 
 # apply the correction for GC content and mappability
 copyNumbers <- QDNAseqmod::correctBins(object = readCountsFiltered)
+
 # bring back to readcount space
 medianRC <- median(Biobase::assayDataElement(readCountsFiltered, "fit"), na.rm=T)
 Biobase::assayDataElement(copyNumbers,"copynumber") <- Biobase::assayDataElement(copyNumbers,"copynumber") * medianRC

@@ -8,6 +8,7 @@ rule ds_relRDS:
         image_base_url+"swgs-absolutecn:latest"
     params:
         bin="{bin}",
+        pairedEnd=config["pairedEnd"],
         outdir=OUT_DIR,
         project="{project}",
         use_seed=config["use_seed"],
