@@ -152,11 +152,7 @@ if(!dir.exists(paste0(outpath,"plots"))){
   dir.create(paste0(outpath,"plots"),recursive = TRUE)
 }
 
-#for(sample in unique(pruned_results$SAMPLE_ID)){
-#dat <- pruned_results %>%
-#dplyr::filter(SAMPLE_ID == unique(pruned_results$SAMPLE_ID)) %>%
-#dplyr::arrange(ploidy)
-
+pruned_results <- filteredTables$pruned
 to_use <- Biobase::fData(relative_smoothed)$use
 relcn <- relative_smoothed[to_use,]
 cn <- Biobase::assayDataElement(relcn,"copynumber")
@@ -192,4 +188,3 @@ for(n in 1:nrow(pruned_results)){
 dev.off()
 
 #END
-# END
