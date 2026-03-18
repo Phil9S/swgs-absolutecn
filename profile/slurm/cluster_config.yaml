@@ -17,11 +17,11 @@ gridsearch_filter:
   mem: 32000
   nodes: 1
   ntasks: 1
-  cpus-per-task: 20
+  cpus-per-task: 1
 
 rel_to_abs:
   time: 180
   mem: 32000
   nodes: 1
   ntasks: 1
-  cpus-per-task: 20
+  cpus-per-task: 1
