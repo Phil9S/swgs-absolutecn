@@ -17,7 +17,7 @@ rule gridsearch_fitting:
         purity_min=config["purity_min"],
         purity_max=config["purity_max"],
         homozygous_threshold=config["homozygous_threshold"],
-        genome=config["genome"]
+        genome=config["genome"],
         sample="{sample}",
         af_cutoff=config["af_cutoff"],
         filter_underpowered=config["filter_underpowered"],
