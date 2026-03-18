@@ -14,10 +14,19 @@ metadata <- read.table(file = metafile,header=T,sep="\t")
 bam_list <- snakemake@input[["bams"]]
 outname <- snakemake@output[[1]]
 genome <- as.character(snakemake@params[["genome"]])
+autoSmooth <- as.logical(snakemake@params[["autoSmooth"]])
+smoothThreshold <- as.numeric(snakemake@params[["smoothThreshold"]])
 
 # Samples to smooth
 #smoothed_samples <- as.character(metadata$SAMPLE_ID[metadata$smooth == "TRUE"])
 smooth <- unique(metadata$smooth[metadata$SAMPLE_ID == sample])
+## Allow for automatic smoothing above threshold
+if(autoSmooth){
+  smooth <- autoSmooth
+  maxSegs <- smoothThreshold
+} else {
+  maxSegs <- 300
+}
 
 # Implement seeding to prevent variable segments on repeated runs
 if(use_seed){
@@ -60,10 +69,13 @@ Biobase::assayDataElement(copyNumbers,"copynumber") <- Biobase::assayDataElement
 copyNumbersSmooth <- QDNAseqmod::smoothOutlierBins(object = copyNumbers)
 
 # perform segmentation on bins and save it
-copyNumbersSegmented <- QDNAseqmod::segmentBins(object = copyNumbersSmooth,transformFun="sqrt",seeds=seed)
+copyNumbersSegmented <- QDNAseqmod::segmentBins(object = copyNumbersSmooth,
+                                                transformFun="sqrt",seeds=seed)
 
-# smooth copy number segmentation
-copyNumbersSegmentedSmooth <- smooth_sample(relcn = copyNumbersSegmented,smooth=smooth,maxSegs=300,seed=seed)
+# smooth copy number segmentation 
+copyNumbersSegmentedSmooth <- smooth_sample(relcn = copyNumbersSegmented,
+                                            smooth=smooth,maxSegs=maxSegs,
+                                            seed=seed)
 
 # save output to file
 saveRDS(copyNumbersSegmentedSmooth,outname)

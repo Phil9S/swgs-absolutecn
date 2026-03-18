@@ -68,6 +68,13 @@ properties:
   pairedEnd:
     type: string
     enum: ["TRUE","FALSE"]
+  autoSmooth:
+    type: string
+    enum: ["TRUE","FALSE"]
+  smoothThreshold:
+    type: number
+    minimum: 44
+    maximum: 9999
 
 # entries that have to be in the config file for successful validation
 required:
@@ -86,4 +93,8 @@ required:
   - homozygous_prop
   - homozygous_threshold
   - genome
+  - filetype
+  - pairedEnd
+  - autoSmooth
+  - smoothThreshold
 

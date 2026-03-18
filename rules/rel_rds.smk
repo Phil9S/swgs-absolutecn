@@ -14,7 +14,9 @@ rule relRDS:
         use_seed=config["use_seed"],
         seed_val=config["seed_val"],
         genome=config["genome"],
-        sample="{sample}"
+        sample="{sample}",
+        autoSmooth=config["autoSmooth"]
+        smoothThreshold=config["smoothThreshold"]
     script:
         "../scripts/qdnaseq_mod.R"
 
