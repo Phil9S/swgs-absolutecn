@@ -24,6 +24,9 @@ filter_underpowered <- as.logical(snakemake@params[["filter_underpowered"]]) # F
 filter_homozygous <- as.logical(snakemake@params[["filter_homozygous"]]) # filter homozygous loss
 homozygous_prop <- as.numeric(snakemake@params[["homozygous_prop"]])
 
+outpath <- paste0(out_dir,"sWGS_fitting/",
+                  project,"_",bin,"kb/absolute_PRE_down_sampling/")
+
 # source functions (temp until moved to package) and set scipen
 source("scripts/funcs.R")
 options(scipen = 999)
@@ -138,10 +141,10 @@ filteredTables <- filterFitTable(table = fitTable,metadata = metadata,
                                  filter_homozygous = filter_homozygous,
                                  af_cutoff = af_cutoff)
 
-write.table(filteredTables$filtered,paste0(outpath,project,"_",sampleName,"_filtered_results.tsv"),
+write.table(filteredTables$filtered,snakemake@output[["tsv"]],
             sep="\t",col.names=T,row.names=F,quote=F)
 
-write.table(filteredTables$pruned,paste0(outpath,project,"_",sampleName,"_fit_QC_predownsample.tsv"),
+write.table(filteredTables$pruned,snakemake@output[["fit"]],
             sep="\t",col.names=T,row.names=F,quote=F)
 
 ## ADDED by PS - adding output folder for results
