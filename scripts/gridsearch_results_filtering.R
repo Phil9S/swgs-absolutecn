@@ -9,6 +9,7 @@ filelist <- snakemake@input[["cl"]]
 metafile <- snakemake@params[["meta"]]
 metadata <- read.table(file = metafile,header=T,sep="\t")
 bin <- as.numeric(snakemake@params[["bin"]])
+sampleName <- as.character(snakemake@params[["sample"]])
 out_dir <- snakemake@params[["outdir"]]
 project <- snakemake@params[["project"]]
 af_cutoff <- as.numeric(snakemake@params[["af_cutoff"]])
@@ -35,11 +36,12 @@ relative_smoothed <- readRDS(rds.filename)
 #saveRDS(relative_smoothed,paste0(outpath,project,"_",bin,"kb_relSmoothedCN.rds"))
 
 filelist <- snakemake@input[["cl"]]
-fitTable <- do.call(rbind,
-			lapply(filelist,FUN = function(x){
-				tab <- read.table(x,sep="\t",skip=1)
-				return(tab)
-			}))
+# fitTable <- do.call(rbind,
+# 			lapply(filelist,FUN = function(x){
+# 				tab <- read.table(x,sep="\t",skip=1)
+# 				return(tab)
+# 			}))
+fitTable <- read.table(filelist,sep="\t",header = TRUE)
 colnames(fitTable) <- fittingColumnNames
 
 fitTable <- dplyr::left_join(fitTable,metadata,by="SAMPLE_ID") %>%
@@ -87,10 +89,10 @@ pruned_results <- filtered_results %>%
   dplyr::ungroup() %>%
   dplyr::mutate(use = rep(NA,times=nrow(.)),notes = rep(NA,times=nrow(.)))
 
-write.table(filtered_results,paste0(outpath,project,"_filtered_results.tsv"),
+write.table(filtered_results,paste0(outpath,project,"_",sampleName,"_filtered_results.tsv"),
   sep="\t",col.names=T,row.names=F,quote=F)
 
-write.table(pruned_results,paste0(outpath,project,"_fit_QC_predownsample.tsv"),
+write.table(pruned_results,paste0(outpath,project,"_",sampleName,"_fit_QC_predownsample.tsv"),
   sep="\t",col.names=T,row.names=F,quote=F)
 
 ## ADDED by PS - adding output folder for results
@@ -98,43 +100,42 @@ if(!dir.exists(paste0(outpath,"plots"))){
 	dir.create(paste0(outpath,"plots"),recursive = TRUE)
 }
 
-for(sample in unique(pruned_results$SAMPLE_ID)){
-    dat <- pruned_results %>%
-      dplyr::filter(SAMPLE_ID == sample) %>%
-      dplyr::arrange(ploidy)
-    
-    relcn <- relative_smoothed[Biobase::fData(relative_smoothed)$use,sample]
-    cn <- Biobase::assayDataElement(relcn,"copynumber")
-    seg <- Biobase::assayDataElement(relcn,"segmented")
-    
-    rel_ploidy <- mean(cn,na.rm=T)
-    ll <- nrow(dat)
-    
-    png(paste0(outpath,"plots/", sample, ".png"),type = "cairo", w= 450*ll, h = 350)
-    par(mfrow = c(1,ll)) 
-    for(n in 1:nrow(dat)){
-      
-      ploidy <- dat[n,]$ploidy
-      purity <- dat[n,]$purity
-      cellploidy <- ploidy * purity + (2*(1-purity))
-      seqdepth <- rel_ploidy/cellploidy
-      
-      abs_cn <- depthtocn(cn,purity,seqdepth)
-      abs_seg <- depthtocn(seg,purity,seqdepth)
-      
-      integer_seg <- round(abs_seg,digits = 0)
-      
-      errors <- abs_seg - integer_seg
-      clonality <- mean(abs(errors)) # clonality is a legacy name for MAE
-      rmse <- sqrt(mean(errors^2)) # Root Mean Squared Error
-      
-      Biobase::assayDataElement(relcn,"copynumber") <- abs_cn
-      Biobase::assayDataElement(relcn,"segmented") <- abs_seg
-      
-      plotProfile(relcn,ploidy = ploidy,purity = purity,
-                  clonality = clonality,rmse = rmse)
-    }
-    dev.off()
+#for(sample in unique(pruned_results$SAMPLE_ID)){
+dat <- pruned_results %>%
+  #dplyr::filter(SAMPLE_ID == unique(pruned_results$SAMPLE_ID)) %>%
+  dplyr::arrange(ploidy)
+
+relcn <- relative_smoothed[Biobase::fData(relative_smoothed)$use,]
+cn <- Biobase::assayDataElement(relcn,"copynumber")
+seg <- Biobase::assayDataElement(relcn,"segmented")
+
+rel_ploidy <- mean(cn,na.rm=T)
+ll <- nrow(dat)
+
+png(paste0(outpath,"plots/", sample, ".png"),type = "cairo", w= 450*ll, h = 350)
+par(mfrow = c(1,ll)) 
+for(n in 1:nrow(dat)){
+  
+  ploidy <- dat[n,]$ploidy
+  purity <- dat[n,]$purity
+  cellploidy <- ploidy * purity + (2*(1-purity))
+  seqdepth <- rel_ploidy/cellploidy
+  
+  abs_cn <- depthtocn(cn,purity,seqdepth)
+  abs_seg <- depthtocn(seg,purity,seqdepth)
+  
+  integer_seg <- round(abs_seg,digits = 0)
+  
+  errors <- abs_seg - integer_seg
+  clonality <- mean(abs(errors)) # clonality is a legacy name for MAE
+  rmse <- sqrt(mean(errors^2)) # Root Mean Squared Error
+  
+  Biobase::assayDataElement(relcn,"copynumber") <- abs_cn
+  Biobase::assayDataElement(relcn,"segmented") <- abs_seg
+  
+  plotProfile(relcn,ploidy = ploidy,purity = purity,
+              clonality = clonality,rmse = rmse)
 }
+dev.off()
 
 #END
