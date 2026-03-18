@@ -106,7 +106,8 @@ if(!dir.exists(paste0(outpath,"plots"))){
   #dplyr::filter(SAMPLE_ID == unique(pruned_results$SAMPLE_ID)) %>%
   #dplyr::arrange(ploidy)
 
-relcn <- relative_smoothed[Biobase::fData(relative_smoothed)$use,]
+to_use <- Biobase::fData(relative_smoothed)$use
+relcn <- relative_smoothed[to_use,]
 cn <- Biobase::assayDataElement(relcn,"copynumber")
 seg <- Biobase::assayDataElement(relcn,"segmented")
 
