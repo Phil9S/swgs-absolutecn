@@ -35,7 +35,7 @@ outpath <- paste0(out_dir,"sWGS_fitting/",
 relative_smoothed <- readRDS(rds.filename)
 #saveRDS(relative_smoothed,paste0(outpath,project,"_",bin,"kb_relSmoothedCN.rds"))
 
-filelist <- snakemake@input[["cl"]]
+#filelist <- snakemake@input[["cl"]]
 # fitTable <- do.call(rbind,
 # 			lapply(filelist,FUN = function(x){
 # 				tab <- read.table(x,sep="\t",skip=1)
@@ -87,7 +87,8 @@ pruned_results <- filtered_results %>%
   dplyr::group_by(SAMPLE_ID, new_state) %>%
   dplyr::filter(rank_clonality == min(rank_clonality)) %>%
   dplyr::ungroup() %>%
-  dplyr::mutate(use = rep(NA,times=nrow(.)),notes = rep(NA,times=nrow(.)))
+  dplyr::mutate(use = rep(NA,times=nrow(.)),notes = rep(NA,times=nrow(.))) %>%
+  dplyr::arrange(ploidy)
 
 write.table(filtered_results,paste0(outpath,project,"_",sampleName,"_filtered_results.tsv"),
   sep="\t",col.names=T,row.names=F,quote=F)
@@ -101,23 +102,23 @@ if(!dir.exists(paste0(outpath,"plots"))){
 }
 
 #for(sample in unique(pruned_results$SAMPLE_ID)){
-dat <- pruned_results %>%
+#dat <- pruned_results %>%
   #dplyr::filter(SAMPLE_ID == unique(pruned_results$SAMPLE_ID)) %>%
-  dplyr::arrange(ploidy)
+  #dplyr::arrange(ploidy)
 
 relcn <- relative_smoothed[Biobase::fData(relative_smoothed)$use,]
 cn <- Biobase::assayDataElement(relcn,"copynumber")
 seg <- Biobase::assayDataElement(relcn,"segmented")
 
 rel_ploidy <- mean(cn,na.rm=T)
-ll <- nrow(dat)
+ll <- nrow(pruned_results)
 
-png(paste0(outpath,"plots/", sample, ".png"),type = "cairo", w= 450*ll, h = 350)
+png(paste0(outpath,"plots/",sampleName,".png"),type = "cairo", w= 450*ll, h = 350)
 par(mfrow = c(1,ll)) 
-for(n in 1:nrow(dat)){
+for(n in 1:nrow(pruned_results)){
   
-  ploidy <- dat[n,]$ploidy
-  purity <- dat[n,]$purity
+  ploidy <- pruned_results[n,]$ploidy
+  purity <- pruned_results[n,]$purity
   cellploidy <- ploidy * purity + (2*(1-purity))
   seqdepth <- rel_ploidy/cellploidy
   
