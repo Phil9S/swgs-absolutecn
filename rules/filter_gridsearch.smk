@@ -1,9 +1,9 @@
 rule gridsearch_filter:
     input:
-        cl=expand(OUT_DIR+"sWGS_fitting/{{project}}_{{bin}}kb/absolute_PRE_down_sampling/clonality_results/{{project}}_{sample}_clonality.tsv",sample=SAMPLES),
-        rds=expand(OUT_DIR+"sWGS_fitting/{{project}}_{{bin}}kb/absolute_PRE_down_sampling/relative_cn_rds/{{project}}_{sample}_{{bin}}kb_relSmoothedCN.rds",sample=SAMPLES)
+        cl=expand(OUT_DIR+"sWGS_fitting/{{project}}_{{bin}}kb/absolute_PRE_down_sampling/clonality_results/{{project}}_{{sample}}_clonality.tsv"),
+        rds=expand(OUT_DIR+"sWGS_fitting/{{project}}_{{bin}}kb/absolute_PRE_down_sampling/relative_cn_rds/{{project}}_{{sample}}_{{bin}}kb_relSmoothedCN.rds")
     output:
-        OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/{project}_fit_QC_predownsample.tsv"
+        OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/{project}_{sample}_fit_QC_predownsample.tsv"
     singularity:
         image_base_url+"swgs-absolutecn:latest"
     params:
