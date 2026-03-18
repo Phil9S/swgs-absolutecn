@@ -1,9 +1,10 @@
 rule gridsearch_fitting:
     input:
-        expand(OUT_DIR+"sWGS_fitting/{{project}}_{{bin}}kb/absolute_PRE_down_sampling/relative_cn_rds/{{project}}_{{sample}}_{{bin}}kb_relSmoothedCN.rds")
+        rds=expand(OUT_DIR+"sWGS_fitting/{{project}}_{{bin}}kb/absolute_PRE_down_sampling/relative_cn_rds/{{project}}_{{sample}}_{{bin}}kb_relSmoothedCN.rds")
     output:
         tsv=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/clonality_results/{project}_{sample}_clonality.tsv",
-        pdf=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/clonality_results/{project}_{sample}_clonality.pdf"
+        pdf=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/clonality_results/{project}_{sample}_clonality.pdf",
+        OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/{project}_{sample}_fit_QC_predownsample.tsv"
     singularity:
         image_base_url+"swgs-absolutecn:latest"
     params:
@@ -17,5 +18,10 @@ rule gridsearch_fitting:
         purity_max=config["purity_max"],
         homozygous_threshold=config["homozygous_threshold"],
         genome=config["genome"]
+        sample="{sample}",
+        af_cutoff=config["af_cutoff"],
+        filter_underpowered=config["filter_underpowered"],
+        filter_homozygous=config["filter_homozygous"],
+        homozygous_prop=config["homozygous_prop"]
     script:
         "../scripts/gridsearch.R"
