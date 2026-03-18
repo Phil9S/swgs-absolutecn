@@ -8,7 +8,7 @@ rule gridsearch_filter:
         image_base_url+"swgs-absolutecn:latest"
     params:
         bin="{bin}",
-        sample="{sample}"
+        sample="{sample}",
         meta=config["samplesheet"],
         project="{project}",
         outdir=OUT_DIR,
