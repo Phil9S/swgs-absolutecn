@@ -141,7 +141,7 @@ filteredTables <- filterFitTable(table = fitTable,metadata = metadata,
                                  filter_homozygous = filter_homozygous,
                                  af_cutoff = af_cutoff)
 
-write.table(filteredTables$filtered,snakemake@output[["tsv"]],
+write.table(filteredTables$filtered,snakemake@output[["filt"]],
             sep="\t",col.names=T,row.names=F,quote=F)
 
 write.table(filteredTables$pruned,snakemake@output[["fit"]],
