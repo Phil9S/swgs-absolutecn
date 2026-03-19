@@ -2,8 +2,6 @@ rule gridsearch_fitting:
     input:
         rds=expand(OUT_DIR+"sWGS_fitting/{{project}}_{{bin}}kb/absolute_PRE_down_sampling/relative_cn_rds/{{project}}_{{sample}}_{{bin}}kb_relSmoothedCN.rds")
     output:
-        tsv=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/clonality_results/{project}_{sample}_clonality.tsv",
-        pdf=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/clonality_results/{project}_{sample}_clonality.pdf",
         fit=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/{project}_{sample}_fit_QC_predownsample.tsv"
     singularity:
         image_base_url+"swgs-absolutecn:latest"
