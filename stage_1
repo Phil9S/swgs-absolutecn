@@ -10,9 +10,6 @@ if all(samplesheet.precPloidy.notna()) and all(samplesheet.precPurity.notna()):
 SAMPLES = list(samplesheet['SAMPLE_ID'].unique())
 FILE_LIST = list(samplesheet['file'].unique())
 
-print(SAMPLES)
-print(FILE_LIST)
-
 localrules: all, bam_check, sym_link
 
 rule all:

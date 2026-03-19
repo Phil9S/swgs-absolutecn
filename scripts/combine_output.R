@@ -1,5 +1,4 @@
 # combine single outputs to one file
-#
 args = commandArgs(trailingOnly=TRUE)
 
 rds.filename <- snakemake@input[["rds"]]
