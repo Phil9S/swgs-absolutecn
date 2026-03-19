@@ -10,8 +10,7 @@ rule combine_output:
     params:
         bin="{bin}",
         outdir=OUT_DIR,
-        project="{project}",
-        sample="{sample}"
+        project="{project}"
     threads: 1
     script:
         "../scripts/combine_output.R"

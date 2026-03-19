@@ -7,7 +7,6 @@ filelist <- snakemake@input[["tsv"]]
 bin <- as.numeric(snakemake@params[["bin"]])
 out_dir <- snakemake@params[["outdir"]]
 project <- snakemake@params[["project"]]
-sampleName <- as.character(snakemake@params[["sample"]])
 
 outpath <- paste0(out_dir,"sWGS_fitting/",
                   project,"_",bin,"kb/absolute_PRE_down_sampling/")
