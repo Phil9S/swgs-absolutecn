@@ -10,11 +10,11 @@ if all(samplesheet.precPloidy.notna()) and all(samplesheet.precPurity.notna()):
 SAMPLES = list(samplesheet['SAMPLE_ID'].unique())
 FILE_LIST = list(samplesheet['file'].unique())
 
-localrules: all, check_bam, sym_link
+localrules: all, bam_check, sym_link
 
 rule all:
     input:
-        expand(OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/{project}_fit_QC_predownsample.tsv",project=config["project_name"],bin=config["bins"]
+        expand(OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/{project}_fit_QC_predownsample.tsv",project=config["project_name"],bin=config["bins"])
 
 # pipeline rules
 include: "rules/bam_check.smk"
