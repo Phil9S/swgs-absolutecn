@@ -115,6 +115,7 @@ for(i in 1:length(ploidies)){
 }
 # Format gridsearch table
 res <- cbind(rep(metaSample,times=nrow(res)),res)
+
 colnames(res) <- fittingColumnNames
 res <- res[order(res$clonality,decreasing=FALSE),]
 

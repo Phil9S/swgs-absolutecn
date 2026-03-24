@@ -2,7 +2,9 @@ library(yaml)
 
 config <- read_yaml(file="config/config.yaml")
 
-files <- sapply(config$bins,FUN=function(x) paste0(config$out_dir,"sWGS_fitting/",config$project_name,"_",x,"kb/absolute_PRE_down_sampling/",config$project_name,"_combined_QC_predownsample.tsv"))
+project <- config$project_name
+
+files <- sapply(config$bins,FUN=function(x) paste0(config$out_dir,"sWGS_fitting/",project,"_",x,"kb/absolute_PRE_down_sampling/",project,"_",x,"kb_combined_QC_predownsample.tsv"))
 
 for(file in files){
   x <- read.table(file = file,header=T,sep="\t")

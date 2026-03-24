@@ -23,9 +23,9 @@ bins <- QDNAseqmod::getBinAnnotations(binSize = bin)
 # is adjusted to attempt to fix this. 0.932 ratio between actual usable bins and
 # total usable bins in bin annotation data
 nbins_ref_genome <- round(sum(bins@data$use) * 0.932)
-
+project <- config$project_name
 pre <- "absolute_PRE_down_sampling/"
-preFile <- paste0(outputLoc,pre,config$project_name,"_fit_QC_predownsample.tsv")
+preFile <- paste0(outputLoc,pre,project,"_",bin,"kb_combined_QC_predownsample.tsv")
 
 if(!dir.exists(outputLoc)){
   dir.create(outputLoc,recursive=TRUE)
@@ -62,17 +62,16 @@ for(i in 1:nrow(samplesheet)){
 		paste0(rdsoutLoc,config$project,"_",samplesheet$SAMPLE_ID[i],"_",bin,"kb_relSmoothedCN.rds"))
 }
 writeLines(text = as.character(samplesheet$SAMPLE_ID),
-                paste0(outputLoc,pre,projectBin,"_relSmoothedCN.rds"))
+                paste0(outputLoc,pre,"relative_cn_rds/",projectBin,"_relSmoothedCN.rds"))
 
 # generate QC file
 cat("[processPrecomputed] Generating stage_2 QC file input...\n")
-preFileCols <- c(fittingColumnNames,"TP53freq",
+preFileCols <- c(fittingColumnNames,"PATIENT_ID","precPloidy","precPurity","TP53freq","smooth",
 "rank_clonality","pl_diff","new_state_n","new_state")
 
-exclude <- c("SAMPLE_ID","ploidy","purity")
+exclude <- c("SAMPLE_ID","PATIENT_ID","ploidy","purity","smooth","precPloidy","precPurity")
 
 samplesheetNew <- samplesheet %>%
-	dplyr::select(SAMPLE_ID,PATIENT_ID,precPloidy,precPurity,TP53freq,smooth) %>%
   dplyr::mutate(ploidy = precPloidy,purity = precPurity) %>%
   dplyr::relocate(ploidy,purity,.before="precPloidy") %>%
   dplyr::mutate(!!!setNames(rep(NA, length(preFileCols)), preFileCols[which(!preFileCols %in% exclude)])) %>%

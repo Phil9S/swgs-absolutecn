@@ -5,7 +5,7 @@ include: "rules/common.smk"
 def get_ds_bams(P,B):
     d = {}
     for b in B:
-        fl = OUT_DIR+"sWGS_fitting/"+P+"_"+str(b)+"kb/absolute_PRE_down_sampling/"+P+"_combined_QC_predownsample.tsv"
+        fl = OUT_DIR+"sWGS_fitting/"+P+"_"+str(b)+"kb/absolute_PRE_down_sampling/"+P+"_"+str(b)+"kb_combined_QC_predownsample.tsv"
         if os.path.isfile(fl):
             f = pd.read_table(fl).set_index(["SAMPLE_ID"], drop=False)
             if not f.empty:
