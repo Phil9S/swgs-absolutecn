@@ -1,5 +1,0 @@
-PATIENT_ID	SAMPLE_ID	TP53freq	smooth	file	precPloidy	precPurity
-pseudobulk_B4	pseudobulk_B4	NA	FALSE	/mnt/scratchc/fmlab/darvis01/scUnique-extras/pseudobulk_output/pseudobulk_B4.bam	NA	NA
-pseudobulk_D7	pseudobulk_D7	NA	FALSE	/mnt/scratchc/fmlab/darvis01/scUnique-extras/pseudobulk_output/pseudobulk_D7.bam	NA	NA
-pseudobulk_D11	pseudobulk_D11	NA	TRUE	/mnt/scratchc/fmlab/darvis01/scUnique-extras/pseudobulk_output/pseudobulk_D11.bam	NA	NA
-
