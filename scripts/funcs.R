@@ -7,6 +7,16 @@ fittingColumnNames <- c("SAMPLE_ID","ploidy","purity","clonality","rmse",
                         "downsample_depth","powered","TP53cn","expected_TP53_AF",
                         "homozygousLoss","MedianSegVar")
 
+dsFittingColumnNames <- c("SAMPLE_ID","PATIENT_ID","ploidy","purity","precPloidy",
+                          "precPurity","TP53freq","clonality.pre","clonality.post", 
+                          "rmse.pre","rmse.post","paired.ends","total.reads",
+                          "used.reads","expected.variance","loess.span","loess.family",
+                          "downsample_depth","powered","TP53cn.pre","TP53cn.post",
+                          "expected_TP53_AF.pre","expected_TP53_AF.post","smooth",
+                          "homozygousLoss","MedianSegVar.pre","MedianSegVar.post",
+                          "rank_clonality","pl_diff","new_state_n","new_state","use","notes")
+
+
 # Define helper functions
 # Performs quickcheck of BAM files
 bamCheck <- function(x=NULL,outname=NULL){
