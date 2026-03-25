@@ -11,7 +11,11 @@ if all(samplesheet.precPloidy.notna()) and all(samplesheet.precPurity.notna()):
 SAMPLES = list(samplesheet['SAMPLE_ID'].unique())
 FILE_LIST = list(samplesheet['file'].unique())
 
-localrules: all, bam_check, sym_link, ds_symlink
+prplpu = "FALSE"
+if all(samplesheet.precPloidy.notna()) and all(samplesheet.precPurity.notna()):
+    prplpu = "TRUE"
+
+localrules: all, bam_check, sym_link
 
 rule all:
     input:
@@ -22,7 +26,7 @@ include: "rules/bam_check.smk"
 include: "rules/process_bam.smk"
 include: "rules/rel_rds.smk"
 include: "rules/gridsearch.smk"
-include: "rules/ds_symlink.smk"
+include: "rules/autofit.smk"
 include: "rules/downsample.smk"
 include: "rules/downsampled_rel_rds.smk"
 include: "rules/rel_to_abs.smk"
