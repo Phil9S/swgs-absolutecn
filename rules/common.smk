@@ -26,14 +26,6 @@ validate(samplesheet, schema="../schemas/samples.schema.yaml")
 # set container uri
 image_base_url = config["image_base_url"]
 
-#### Check bin values ####
-
-BIN_VALS = config["bins"]
-BIN_DEF = [1,5,15,30,50,100,500,1000]
-
-if not set(BIN_VALS).issubset(BIN_DEF):
-    sys.exit("Config error - Some specified bin values are not available")
-
 ##### CHECK MAX > MIN #####
 PLMIN=config["ploidy_min"]
 PLMAX=config["ploidy_max"]

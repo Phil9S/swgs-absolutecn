@@ -2,25 +2,24 @@
 
 include: "rules/common.smk"
 
-def get_ds_bams(P,B):
-    d = {}
-    for b in B:
-        fl = OUT_DIR+"sWGS_fitting/"+P+"_"+str(b)+"kb/absolute_PRE_down_sampling/"+P+"_"+str(b)+"kb_combined_QC_predownsample.tsv"
-        if os.path.isfile(fl):
-            f = pd.read_table(fl).set_index(["SAMPLE_ID"], drop=False)
-            if not f.empty:
-                if f["use"].dtype == bool and all(~f.use.isnull()):
-                    ftb = f[(f['use'] == True)]
-                    if all(~ftb.SAMPLE_ID.duplicated()):
-                        d[str(b)] = list(ftb['SAMPLE_ID'])
-                    else:
-                        sys.exit("QC file contains duplicated sample ids marked 'TRUE'")
+def get_ds_bams(P,b):
+    d = []
+    fl = OUT_DIR+"sWGS_fitting/"+P+"_"+str(b)+"kb/absolute_PRE_down_sampling/"+P+"_"+str(b)+"kb_combined_QC_predownsample.tsv"
+    if os.path.isfile(fl):
+        f = pd.read_table(fl).set_index(["SAMPLE_ID"], drop=False)
+        if not f.empty:
+            if f["use"].dtype == bool and all(~f.use.isnull()):
+                ftb = f[(f['use'] == True)]
+                if all(~ftb.SAMPLE_ID.duplicated()):
+                    d = list(ftb['SAMPLE_ID'])
                 else:
-                    sys.exit("QC file 'use' column contains non-boolean values")
+                    sys.exit("QC file contains duplicated sample ids marked 'TRUE'")
             else:
-                sys.exit("QC file is empty. Filtering criteria may need adjusting")
+                sys.exit("QC file 'use' column contains non-boolean values")
         else:
-            sys.exit("QC file from stage 1 is missing")
+            sys.exit("QC file is empty. Filtering criteria may need adjusting")
+    else:
+        sys.exit("QC file from stage 1 is missing")
     return(d)
 
 # Set new sample list based on filtered QC from stage 1
@@ -39,8 +38,9 @@ SAMPLE_LISTS=get_ds_bams(PROJECT,BIN)
 
 rule all:
     input:
-        expand(OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/abs_cn_rds/{project}_{sample}_{bin}kb_ds_absCopyNumber.rds",sample=SAMPLE_LISTS[wildcards.bin],project=config["project_name"],bin=config["bins"]),
-        expand(OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/abs_cn_rds/{project}_{sample}_{bin}kb_ds_abs_fits.tsv",sample=SAMPLE_LISTS[wildcards.bin],project=config["project_name"],bin=config["bins"])
+        #expand(OUT_DIR + "sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/abs_cn_rds/{project}_{sample}_{bin}kb_ds_absCopyNumber.rds",zip,sample=[s for bin_val in config["bins"] for s in SAMPLE_LISTS[str(bin_val)]],bin=[bin_val for bin_val in config["bins"] for _ in SAMPLE_LISTS[str(bin_val)]],project=config["project_name"])
+        #expand(OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/abs_cn_rds/{project}_{sample}_{bin}kb_ds_absCopyNumber.rds",sample=list(samplesheet['SAMPLE_ID'].unique()),project=config["project_name"],bin=config["bins"]),
+        expand(OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/abs_cn_rds/{project}_{sample}_{bin}kb_ds_abs_fits.tsv",sample=SAMPLE_LISTS,project=config["project_name"],bin=config["bins"])
 
 # pipeline rules
 include: "rules/split_input.smk"

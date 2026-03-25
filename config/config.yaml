@@ -7,9 +7,7 @@ out_dir: "results/"
 
 # Bin sizes
 # By default any in [1,5,15,30,50,100,500,1000]
-# Add new line for additional bin sizes
-bins:
-- 30
+bins: 30
 project_name: "example_run"
 
 # Pipeline parameters

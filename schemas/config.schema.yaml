@@ -11,9 +11,8 @@ properties:
   out_dir:
     type: string
   bins:
-    type: array
-    items:
-      type: number
+    type: number 
+    enum: [1,5,15,30,50,100,500,1000]
     uniqueItems: true
   project_name:
     type: string

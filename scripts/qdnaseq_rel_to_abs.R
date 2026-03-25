@@ -44,19 +44,17 @@ relcn <- abs_profiles # make mutable copy
 # Extract CN and Segs
 cn <- Biobase::assayDataElement(relcn,"copynumber")
 seg <- Biobase::assayDataElement(relcn,"segmented")
-
 rel_ploidy <- mean(cn,na.rm=T)
 ploidy <- Biobase::pData(relcn)$ploidy
 purity <- Biobase::pData(relcn)$purity
 cellploidy <- ploidy * purity + 2*(1 - purity)
 seqdepth <- rel_ploidy / cellploidy
-
 # Convert to abs
 abs_cn <- depthtocn(cn,purity,seqdepth)
 abs_seg <- depthtocn(seg,purity,seqdepth)
+
 MedianSegVar <- calculateSegmentVar(abs_seg = as.numeric(abs_seg),abs_cn = abs_cn)
 integer_seg <- round(abs_seg,digits = 0)
-
 errors <- abs_seg - integer_seg
 clonality <- mean(abs(errors)) # clonality is a legacy name for MAE
 rmse <- sqrt(mean(errors^2)) # Root Mean Squared Error
@@ -72,24 +70,28 @@ TP53freq <- Biobase::pData(relcn)$TP53freq
 
 # Add patient-level info
 pat <- as.character(Biobase::pData(relcn)$PATIENT_ID)
-res <- as.data.frame(matrix(c(sample,pat,ploidy,purity,TP53cn,
+res <- as.data.frame(matrix(c(sampleName,pat,ploidy,purity,TP53cn,
                           round(expected_TP53_AF,2),TP53freq,
                           round(clonality,5),
                           round(rmse,5),
                           round(MedianSegVar,5)),nrow = 1,ncol = 10))
 # Add to abs RDS
-Biobase::assayDataElement(abs_profiles,"copynumber")[,sample] <- abs_cn
-Biobase::assayDataElement(abs_profiles,"segmented")[,sample] <- abs_seg
+Biobase::assayDataElement(abs_profiles,"copynumber") <- abs_cn
+Biobase::assayDataElement(abs_profiles,"segmented") <- abs_seg
 
-png(paste0(outpath,"plots/",sample,".png"),type="cairo",w = 8,h = 6,unit="in",res = 250)
+png(paste0(outpath,"plots/",sampleName,".png"),type="cairo",w = 8,h = 6,unit="in",res = 250)
 par(mfrow = c(1,1))
 plotProfile(relcn,ploidy = ploidy,purity = purity,
             clonality = clonality,rmse = rmse)
 dev.off()
-
+print("here9")
 # Annotated and rename table
 colnames(res) <- c("SAMPLE_ID","PATIENT_ID","ploidy","purity","TP53cn",
                    "expected_TP53_AF","TP53freq","clonality","rmse","MedianSegVar")
+
+print("here10")
+res
+Biobase::pData(abs_profiles)
 resFormat <- res %>%
   dplyr::select(-c("ploidy","purity")) %>%
   dplyr::left_join(.,Biobase::pData(abs_profiles),
@@ -99,7 +101,6 @@ resFormat <- res %>%
   dplyr::select(-c("pl_diff","new_state_n","new_state"))
 
 resFormat <- data.frame(resFormat,stringsAsFactors = F)
-
 # Save rds
 saveRDS(abs_profiles,file=paste0(outpath,project,"_",sampleName,"_",bin,"kb_ds_absCopyNumber.rds"))
 
