@@ -23,6 +23,9 @@ OUT_DIR=os.path.join(OUT_DIR,"")
 samplesheet = pd.read_table(config["samplesheet"],dtype={'PATIENT_ID': str,'SAMPLE_ID':str,'TP53freq':float}).set_index(["SAMPLE_ID"], drop=False)
 validate(samplesheet, schema="../schemas/samples.schema.yaml")
 
+if any(samplesheet.SAMPLE_ID.duplicated()):
+    sys.exit("Sample sheet contains duplicated sample ids")
+    
 # set container uri
 image_base_url = config["image_base_url"]
 

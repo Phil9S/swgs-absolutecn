@@ -26,10 +26,6 @@ def get_ds_bams(P,b):
 PROJECT=config["project_name"]
 BIN=config["bins"]
 
-if any(samplesheet.SAMPLE_ID.duplicated()):
-    sys.exit("Sample sheet contains duplicated sample ids")
-
-
 prplpu = "FALSE"
 if all(samplesheet.precPloidy.notna()) and all(samplesheet.precPurity.notna()):
     prplpu = "TRUE"
