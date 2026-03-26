@@ -74,6 +74,16 @@ properties:
     type: number
     minimum: 44
     maximum: 9999
+  flagThreshold:
+    type: number
+    minimum: 0
+    maximum: 0.99
+  fitMethod:
+    type: string
+    enum: ["randforest","errorOnly"]
+  errorMetric:
+    type: string
+    enum: ["clonality","segvariance","rmse"]
 
 # entries that have to be in the config file for successful validation
 required:
@@ -96,4 +106,7 @@ required:
   - pairedEnd
   - autoSmooth
   - smoothThreshold
+  - flagThreshold
+  - fitMethod
+  - errorMetric
 

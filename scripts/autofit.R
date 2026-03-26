@@ -6,9 +6,9 @@ fitsFile <- snakemake@input[["tsv"]]
 fitsTable <- read.table(file = fitsFile,header=T,sep="\t")
 outputFile <- snakemake@output[["tsv"]]
 
-flagThreshold <- 0.84
-fitMethod <- "randforest"
-errorMetric <- "clonality"
+flagThreshold <- snakemake@params[["flagThreshold"]]
+fitMethod <- snakemake@params[["fitMethod"]]
+errorMetric <- snakemake@params[["errorMetric"]]
 
 fitModel <- readRDS("resources/swgs_abs_rfranger_model.rds")
 
