@@ -13,7 +13,6 @@ bin <- as.numeric(snakemake@params[["bin"]])
 out_dir <- snakemake@params[["outdir"]]
 project <- snakemake@params[["project"]]
 genome <- as.character(snakemake@params[["genome"]]) # hg19 or hg38
-hmz_thrsh <- snakemake@params[["homozygous_threshold"]] # default 0.4
 pl_min <- snakemake@params[["ploidy_min"]] # default 1.6 
 pl_max <- snakemake@params[["ploidy_max"]] # default 8
 pu_min <- snakemake@params[["purity_min"]] # default 0.15
@@ -23,6 +22,7 @@ af_cutoff <- as.numeric(snakemake@params[["af_cutoff"]])
 filter_underpowered <- as.logical(snakemake@params[["filter_underpowered"]]) # Filter for powered fits only
 filter_homozygous <- as.logical(snakemake@params[["filter_homozygous"]]) # filter homozygous loss
 homozygous_prop <- as.numeric(snakemake@params[["homozygous_prop"]])
+hmz_thrsh <- snakemake@params[["homozygous_threshold"]] # default 0.4
 
 outpath <- paste0(out_dir,"sWGS_fitting/",
                   project,"_",bin,"kb/absolute_PRE_down_sampling/")
@@ -75,6 +75,7 @@ seg <- Biobase::assayDataElement(relcn,"segmented")
 seg <- as.numeric(seg[!is.na(seg),])
 cn <- Biobase::assayDataElement(relcn,"copynumber")
 cn <- as.numeric(cn[!is.na(cn),])
+num_segs <- length(rle(seg)$values)
 
 # Compute readcount ploidy and read counts
 rel_ploidy <- mean(cn,na.rm=T)
@@ -94,7 +95,7 @@ for(i in 1:length(ploidies)){
     abs_seg <- depthtocn(seg,purity,seqdepth)
     abs_cn <- depthtocn(cn,purity,seqdepth)
     integer_seg <- round(abs_seg,digits = 0)
-    
+     
     errors <- abs_seg - integer_seg
     
     TP53cn <- round(depthtocn(targetCNVal,purity,seqdepth),1) # to 1 decimal place
@@ -107,7 +108,7 @@ for(i in 1:length(ploidies)){
     hmzyg <- sum(abs_seg <= hmz_thrsh) * bin_size
     powered <- downsample_depth < total_reads
     
-    r <- c(ploidy,purity,clonality,rmse,downsample_depth,powered,TP53cn,expected_TP53_AF,hmzyg,MedianSegVar)
+    r <- c(ploidy,purity,num_segs,clonality,rmse,downsample_depth,powered,TP53cn,expected_TP53_AF,hmzyg,MedianSegVar)
     r <- as.data.frame(t(r))
     rowres <- rbind(rowres,r)
 	}
@@ -133,11 +134,9 @@ dev.off()
 write.table(res,snakemake@output[["tsv"]],sep="\t",quote=F,row.names=FALSE)
 
 ### Gridsearch filtering
-relative_smoothed <- rds.obj
-fitTable <- res
-colnames(fitTable) <- fittingColumnNames
+#relative_smoothed <- rds.obj
 
-filteredTables <- filterFitTable(table = fitTable,metadata = metadata,
+filteredTables <- filterFitTable(table = res,metadata = metadata,
                                  filter_underpowered = filter_underpowered,
                                  filter_homozygous = filter_homozygous,
                                  af_cutoff = af_cutoff)
@@ -154,12 +153,6 @@ if(!dir.exists(paste0(outpath,"plots"))){
 }
 
 pruned_results <- filteredTables$pruned
-to_use <- Biobase::fData(relative_smoothed)$use
-relcn <- relative_smoothed[to_use,]
-cn <- Biobase::assayDataElement(relcn,"copynumber")
-seg <- Biobase::assayDataElement(relcn,"segmented")
-
-rel_ploidy <- mean(cn,na.rm=T)
 ll <- nrow(pruned_results)
 
 png(paste0(outpath,"plots/",sampleName,".png"),type = "cairo", w= 450*ll, h = 350)

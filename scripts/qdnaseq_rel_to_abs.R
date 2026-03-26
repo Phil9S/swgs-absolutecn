@@ -53,6 +53,7 @@ seqdepth <- rel_ploidy / cellploidy
 abs_cn <- depthtocn(cn,purity,seqdepth)
 abs_seg <- depthtocn(seg,purity,seqdepth)
 
+num_segs <- length(rle(abs_seg)$values)
 MedianSegVar <- calculateSegmentVar(abs_seg = as.numeric(abs_seg),abs_cn = abs_cn)
 integer_seg <- round(abs_seg,digits = 0)
 errors <- abs_seg - integer_seg
@@ -70,11 +71,11 @@ TP53freq <- Biobase::pData(relcn)$TP53freq
 
 # Add patient-level info
 pat <- as.character(Biobase::pData(relcn)$PATIENT_ID)
-res <- as.data.frame(matrix(c(sampleName,pat,ploidy,purity,TP53cn,
+res <- as.data.frame(matrix(c(sampleName,pat,ploidy,purity,num_segs,TP53cn,
                           round(expected_TP53_AF,2),TP53freq,
                           round(clonality,5),
                           round(rmse,5),
-                          round(MedianSegVar,5)),nrow = 1,ncol = 10))
+                          round(MedianSegVar,5)),nrow = 1,ncol = 11))
 # Add to abs RDS
 Biobase::assayDataElement(abs_profiles,"copynumber") <- abs_cn
 Biobase::assayDataElement(abs_profiles,"segmented") <- abs_seg
@@ -86,8 +87,8 @@ plotProfile(relcn,ploidy = ploidy,purity = purity,
 dev.off()
 print("here9")
 # Annotated and rename table
-colnames(res) <- c("SAMPLE_ID","PATIENT_ID","ploidy","purity","TP53cn",
-                   "expected_TP53_AF","TP53freq","clonality","rmse","MedianSegVar")
+colnames(res) <- c("SAMPLE_ID","PATIENT_ID","ploidy","purity","segments","TP53cn",
+                   "expected_TP53_AF","TP53freq","clonality","rmse","segvariance")
 
 print("here10")
 res
