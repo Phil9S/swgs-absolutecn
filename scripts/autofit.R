@@ -12,8 +12,8 @@ errorMetric <- "clonality"
 
 fitModel <- readRDS("resources/swgs_abs_rfranger_model.rds")
 
-source("scripts/funcs.R")
 options(scipen = 999)
+source("scripts/funcs.R")
 
 fitsTableTriage <- as.data.frame(predictProfile(qctable = fitsTable,
                                                 model = fitModel,
