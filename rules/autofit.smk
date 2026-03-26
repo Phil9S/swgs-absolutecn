@@ -4,5 +4,5 @@ rule autofit:
     output:
         tsv=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/{project}_{sample}_fitted_QC.tsv"
     threads: 1
-    shell:
+    script:
         "../scripts/autofit.R"

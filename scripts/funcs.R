@@ -392,13 +392,15 @@ predictProfile <- function(qctable = NULL,model = NULL,method="randforest",flagT
                                  "|flagThreshold=",flagThreshold,
                                  "|ErrorMetric=",errorMetric))
   
-  if(!all(as.logical(fitsTableTriage$use))){
+  if(all(!as.logical(qctable$use))){
     qctable <- qctable %>%
       dplyr::ungroup() %>%
       tibble::add_row(SAMPLE_ID = unique(.$SAMPLE_ID),
                       PATIENT_ID = unique(.$PATIENT_ID),
                       ploidy = 2.0,purity = 1,
+		      smooth = unique(.$smooth),
                       segments = unique(.$segments),
+		      downsample_depth=2756274, # default for pl=2,pu=1 @ 30kb
                       use = "TRUE") %>%
       dplyr::mutate(flag = ifelse(is.na(flag),NA,paste0("NOFIT|",flag))) %>%
       dplyr::mutate(notes = paste0("NO_FIT_FOUND|",notes))

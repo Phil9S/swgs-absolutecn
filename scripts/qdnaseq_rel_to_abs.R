@@ -53,7 +53,7 @@ seqdepth <- rel_ploidy / cellploidy
 abs_cn <- depthtocn(cn,purity,seqdepth)
 abs_seg <- depthtocn(seg,purity,seqdepth)
 
-num_segs <- length(rle(abs_seg)$values)
+num_segs <- length(rle(as.numeric(abs_seg))$values)
 MedianSegVar <- calculateSegmentVar(abs_seg = as.numeric(abs_seg),abs_cn = abs_cn)
 integer_seg <- round(abs_seg,digits = 0)
 errors <- abs_seg - integer_seg
