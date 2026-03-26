@@ -7,8 +7,8 @@ fittingColumnNames <- c("SAMPLE_ID","ploidy","purity","segments","clonality","rm
                         "downsample_depth","powered","TP53cn","expected_TP53_AF",
                         "homozygousLoss","segvariance")
 
-dsFittingColumnNames <- c("SAMPLE_ID","PATIENT_ID","ploidy","purity","segments","precPloidy",
-                          "precPurity","TP53freq","clonality.pre","clonality.post", 
+dsFittingColumnNames <- c("SAMPLE_ID","PATIENT_ID","ploidy","purity","precPloidy",
+                          "precPurity","TP53freq","segments.pre","segments.post","clonality.pre","clonality.post", 
                           "rmse.pre","rmse.post","paired.ends","total.reads",
                           "used.reads","expected.variance","loess.span","loess.family",
                           "downsample_depth","powered","TP53cn.pre","TP53cn.post",
@@ -88,7 +88,7 @@ getDownsampleDepth <- function(ploidy=NULL,purity=NULL,nbins_ref_genome=NULL,rpc
 }
 
 calculateSegmentVar <- function(abs_seg=NULL,abs_cn=NULL){
-  segRLE <- rle(abs_seg)
+  segRLE <- rle(as.numeric(abs_seg))
   
   segVar <- c()
   for(i in 1:length(segRLE$lengths)){

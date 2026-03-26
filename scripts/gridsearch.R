@@ -22,7 +22,7 @@ af_cutoff <- as.numeric(snakemake@params[["af_cutoff"]])
 filter_underpowered <- as.logical(snakemake@params[["filter_underpowered"]]) # Filter for powered fits only
 filter_homozygous <- as.logical(snakemake@params[["filter_homozygous"]]) # filter homozygous loss
 homozygous_prop <- as.numeric(snakemake@params[["homozygous_prop"]])
-hmz_thrsh <- snakemake@params[["homozygous_threshold"]] # default 0.4
+homozygous_thrsh <- snakemake@params[["homozygous_threshold"]] # default 0.4
 
 outpath <- paste0(out_dir,"sWGS_fitting/",
                   project,"_",bin,"kb/absolute_PRE_down_sampling/")
@@ -72,10 +72,10 @@ purities <- seq.int(pu_min,pu_max,0.01)
 to_use <- Biobase::fData(rds.obj)$use
 relcn <- rds.obj[to_use,]
 seg <- Biobase::assayDataElement(relcn,"segmented")
-seg <- as.numeric(seg[!is.na(seg),])
+#seg <- as.numeric(seg[!is.na(seg),])
 cn <- Biobase::assayDataElement(relcn,"copynumber")
-cn <- as.numeric(cn[!is.na(cn),])
-num_segs <- length(rle(seg)$values)
+#cn <- as.numeric(cn[!is.na(cn),])
+num_segs <- length(rle(as.numeric(seg))$values)
 
 # Compute readcount ploidy and read counts
 rel_ploidy <- mean(cn,na.rm=T)
@@ -105,7 +105,7 @@ for(i in 1:length(ploidies)){
     rmse <- sqrt(mean(errors^2)) # Root Mean Squared Error
     MedianSegVar <- calculateSegmentVar(abs_seg = abs_seg,abs_cn = abs_cn)
     
-    hmzyg <- sum(abs_seg <= hmz_thrsh) * bin_size
+    hmzyg <- sum(abs_seg <= homozygous_thrsh) * bin_size
     powered <- downsample_depth < total_reads
     
     r <- c(ploidy,purity,num_segs,clonality,rmse,downsample_depth,powered,TP53cn,expected_TP53_AF,hmzyg,MedianSegVar)
