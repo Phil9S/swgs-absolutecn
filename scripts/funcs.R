@@ -332,7 +332,7 @@ filterFitTable <- function(table = NULL,metadata = NULL,filter_underpowered = NU
   return(list(filtered = filtered_results,pruned = pruned_results))
 }
 
-predictProfile <- function(qctable = NULL,model = NULL,method="randforest",flagThreshold=0.74,multiFitFilter="clonality"){
+predictProfile <- function(qctable = NULL,model = NULL,method="randforest",flagThreshold=0.74,errorMetric="clonality"){
   
   if(is.null(model)){
     stop("no model")
@@ -342,7 +342,7 @@ predictProfile <- function(qctable = NULL,model = NULL,method="randforest",flagT
     stop(paste0("unknown method - use 'randforest' or 'errorOnly'"))
   }
   
-  if(!multiFitFilter %in% c("clonality","segvariance","rmse")){
+  if(!errorMetric %in% c("clonality","segvariance","rmse")){
     stop(paste0("unknown error metric - use 'clonality', 'segvariance' or 'rmse'"))
   }
   
@@ -356,13 +356,13 @@ predictProfile <- function(qctable = NULL,model = NULL,method="randforest",flagT
        
        qctable <- triageProfile(qctable = qctable,
                                 flagThreshold = flagThreshold,
-                                multiFitFilter = multiFitFilter)
+                                errorMetric = errorMetric)
        
        qctable <- qctable %>%
          dplyr::select(-sumt)
   },
     "errorOnly"={
-      switch(multiFitFilter,
+      switch(errorMetric,
              "clonality"={
       qctable <- qctable %>%
         dplyr::group_by(sample) %>%
@@ -390,12 +390,12 @@ predictProfile <- function(qctable = NULL,model = NULL,method="randforest",flagT
     dplyr::select(-c("sample")) %>%
     dplyr::mutate(notes = paste0("autofit|","fitmethod=",method,
                                  "|flagThreshold=",flagThreshold,
-                                 "|ErrorMetric=",multiFitFilter))
+                                 "|ErrorMetric=",errorMetric))
   
   return(qctable)
 }
 
-triageProfile <- function(qctable = NULL,flagThreshold=0.74,multiFitFilter="segvariance"){
+triageProfile <- function(qctable = NULL,flagThreshold=0.74,errorMetric="segvariance"){
   if(is.null(qctable)){
     stop("no data")
   }
@@ -405,7 +405,7 @@ triageProfile <- function(qctable = NULL,flagThreshold=0.74,multiFitFilter="segv
     dplyr::mutate(triageValue = abs(.pred_TRUE - .pred_FALSE)) %>%
     dplyr::mutate(sumt = sum(as.logical(.pred_class)))
   
-  switch(multiFitFilter,
+  switch(errorMetric,
          "clonality"={
            qctable <- qctable %>%
              dplyr::group_by(sample) %>%
