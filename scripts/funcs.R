@@ -3,18 +3,63 @@
 # define vars
 `%>%` <- dplyr::`%>%`
 
-fittingColumnNames <- c("SAMPLE_ID","ploidy","purity","segments","clonality","rmse",
-                        "downsample_depth","powered","TP53cn","expected_TP53_AF",
-                        "homozygousLoss","segvariance")
+fittingColumnNames <- c(
+  "SAMPLE_ID",
+  "ploidy",
+  "purity",
+  "segments",
+  "clonality",
+  "rmse",
+  "downsample_depth",
+  "powered",
+  "TP53cn",
+  "expected_TP53_AF",
+  "homozygousLoss",
+  "segvariance"
+)
 
-dsFittingColumnNames <- c("SAMPLE_ID","PATIENT_ID","ploidy","purity","precPloidy",
-                          "precPurity","TP53freq","segments.pre","segments.post","clonality.pre","clonality.post", 
-                          "rmse.pre","rmse.post","paired.ends","total.reads",
-                          "used.reads","expected.variance","loess.span","loess.family",
-                          "downsample_depth","powered","TP53cn.pre","TP53cn.post",
-                          "expected_TP53_AF.pre","expected_TP53_AF.post","smooth",
-                          "homozygousLoss","segvariance.pre","segvariance.post",
-                          "rank_clonality","pl_diff","new_state_n","new_state","use","notes")
+dsFittingColumnNames <- c(
+  "SAMPLE_ID",
+  "PATIENT_ID",
+  "ploidy",
+  "purity",
+  "precPloidy",
+  "precPurity",
+  "TP53freq",
+  "segments.pre",
+  "segments.post",
+  "clonality.pre",
+  "clonality.post",
+  "rmse.pre",
+  "rmse.post",
+  "paired.ends",
+  "total.reads",
+  "used.reads",
+  "expected.variance",
+  "loess.span",
+  "loess.family",
+  "downsample_depth",
+  "powered",
+  "TP53cn.pre",
+  "TP53cn.post",
+  "expected_TP53_AF.pre",
+  "expected_TP53_AF.post",
+  "smooth",
+  "homozygousLoss",
+  "segvariance.pre",
+  "segvariance.post",
+  "rank_clonality",
+  "pl_diff",
+  "new_state_n",
+  "new_state",
+  "use",
+  "notes",
+  "pred_class",
+  "pred_FALSE",
+  "pred_TRUE",
+  "triageValue",
+  "flag"
+)
 
 
 # Define helper functions
@@ -287,53 +332,105 @@ filterFitTable <- function(table = NULL,metadata = NULL,filter_underpowered = NU
   return(list(filtered = filtered_results,pruned = pruned_results))
 }
 
-predictProfile <- function(qctable = NULL,model = NULL,flagThreshold=0.74,multiFitFilter="clonality"){
+predictProfile <- function(qctable = NULL,model = NULL,method="randforest",flagThreshold=0.74,multiFitFilter="clonality"){
   
   if(is.null(model)){
     stop("no model")
   }
   
-  #print(selectedModel)
-  #print(qcTablePred)
-  newClass <- stats::predict(model,qctable,type = "class")
-  newProb <- round(stats::predict(model,qctable,type = "prob"),digits = 3)
+  if(!method %in% c("randforest","errorOnly")){
+    stop(paste0("unknown method - use 'randforest' or 'errorOnly'"))
+  }
   
-  qctable <- cbind(qctable,newClass,newProb)
+  if(!multiFitFilter %in% c("clonality","segvariance","rmse")){
+    stop(paste0("unknown error metric - use 'clonality', 'segvariance' or 'rmse'"))
+  }
   
-  qctable <- triageProfile(qcTable = qctable,flagThreshold = flagThreshold,multiFitFilter = multiFitFilter)
+  qctable$sample <- qctable$SAMPLE_ID
+
+  switch(method,
+    "randforest"={
+       newClass <- stats::predict(model,qctable,type = "class")
+       newProb <- round(stats::predict(model,qctable,type = "prob"),digits = 3)
+       qctable <- cbind(qctable,newClass,newProb)
+       
+       qctable <- triageProfile(qctable = qctable,
+                                flagThreshold = flagThreshold,
+                                multiFitFilter = multiFitFilter)
+       
+       qctable <- qctable %>%
+         dplyr::select(-sumt)
+  },
+    "errorOnly"={
+      switch(multiFitFilter,
+             "clonality"={
+      qctable <- qctable %>%
+        dplyr::group_by(sample) %>%
+        dplyr::arrange(sample,clonality) %>%
+        dplyr::mutate(use = ifelse(clonality == min(clonality),TRUE,FALSE))
+      },
+      "segvariance"={
+        qctable <- qctable %>%
+          dplyr::group_by(sample) %>%
+          dplyr::arrange(sample,segvariance) %>%
+          dplyr::mutate(use = ifelse(segvariance == min(segvariance),TRUE,FALSE))
+      },
+      "rmse"={
+        qctable <- qctable %>%
+          dplyr::group_by(sample) %>%
+          dplyr::arrange(sample,rmse) %>%
+          dplyr::mutate(use = ifelse(rmse == min(rmse),TRUE,FALSE))
+      })
+      newCols <- c("pred_class","pred_FALSE","pred_TRUE","triageValue","flag")
+      qctable <- qctable %>%
+        dplyr::mutate(!!!setNames(rep(NA, length(newCols)),newCols))
+  })
+  qctable <- qctable %>%
+    dplyr::ungroup() %>%
+    dplyr::select(-c("sample")) %>%
+    dplyr::mutate(notes = paste0("autofit|","fitmethod=",method,
+                                 "|flagThreshold=",flagThreshold,
+                                 "|ErrorMetric=",multiFitFilter))
   
   return(qctable)
 }
 
-triageProfile <- function(qcTable = NULL,flagThreshold=0.74,multiFitFilter="segvariance"){
-  if(is.null(qcTable)){
+triageProfile <- function(qctable = NULL,flagThreshold=0.74,multiFitFilter="segvariance"){
+  if(is.null(qctable)){
     stop("no data")
   }
   
-  qcTable <- qcTable %>%
+  qctable <- qctable %>%
     dplyr::group_by(sample) %>%
     dplyr::mutate(triageValue = abs(.pred_TRUE - .pred_FALSE)) %>%
     dplyr::mutate(sumt = sum(as.logical(.pred_class)))
   
   switch(multiFitFilter,
          "clonality"={
-           qcTable <- qcTable %>%
+           qctable <- qctable %>%
              dplyr::group_by(sample) %>%
              dplyr::arrange(sample,clonality) %>%
              dplyr::mutate(use = ifelse(sumt <= 1,as.logical(.pred_class),
                                  ifelse(clonality == min(clonality),TRUE,FALSE)))
          },
          "segvariance"={
-           qcTable <- qcTable %>%
+           qctable <- qctable %>%
              dplyr::arrange(sample,segvariance) %>%
              dplyr::mutate(use = ifelse(sumt <= 1,as.logical(.pred_class),
                                  ifelse(segvariance == min(segvariance),TRUE,FALSE)))
+         },
+         "rmse"={
+           qctable <- qctable %>%
+             dplyr::group_by(sample) %>%
+             dplyr::arrange(sample,rmse) %>%
+             dplyr::mutate(use = ifelse(sumt <= 1,as.logical(.pred_class),
+                                        ifelse(rmse == min(rmse),TRUE,FALSE)))
          })
   
-  qcTable <- qcTable %>%
+  qctable <- qctable %>%
     dplyr::mutate(flag = ifelse(triageValue < flagThreshold,"LOWPROBFLAG",NA)) %>%
     dplyr::rename(pred_class = .pred_class,pred_TRUE = .pred_TRUE,pred_FALSE = .pred_FALSE) %>%
     dplyr::mutate(use = pred_class) %>%
     dplyr::mutate(notes = ifelse(is.na(flag),NA,flag))
-  return(qcTable)
+  return(qctable)
 }
