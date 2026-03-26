@@ -350,8 +350,8 @@ predictProfile <- function(qctable = NULL,model = NULL,method="randforest",flagT
 
   switch(method,
     "randforest"={
-       newClass <- stats::predict(model,qctable,type = "class")
-       newProb <- round(stats::predict(model,qctable,type = "prob"),digits = 3)
+       newClass <- parsnip::predict.model_fit(model,qctable,type = "class")
+       newProb <- round(parsnip::predict.model_fit(model,qctable,type = "prob"),digits = 3)
        qctable <- cbind(qctable,newClass,newProb)
        
        qctable <- triageProfile(qctable = qctable,

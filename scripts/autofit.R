@@ -6,7 +6,7 @@ fitsFile <- snakemake@input[["tsv"]]
 fitsTable <- read.table(file = fitsFile,header=T,sep="\t")
 outputFile <- snakemake@output[["tsv"]]
 
-flagThreshold <- snakemake@params[["flgThreshold"]]
+flagThreshold <- 0.84
 fitMethod <- "randforest"
 errorMetric <- "clonality"
 

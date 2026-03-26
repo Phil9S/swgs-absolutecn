@@ -15,8 +15,8 @@ dependencies:
   - r-tidyverse
   - r-matrixstats
   - r-plyr
-  - r-domc
-  - r-foreach
   - bioconductor-qdnaseq
   - bioconductor-qdnaseq.hg19
   - r-remotes
+  - r-ranger
+  - r-parsnip
