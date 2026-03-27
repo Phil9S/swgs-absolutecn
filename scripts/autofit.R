@@ -10,7 +10,12 @@ flagThreshold <- snakemake@params[["flagThreshold"]]
 fitMethod <- snakemake@params[["fitMethod"]]
 errorMetric <- snakemake@params[["errorMetric"]]
 
-fitModel <- readRDS("resources/swgs_abs_rfranger_model.rds")
+if(fitMethod == "randforest"){
+  fitModel <- readRDS("resources/swgs_abs_rfranger_model.rds")
+  
+} else {
+  fitModel <- NULL  
+}
 
 options(scipen = 999)
 source("scripts/funcs.R")

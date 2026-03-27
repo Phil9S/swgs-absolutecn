@@ -334,7 +334,7 @@ filterFitTable <- function(table = NULL,metadata = NULL,filter_underpowered = NU
 
 predictProfile <- function(qctable = NULL,model = NULL,method="randforest",flagThreshold=0.74,errorMetric="clonality"){
   
-  if(is.null(model)){
+  if(is.null(model) & method == "randforest"){
     stop("no model")
   }
   
@@ -409,7 +409,7 @@ predictProfile <- function(qctable = NULL,model = NULL,method="randforest",flagT
   return(qctable)
 }
 
-triageProfile <- function(qctable = NULL,flagThreshold=0.74,errorMetric="segvariance"){
+triageProfile <- function(qctable = NULL,flagThreshold=0.84,errorMetric="segvariance"){
   if(is.null(qctable)){
     stop("no data")
   }
