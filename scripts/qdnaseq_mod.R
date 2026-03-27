@@ -7,7 +7,7 @@ pairedEnd <- as.logical(snakemake@params[["pairedEnd"]])
 output_dir <- snakemake@params[["outdir"]]
 project <- snakemake@params[["project"]]
 sample <- snakemake@params[["sample"]]
-metafile <- snakemake@input[["meta"]]
+metafile <- snakemake@params[["meta"]]
 use_seed <- snakemake@params[["use_seed"]]
 seed_val <- snakemake@params[["seed_val"]]
 metadata <- read.table(file = metafile,header=T,sep="\t")
