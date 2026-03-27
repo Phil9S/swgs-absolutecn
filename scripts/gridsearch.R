@@ -128,7 +128,7 @@ if(!dir.exists(paste0(outpath,"plots"))){
 ll <- nrow(filteredTables$pruned)
 png(paste0(outpath,"plots/",sampleName,".png"),type = "cairo", w= 450*ll, h = 350)
 par(mfrow = c(1,ll)) 
-for(n in 1:nrow(pruned_results)){
+for(n in 1:nrow(filteredTables$pruned)){
   
   ploidy <- filteredTables$pruned[n,]$ploidy
   purity <- filteredTables$pruned[n,]$purity
