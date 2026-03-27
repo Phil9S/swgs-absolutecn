@@ -7,7 +7,7 @@ rule ds_relRDS:
         image_base_url+"swgs-absolutecn:latest"
     params:
         bin="{bin}",
-        meta=config["samplesheet"]
+        meta=config["samplesheet"],
         pairedEnd=config["pairedEnd"],
         use_seed=config["use_seed"],
         seed_val=config["seed_val"],
