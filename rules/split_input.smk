@@ -6,10 +6,7 @@ rule split_input:
     singularity:
         image_base_url+"swgs-absolutecn:latest"
     params:
-        bin="{bin}",
-	sample="{sample}",
-        outdir=OUT_DIR,
-        project="{project}"
+	      sample="{sample}"
     threads: 1
     script:
         "../scripts/split_input.R"

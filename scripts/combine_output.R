@@ -1,14 +1,10 @@
-# combine single outputs to one file
+## combine_output.R
+# Combines sample-level outputs in the pre-downsample phase
+# (stage_1) of swgs-abscn to allow for split processing and manual fitting
 args = commandArgs(trailingOnly=TRUE)
 
 rds.filename <- snakemake@input[["rds"]]
 filelist <- snakemake@input[["tsv"]]
-bin <- as.numeric(snakemake@params[["bin"]])
-out_dir <- snakemake@params[["outdir"]]
-project <- snakemake@params[["project"]]
-
-outpath <- paste0(out_dir,"sWGS_fitting/",
-                  project,"_",bin,"kb/absolute_PRE_down_sampling/")
 
 source("scripts/funcs.R")
 options(scipen = 999)

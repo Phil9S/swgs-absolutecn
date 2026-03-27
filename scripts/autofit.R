@@ -1,6 +1,7 @@
-# CN Profile autofit
-
-# grab commandline arguments passed via snakemake object
+## autofit.R
+# automates CN profile fitting using either randomforest or
+# min error selection of best absolute copy number profile fit. Additionally
+# flags fits which are low confidence or potentially poor
 args = commandArgs(trailingOnly=TRUE)
 fitsFile <- snakemake@input[["tsv"]]
 fitsTable <- read.table(file = fitsFile,header=T,sep="\t")
@@ -28,4 +29,3 @@ fitsTableTriage <- as.data.frame(predictProfile(qctable = fitsTable,
 
 write.table(fitsTableTriage,file = outputFile,append = FALSE,
             quote = FALSE,sep = "\t",row.names = FALSE,col.names = TRUE)
-

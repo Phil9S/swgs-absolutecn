@@ -1,12 +1,18 @@
+## downsampleBams.R
+# Notes on downsample ratio
+# - Read ratio is greater than 0.96 (i.e close to original or higher than 
+# available reads) are symlink of original.
+# - CRAM files will always be downsampled into bams regardless of ratio between 
+# downsample depth to prevent repeat decompression to BAM
+# - Total reads Error catch for read ratios lower than 1e-4 (Large bin / high 
+# coverages / Low ploidy / High purity) implemented to prevent too few reads 
+# being sampled.
 args = commandArgs(trailingOnly=TRUE)
 
 bam_in <- snakemake@input[["bam"]]
 meta <- snakemake@input[["meta"]]
 rds <- snakemake@input[["rds"]]
-outdir <- snakemake@params[["outdir"]]
-bin <- as.numeric(snakemake@params[["bin"]])
-project <- snakemake@params[["project"]]
-outname <- snakemake@output[[1]]
+outname <- snakemake@output[["ds"]]
 sample_name <- snakemake@params[["sample"]]
 prplpu <- as.logical(snakemake@params[["prplpu"]])
 filetype <- snakemake@params[["filetype"]]
@@ -35,15 +41,6 @@ fit.qc.filt$ratio <- round(fit.qc.filt$downsample_depth / fit.qc.filt$total.read
 
 perc <- fit.qc.filt %>% .$ratio
 
-# Notes on downsample ratio
-# - Read ratio is greater than 0.96 (i.e close to original or higher than 
-# available reads) are symlink of original.
-# - CRAM files will always be downsampled into bams regardless of ratio between 
-# downsample depth to prevent repeat decompression to BAM
-# - Total reads Error catch for read ratios lower than 1e-4 (Large bin / high 
-# coverages / Low ploidy / High purity) implemented to prevent too few reads 
-# being sampled.
-
 if(perc > 1){
   perc <- 1
 } else if(perc == 0){
@@ -60,7 +57,7 @@ if(filetype == "CRAM"){
   system(cmd.index)
  
 } else {
-  if( perc <= 0.96){
+  if(perc <= 0.96){
     cmd.downsample <- paste("samtools view -s ", perc," -b ",
                             bam_in," > ",outname)
     cmd.index <- paste0("samtools index ",outname)

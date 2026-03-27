@@ -1,16 +1,14 @@
 rule ds_relRDS:
     input:
-        bams=expand(OUT_DIR+"sWGS_fitting/{{project}}_{{bin}}kb/absolute_POST_down_sampling/downsampled_bams/{{sample}}.bam"),
-        meta=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/{project}_{sample}_fitted_QC.tsv"
+        bams=expand(OUT_DIR+"sWGS_fitting/{{project}}_{{bin}}kb/absolute_POST_down_sampling/downsampled_bams/{{sample}}.bam")
     output:
-        OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/relative_cn_rds/{project}_{sample}_{bin}kb_relSmoothedCN.rds"
+        rds=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/relative_cn_rds/{project}_{sample}_{bin}kb_relSmoothedCN.rds"
     singularity:
         image_base_url+"swgs-absolutecn:latest"
     params:
         bin="{bin}",
+        meta=config["samplesheet"]
         pairedEnd=config["pairedEnd"],
-        outdir=OUT_DIR,
-        project="{project}",
         use_seed=config["use_seed"],
         seed_val=config["seed_val"],
         genome=config["genome"],
