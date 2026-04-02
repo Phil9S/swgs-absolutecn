@@ -4,10 +4,11 @@ channels:
   - bioconda 
 dependencies:
   - r-base=4.3.3
-  - snakemake=5.10
-  - python=3.10
+  - snakemake
+  - snakemake-executor-plugin-slurm
+  - snakemake-executor-plugin-lsf
+  - python
   - pandas
-  - setuptools=81.0
   - ruamel.yaml
   - samtools
   - bioconductor-biobase

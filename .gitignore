@@ -4,3 +4,7 @@ sample_sheet.tsv
 profile/slurm/__pycache__/
 scripts/.Rhistory
 .Rhistory
+lock
+# pixi environments
+.pixi/*
+!.pixi/config.toml

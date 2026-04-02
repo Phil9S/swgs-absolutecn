@@ -1,0 +1,18 @@
+executor: slurm
+keep-going: True
+max-jobs-per-second: 5
+max-status-checks-per-second: 0.5
+latency-wait: 5
+jobs: 100
+slurm-logdir: "logs/"
+
+default-resources:
+  slurm_partition: "epyc"
+  slurm_account: "fmlab"
+  threads: 1   # ncpus
+  mem_mb: 8000  # memory MB
+  runtime: "90m"
+
+printshellcmds: True
+show-failed-logs: True
+
