@@ -26,5 +26,3 @@ r-remotes = "*"
 r-ranger = "*"
 r-parsnip = "*"
 
-[activation]
-scripts = ["install_env.sh"]
