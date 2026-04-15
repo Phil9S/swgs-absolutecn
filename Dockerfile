@@ -22,6 +22,9 @@ RUN export TAR="tar --no-same-permissions --no-same-owner" && export TMPDIR=/tmp
 #RUN echo 'exec "$@"' >> /app/entrypoint.sh
 
 FROM debian:12-slim AS production
+RUN TZ=Etc/UTC && \
+ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+echo $TZ > /etc/timezone
 WORKDIR /app
 COPY . .
 # only copy the production environment into prod container
