@@ -3,10 +3,10 @@ import pandas as pd
 from pathlib import Path
 from snakemake.utils import min_version
 import os.path
-import ruamel.yaml
-from ruamel.yaml.scalarstring import SingleQuotedScalarString, DoubleQuotedScalarString
+#import ruamel.yaml
+#from ruamel.yaml.scalarstring import SingleQuotedScalarString, DoubleQuotedScalarString
 
-yaml = ruamel.yaml.YAML()
+#yaml = ruamel.yaml.YAML()
 
 min_version("5.10.0")
 
