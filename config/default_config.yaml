@@ -62,15 +62,15 @@ reference: "reference/hsa.GRCh37_g1kp2.fa"
 pairedEnd: 'TRUE'
 
 # automatically smooth profiles with segment counts above smoothThreshold
-# Default - 'FALSE' / 300 segments
+# Default - 'FALSE' / 700 segments
 autoSmooth: 'FALSE'
-smoothThreshold: 300
+smoothThreshold: 700
 
 # autofit profiles
 ## flagthresold determines at what potint samples are flagged as potentially poor fits
 flagThreshold: 0.84 # default 0.84
 ## method for selecting best fit - either 'randforest' model or lowest error 'errorOnly'
-fitMethod: "randforest"
+fitMethod: "errorOnly"
 ## errorMetric for errorOnly fitting and tiebreaker procedure in randforest
 ## Either 'clonality', 'segvariance' or 'rmse'
 errorMetric: "clonality"

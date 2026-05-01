@@ -1,42 +1,56 @@
 # swgs-absolutecn pipeline
 
-[![Snakemake](https://img.shields.io/badge/snakemake-≥5.10.0-brightgreen.svg)](https://snakemake.bitbucket.io) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10040893.svg)](https://doi.org/10.5281/zenodo.10040893)
+[![Snakemake](https://img.shields.io/badge/snakemake-≥8.0.0-brightgreen.svg)](https://snakemake.readthedocs.io/en/stable/) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10040893.svg)](https://doi.org/10.5281/zenodo.10040893)
 
 ## Description
 
 ### *Summary*
 
-Generate absolute copy number profiles from shallow whole genome sequencing data using a read depth normalised and allele frequency-anchored approach.
+Generate absolute copy number profiles from shallow whole genome sequencing data using a read depth normalised and allele frequency-anchored approach using a snakemake-based workflow.
 
-### *Detailed description*
+## Pipeline setup
 
-This pipeline implements a method for generating absolute copy number profiles from shallow whole genome sequencing data utilising a multi-stage fitting process to generate a set of read depth-normalised absolute copy number profiles. Copy number fits are generated in read count space using a modified implementation of [QDNAseq](https://github.com/ccagc/QDNAseq) on full read depth shallow whole genome BAM files. After which, a grid search of ploidy and purity values is performed to generate a matrix of potential absolute copy number profiles. The fitting of absolute copy number profiles includes an error function metric and a variant allele fraction anchoring process which assist in the selection of an optimal copy number fit. 
+### Clone the repo
 
-The error function, `clonality`, which measures segment residual from integer state across the genome and is computed as mean absolute error (MAE), in which a lower value is suggestive of better confirmation to integer copy number states, and therefore a better absolute copy number profile. variant allele fraction achoring utilises the near-ubiquitous presence of somatic homozygous _TP53_ variants in high grade serous ovarian cancer as an anchoring point for a copy number fit. Experimentally validated _TP53_ allele fractions at homozygous sites are compared to an expected homozygous _TP53_ variant allele fraction, as determined by the copy number value of the segment overlapping the _TP53_ locus. The smaller absolute differences between the experimental and expected _TP53_ variant allele fractions is suggestive of a better fit. Minimisation of the `clonality` error function, expected-to-experimental TP53 distance, and manual review of fits allows for the selection of an optimal absolute copy number profile for a given sample.
+[Clone](https://help.github.com/en/articles/cloning-a-repository) this repository to your local system.
 
-The selected fits are subject to a calculation of power to detect copy number alterations, as described [here](https://gmacintyre.shinyapps.io/sWGS_power/), in which the read depth of a given sample is assessed against its selected ploidy-purity combination. This process both determines if 1) a sample has a sufficient number of reads to support the selected ploidy-purity combination and 2) an optimal target number of reads to perform sample-specific read down sampling. This process normalises the read depth between samples in a ploidy and purity dependent manner so that read variance across segments is consistent, while excluding samples which are not supported by a sufficient number of reads.
+```
+git clone https://github.com/Phil9S/swgs-absolutecn.git
+cd swgs-absolutecn/
+```
+### Install environment
 
-Samples passing all filtering criteria then undergo read downsampling to the specified target number of reads determined by the previous steps and absolute copy number profiles fitted at the ploidy-purity combination selected prior.
+This pipeline can utilise either a virtual environment or a containerised implementation to manage the software packages and dependecies.
 
-## Table of contents
+#### **pixi (recommended)**
 
-* [Pipeline setup](#pipeline-setup)
-  + [Step 1 Clone the repo](#step-1-clone-the-repo)
-  + [Step 2 Installing environment](#step-2-installing-environment)
-  + [Step 3 Preparing the input files](#step-3-preparing-the-input-files)
-    - [sample sheet](#sample-sheet)
-    - [config.yaml](#configyaml)
-    - [profile config.yaml](#profile-configyaml)
-    - [workflow management](#workflow-management)
-    - [updating the pipeline configuration](#updating-the-pipeline-configuration)
-* [Running the pipeline](#running-the-pipeline)
-  + [Step 4 Stage 1](#step-4-stage-1)
-  + [Step 5 QC1](#step-5-qc1)
-    - [Smoothing](#smoothing)
-    - [Fit selection](#fit-selection)
-  + [Step 6 Stage 2](#step-6-stage-2)
-  + [Downsampling only](#downsampling-only)
-* [Output files](#output-files)
+Follow the linked instructions to install [Pixi](https://pixi.prefix.dev/latest/installation/) then run the following:
+
+```
+pixi install --run-post-link-scripts && pixi run ./install_env.sh
+```
+
+#### micromamba
+Follow the linked instructions to install [micromamba](https://mamba.readthedocs.io/en/latest/user_guide/micromamba.html) then run the following:
+
+```
+micromamba create -f conda.yaml
+micromamba activate swgs-abscn && ./install_env.sh
+```
+#### conda
+Follow the linked instructions to install [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) then run the following:
+
+```
+
+```
+
+#### Container-based
+
+For the containerised implementation a compatible version of both snakemake and singularity are required on your system. See installing [singularity](https://docs.sylabs.io/guides/latest/user-guide/quick_start.html) and [snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html).
+
+This can done using one of the previous methods (pixi, micromamba, conda, etc.) or may already be included with the system via modules or installed directly.
+
+
 
 ## Compatibility
 
@@ -52,31 +66,8 @@ Using the CRAM implementation currently involves the decompresssion of CRAM file
 
 ## Pipeline setup
 
-### Step 1 Clone the repo
-
-[Clone](https://help.github.com/en/articles/cloning-a-repository) this repository to your local system.
-
-```
-git clone https://github.com/Phil9S/swgs-absolutecn.git
-cd swgs-absolutecn/
-```
-
-### Step 2 Installing environment
-
-This pipeline can utilise either a conda environment or a containerised docker/singularity implementation to manage the software packages and dependecies.
-
-- For the conda implementation please make sure either mamba or conda are installed and available on your system. Our recommendation is to use micromamba or, ideally, the installed conda version should utilise the libmamba solver library as the required environment contains a large number of packages. See installing [micromamba](https://mamba.readthedocs.io/en/latest/user_guide/micromamba.html) or [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html).
-- For the docker/singularity implementation please make sure a compatible version of both snakemake and singularity are available on your system. See installing [singularity](https://docs.sylabs.io/guides/latest/user-guide/quick_start.html) and [snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html).
 
 #### Conda environment
-With conda or micromamba installed, from within the repository directory, run the `install_env.sh` script to generate a conda environment and install custom packages:
-```
-./install_env.sh mamba
-```
-or
-```
-./install_env.sh conda $HOME/miniconda/
-```
 
 If you are useing an existing conda installation, please use the conda installation directory relevant to your existing installation when running this section instead of `$HOME/miniconda/` to correctly initialise the conda environment.
 
@@ -91,6 +82,7 @@ conda activate swgs-abscn
 ```
 
 #### Singularity-based implementation
+
 If singularity and snakemake are already available, the pipeline can be run using a container by running the following:
 
 Set the input and output directories (these should match those specified in the config.yaml - see step 3)
@@ -154,34 +146,11 @@ Another use case would be samples where the general purity range is known, for e
 #### Workflow management
 ##### profile config.yaml
 
+
+The snakemake workflow is designed to run using job schedulers, and as such uses the [snakemake executor plugins](https://snakemake.github.io/snakemake-plugin-catalog/) to manage job submission and compute resoruces. 
+
 The profile configs (cluster_config.yaml & config.yaml) (`profile/*/*`) contains the necessary information to configure the job submission parameters passed to a given workload manager (or lack thereof). This includes the number of concurrently sumbitted jobs, account/project name, partition/queue name, and default job resources (though these are low and should work on almost any cluster). This pipeline was primarily developed using the [SLURM](https://slurm.schedmd.com/documentation.html) work load manager for job submission by snakemake. For individuals running on non-workload managed clusters, or utilising other workload managers, profiles are provided to allow for job submission with minimal configuration. Currently supported profiles are `local`, `slurm`, and `pbs`. These can be edited via the script described in the next section.
 
-#### Updating the pipeline configuration
-
-Environment-specific and pipeline-specific parameters need to be set for each run of this pipeline. While it is possible to manually edit the YAML files, a script has been provided to update the most frequently altered parameters programmatically. The script will iteratively list the parameter and its current value, asking for a user submitted new value should it be needed. If the value is already acceptable or does not need to be changed then an empty value (enter return without typing) will keep the current setting.
-
-Run one of the following code for the profile you wish to update (typically both the pipeline configuration and one cluster configuration):
-
-```
-# conda - with swgs-abscn env
-# Pipeline configuration
-./update_configs.py -c config
-# Pipeline filters
-./update_configs.py -c filters
-# workflow configuration
-./update_configs.py -c {slurm,pbs,local}
-```
-singularity users can run the following (whilst within the repository directory):
-```
-SIGCMD="singularity exec --bind "$(pwd -P)" docker://phil9s/swgs-absolutecn:latest $(pwd -P)"
-# Pipeline configuration
-$SIGCMD/update_configs.py -c config
-# Pipeline filters
-$SIGCMD/update_configs.py -c filters
-# workflow configuration
-$SIGCMD/update_configs.py -c {slurm,pbs,local}
-
-```
 
 ## Running the pipeline
 
@@ -293,6 +262,37 @@ The final output is generated by stage 2 is three files located in the specified
 - `*_ds_abs_fits.tsv` - Tab-seperated file containing absolute copy number profile metadata and fitting information
 - `*_ds_absCopyNumber.rds` - QDNASeqmod class object containing binned copy number data in `rds` format
 - `*_ds_absCopyNumber_segTable.tsv` - A multisample segment table consisting of copy number segment coordinates and associated segment values as unrounded absolute copy number
+
+### *Detailed description*
+
+This pipeline implements a method for generating absolute copy number profiles from shallow whole genome sequencing data utilising a multi-stage fitting process to generate a set of read depth-normalised absolute copy number profiles. Copy number fits are generated in read count space using a modified implementation of [QDNAseq](https://github.com/ccagc/QDNAseq) on full read depth shallow whole genome BAM files. After which, a grid search of ploidy and purity values is performed to generate a matrix of potential absolute copy number profiles. The fitting of absolute copy number profiles includes an error function metric and a variant allele fraction anchoring process which assist in the selection of an optimal copy number fit. 
+
+The error function, `clonality`, which measures segment residual from integer state across the genome and is computed as mean absolute error (MAE), in which a lower value is suggestive of better confirmation to integer copy number states, and therefore a better absolute copy number profile. variant allele fraction achoring utilises the near-ubiquitous presence of somatic homozygous _TP53_ variants in high grade serous ovarian cancer as an anchoring point for a copy number fit. Experimentally validated _TP53_ allele fractions at homozygous sites are compared to an expected homozygous _TP53_ variant allele fraction, as determined by the copy number value of the segment overlapping the _TP53_ locus. The smaller absolute differences between the experimental and expected _TP53_ variant allele fractions is suggestive of a better fit. Minimisation of the `clonality` error function, expected-to-experimental TP53 distance, and manual review of fits allows for the selection of an optimal absolute copy number profile for a given sample.
+
+The selected fits are subject to a calculation of power to detect copy number alterations, as described [here](https://gmacintyre.shinyapps.io/sWGS_power/), in which the read depth of a given sample is assessed against its selected ploidy-purity combination. This process both determines if 1) a sample has a sufficient number of reads to support the selected ploidy-purity combination and 2) an optimal target number of reads to perform sample-specific read down sampling. This process normalises the read depth between samples in a ploidy and purity dependent manner so that read variance across segments is consistent, while excluding samples which are not supported by a sufficient number of reads.
+
+Samples passing all filtering criteria then undergo read downsampling to the specified target number of reads determined by the previous steps and absolute copy number profiles fitted at the ploidy-purity combination selected prior.
+
+## Table of contents
+
+* [Pipeline setup](#pipeline-setup)
+  + [Clone the repo](#step-1-clone-the-repo)
+  + [Step 2 Installing environment](#step-2-installing-environment)
+  + [Step 3 Preparing the input files](#step-3-preparing-the-input-files)
+    - [sample sheet](#sample-sheet)
+    - [config.yaml](#configyaml)
+    - [profile config.yaml](#profile-configyaml)
+    - [workflow management](#workflow-management)
+    - [updating the pipeline configuration](#updating-the-pipeline-configuration)
+* [Running the pipeline](#running-the-pipeline)
+  + [Step 4 Stage 1](#step-4-stage-1)
+  + [Step 5 QC1](#step-5-qc1)
+    - [Smoothing](#smoothing)
+    - [Fit selection](#fit-selection)
+  + [Step 6 Stage 2](#step-6-stage-2)
+  + [Downsampling only](#downsampling-only)
+* [Output files](#output-files)
+
 
 ## Authors
 
