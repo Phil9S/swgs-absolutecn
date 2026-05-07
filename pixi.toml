@@ -5,15 +5,13 @@ name = "swgs-abscn"
 platforms = ["linux-64"]
 version = "0.1.0"
 
-[tasks]
-
 [dependencies]
 r-base = "4.3.3.*"
-snakemake = "*"
+snakemake = ">=8.0.0"
 snakemake-executor-plugin-slurm = "*"
+snakemake-executor-plugin-lsf = "*"
 python = "*"
 pandas = "*"
-"ruamel.yaml" = "*"
 samtools = "*"
 bioconductor-biobase = "*"
 bioconductor-biocgenerics = "*"

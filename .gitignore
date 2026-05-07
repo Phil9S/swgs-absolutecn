@@ -5,6 +5,11 @@ profile/slurm/__pycache__/
 scripts/.Rhistory
 .Rhistory
 lock
+.cache/
+.pixi/
+*.svg
+results/
+
 # pixi environments
 .pixi/*
 !.pixi/config.toml
