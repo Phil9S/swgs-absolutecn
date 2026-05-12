@@ -6,7 +6,7 @@ args = commandArgs(trailingOnly=TRUE)
 rds.filename <- snakemake@input[["rds"]]
 filelist <- snakemake@input[["tsv"]]
 
-source("scripts/funcs.R")
+source(file.path(snakemake@scriptdir,"funcs.R"))
 options(scipen = 999)
 
 combined.tsv <- do.call(rbind,lapply(filelist,FUN = function(x){

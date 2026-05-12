@@ -5,7 +5,7 @@ file <- snakemake@input[["tsv"]]
 outfile <- snakemake@output[["tsv"]]
 sampleName <- snakemake@params[["sample"]]
 
-source("scripts/funcs.R")
+source(file.path(snakemake@scriptdir,"funcs.R"))
 options(scipen = 999)
 
 QCTable <- read.table(file,header = T,sep = "\t")

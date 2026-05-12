@@ -3,24 +3,29 @@
 # relative to absolute fitting space using the selected ploidy/purity combination
 # of the CBS-segmented RDS object generated from the downsampled BAM file
 args = commandArgs(trailingOnly=TRUE)
+
+#inputs
 rds.filename <- snakemake@input[["rds"]]
 metafile <- snakemake@input[["meta"]]
 metadata <- read.table(metafile,header = T,sep = "\t")
-output_dir <- snakemake@params[["outdir"]]
+
+# params
 bin <- as.numeric(snakemake@params[["bin"]])
 project <- snakemake@params[["project"]]
 genome <- snakemake@params[["genome"]]
 sampleName <- snakemake@params[["sample"]]
 
-source("scripts/funcs.R")
+#outputs
+tsv_output <- snakemake@output[["tsv"]]
+rds_output <- snakemake@output[["rds"]]
+seg_output <- snakemake@output[["seg"]]
+plot_output <- snakemake@output[["plot"]]
+
+source(file.path(snakemake@scriptdir,"funcs.R"))
 options(scipen = 999)
 
-outpath <- paste0(output_dir,"sWGS_fitting/",project,"_",bin,"kb/absolute_POST_down_sampling/abs_cn_rds/")
 metadata <- metadata[metadata$use == "TRUE",]
 
-if(!dir.exists(paste0(outpath,"plots"))){
-	dir.create(paste0(outpath,"plots"))
-}
 # load rds object
 rds.rel <- readRDS(rds.filename)
 # Add metadata to pheno information
@@ -68,19 +73,18 @@ resFormat <- res %>%
   dplyr::select(-c("pl_diff","new_state_n","new_state","rank_clonality")) %>%
   data.frame()
 
-png(paste0(outpath,"plots/",sampleName,".png"),
-    type="cairo",w = 8,h = 6,unit="in",res = 250)
+png(plot_output,type="cairo",w = 8,h = 6,unit="in",res = 250)
 par(mfrow = c(1,1))
 plotProfile(abs_profiles,ploidy = ploidy,purity = purity,
             clonality = errors["clonality"],rmse = errors["rmse"])
 dev.off()
 
 # Save rds
-saveRDS(abs_profiles,file=snakemake@output[["rds"]])
+saveRDS(abs_profiles,file = rds_output)
+
 # save segTable
 segTable <- getSegTable(abs_profiles)
-write.table(segTable,paste0(outpath,project,"_",sampleName,"_",bin,"kb_ds_absCopyNumber_segTable.tsv"),
-	sep = "\t",quote=F,row.names=FALSE)
-#write table of fits
-write.table(resFormat,snakemake@output[["tsv"]],
-  sep = "\t",quote=F,row.names=FALSE)
+write.table(segTable,seg_output,sep = "\t",quote=F,row.names=FALSE)
+
+# write table of fits
+write.table(resFormat,tsv_output, sep = "\t",quote=F,row.names=FALSE)

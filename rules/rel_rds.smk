@@ -3,8 +3,10 @@ rule relRDS:
         bams=expand(OUT_DIR+"sWGS_fitting/{{project}}_{{bin}}kb/bams/{{sample}}.bam")
     output:
         rds=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/relative_cn_rds/{project}_{sample}_{bin}kb_relSmoothedCN.rds"
-    singularity:
-        image_base_url+"swgs-absolutecn:latest"
+    log:
+        "logs/relRDS_{project}_{bin}kb_{sample}.log"
+    container:
+        image
     params:
         bin="{bin}",
         meta=config["samplesheet"],

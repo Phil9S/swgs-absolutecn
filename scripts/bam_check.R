@@ -7,5 +7,5 @@ args = commandArgs(trailingOnly=TRUE)
 bam <- snakemake@input[["bam"]]
 outname <- snakemake@output[["ok"]]
 
-source("scripts/funcs.R")
+source(file.path(snakemake@scriptdir,"funcs.R"))
 bamCheck(x = bam,outname = outname)

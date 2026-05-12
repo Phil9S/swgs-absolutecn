@@ -5,8 +5,10 @@ rule combine_output:
     output:
         tsv=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/{project}_{bin}kb_combined_QC_predownsample.tsv",
         rds=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/relative_cn_rds/{project}_{bin}kb_relSmoothedCN.rds"
-    singularity:
-        image_base_url+"swgs-absolutecn:latest"
+    log:
+        "logs/combine_output_{project}_{bin}kb_{sample}.log"
+    container:
+        image
     threads: 1
     script:
         "../scripts/combine_output.R"

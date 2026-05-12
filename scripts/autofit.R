@@ -19,7 +19,7 @@ if(fitMethod == "randforest"){
 }
 
 options(scipen = 999)
-source("scripts/funcs.R")
+source(file.path(snakemake@scriptdir,"funcs.R"))
 
 fitsTableTriage <- as.data.frame(predictProfile(qctable = fitsTable,
                                                 model = fitModel,

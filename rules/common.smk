@@ -8,7 +8,7 @@ import os.path
 
 #yaml = ruamel.yaml.YAML()
 
-min_version("5.10.0")
+min_version("8.0.0")
 
 ##### load config and sample sheets #####
 
@@ -27,7 +27,7 @@ if any(samplesheet.SAMPLE_ID.duplicated()):
     sys.exit("Sample sheet contains duplicated sample ids")
     
 # set container uri
-image_base_url = config["image_base_url"]
+image = config["image_base_url"]
 
 ##### CHECK MAX > MIN #####
 PLMIN=config["ploidy_min"]

@@ -10,7 +10,7 @@ rds.filename <- snakemake@input[["rds"]]
 metafile <- snakemake@params[["meta"]]
 metadata <- read.table(file = metafile,header=T,sep="\t")
 bin <- as.numeric(snakemake@params[["bin"]])
-out_dir <- snakemake@params[["outdir"]]
+#out_dir <- snakemake@params[["outdir"]]
 project <- snakemake@params[["project"]]
 genome <- as.character(snakemake@params[["genome"]]) # hg19 or hg38
 pl_min <- snakemake@params[["ploidy_min"]] # default 1.6 
@@ -24,11 +24,8 @@ filter_homozygous <- as.logical(snakemake@params[["filter_homozygous"]]) # filte
 homozygous_prop <- as.numeric(snakemake@params[["homozygous_prop"]])
 homozygous_thrsh <- snakemake@params[["homozygous_threshold"]] # default 0.4
 
-outpath <- paste0(out_dir,"sWGS_fitting/",
-                  project,"_",bin,"kb/absolute_PRE_down_sampling/")
-
 # source functions (temp until moved to package) and set scipen
-source("scripts/funcs.R")
+source(file.path(snakemake@scriptdir,"funcs.R"))
 options(scipen = 999)
 # read in relative copy number and extract model and read data
 rds.obj <- readRDS(rds.filename) 
@@ -120,13 +117,8 @@ write.table(filteredTables$filtered,snakemake@output[["filt"]],
 write.table(filteredTables$pruned,snakemake@output[["fit"]],
             sep="\t",col.names=T,row.names=F,quote=F)
 
-## Plot fits
-if(!dir.exists(paste0(outpath,"plots"))){
-  dir.create(paste0(outpath,"plots"),recursive = TRUE)
-}
-
 ll <- nrow(filteredTables$pruned)
-png(paste0(outpath,"plots/",sampleName,".png"),type = "cairo", w= 450*ll, h = 350)
+png(snakemake@output[["plot"]],type = "cairo", w= 450*ll, h = 350)
 par(mfrow = c(1,ll)) 
 for(n in 1:nrow(filteredTables$pruned)){
   

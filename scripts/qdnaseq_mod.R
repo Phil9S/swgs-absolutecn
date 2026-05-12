@@ -32,7 +32,7 @@ if(use_seed){
   seed <- NULL
 }
 # source functions (temp until moved to package) and set scipen
-source("scripts/funcs.R")
+source(file.path(snakemake@scriptdir,"funcs.R"))
 options(scipen = 999)
 ## generate annotation file either by preloading calculated files or generating new one
 bins <- QDNAseqmod::getBinAnnotations(binSize=bin.size,genome=genome)

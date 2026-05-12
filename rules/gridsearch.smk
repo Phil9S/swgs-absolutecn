@@ -6,11 +6,13 @@ rule gridsearch_fitting:
         pdf=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/clonality_results/{project}_{sample}_clonality.pdf",
         filt=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/{project}_{sample}_filtered_results.tsv",
         fit=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/{project}_{sample}_fit_QC_predownsample.tsv",
-    singularity:
-        image_base_url+"swgs-absolutecn:latest"
+        plot=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/plots/{sample}.png"
+    log:
+        "logs/gridsearch_fitting_{project}_{bin}kb_{sample}.log"
+    container:
+        image
     params:
         bin="{bin}",
-        outdir=OUT_DIR,
         project="{project}",
         meta=config["samplesheet"],
         ploidy_min=config["ploidy_min"],
