@@ -175,7 +175,7 @@ snakemake -n -p --profile profile/slurm/ --snakefile auto
 
 ### Runing workflow
 
-The `swgs-absolutecn` workflow provides to approaches to copy number profile fitting, `Automated` and `Staged`.
+The `swgs-absolutecn` workflow provides two approaches to copy number profile fitting, `Automated` and `Staged`.
  
 - `Automated` runs the entire workflow, including segmentation, ploidy/purity gridsearch, absolute copy number fitting, read depth normalisation downsampling, utilising an autofitting procedure (error minimisation or random forest prediction) to select the best copy number fit.
 
