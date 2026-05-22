@@ -176,10 +176,10 @@ The profile configs (`profile/*/profile.yaml`) contains the necessary informatio
 
 ### Workflow validation
 
-Validate the environment and pipeline is configured correctly by running the following using the `dry-run` mode (include the aforementioned container-specific commandline options if using a containerised implementation).
+Validate the environment and pipeline is configured correctly by running the following using the `dry-run` mode with the appropriate environment active or using the containerised implementation (include the aforementioned container-specific commandline options if using a containerised implementation).
 
 ```
-snakemake -n -p --profile profile/slurm/ --snakefile auto
+snakemake -n -p --snakefile auto
 ```
 
 ### Running workflow
