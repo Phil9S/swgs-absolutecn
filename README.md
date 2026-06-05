@@ -72,37 +72,23 @@ conda activate swgs-abscn && ./install_env.sh
 
 #### Container-based
 
-For the containerised implementation, a compatible version of both snakemake and singularity are required on your system. See installing [singularity](https://docs.sylabs.io/guides/latest/user-guide/quick_start.html) and [snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html). This can done using one of the previous methods (pixi, micromamba, conda, etc.), included with the system via modules or, installed directly.
+For the containerised implementation, a compatible version of both snakemake and singularity are required on your system (as well as a matching [snakemake executor plugins](https://snakemake.github.io/snakemake-plugin-catalog/), as required). See installing [singularity](https://docs.sylabs.io/guides/latest/user-guide/quick_start.html) and [snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html).
 
-Prior to using the containerised implementation, set the following `ENV` variables to bind the appropriate volumes.
+Add the following to the end of any given snakemake command
 
-Set the input and output directories (these should match those specified in the config.yaml)
 ```
-INPUTDIR="/path/to/inputfiles/"
-OUTPUTDIR="/path/to/output/"
+--use-singularity --singularity-args "--bind INPUTDIR,OUTPUTDIR"
 ```
-set the singularity args variable
-```
-SIGBIND="--use-singularity --singularity-args \"--bind ${INPUTDIR},${OUTPUTDIR}\""
-```
-as well as the cmdline
-```
-SIGCMD="singularity exec --bind "$(pwd -P)" --bind ${INPUTDIR},${OUTPUTDIR} docker://phil9s/swgs-absolutecn:latest"
-```
-The container can be found on docker hub [here](https://hub.docker.com/r/phil9s/swgs-absolutecn).
+where `INPUTDIR` and `OUTPUTDIR` match those in the `sample_sheet.tsv` and `config.yaml`, respectively.
+
+The container can be found [here](https://hub.docker.com/r/phil9s/swgs-absolutecn).
 
 ### Preparing workflow
 #### Sample sheet
 
-The workflow requires a single tab-separated file, `sample_sheet.tsv`, which specifies the samples and associated BAM files to use as inputs for the workflow. The `sample_sheet.tsv` schema is validated prior to executing the workflow.
+The workflow uses tab-separated file, `sample_sheet.tsv`, to specify the samples and associated BAM files to use as inputs. The `sample_sheet.tsv` schema is validated prior to executing the workflow and contains the fields below.
 
-- BAM file location, `file`, should be an absolute path.
-- `SAMPLE_ID` must be unique.
-- `TPfreq` column is an optional allele frequency for _TP53_ (float (0-1.00) or `NA`).
-- The `smooth` column is boolean (`TRUE` or `FALSE`, also see `config.yaml` for `autosmoothing`). 
-- Users may provide precomputed ploidy and purity estimates, `precPloidy` and `precPurity` fields and both values are not required per sample.
-
-##### Sample sheet schema
+##### Sample sheet example
 
 |PATIENT_ID|SAMPLE_ID|TP53freq|smooth|file          |precPloidy|precPurity|
 |----------|---------|--------|------|--------------|----------|----------|
@@ -111,17 +97,29 @@ The workflow requires a single tab-separated file, `sample_sheet.tsv`, which spe
 |PAT2      |SAM3     |NA      |FALSE |/data/SAM3.bam|NA        |0.43      |
 |PAT2      |SAM4     |NA      |TRUE  |/data/SAM4.bam|3.2       |NA        |
 
-#### config.yaml
+#### config file
 
-The config.yaml (`config/config.yaml`) contains the necessary information for the pipeline you wish to run and filters to apply. This file should be edited to match your desired configuration.
+The config file (`config/config.yaml`) contains the necessary information for the pipeline to run and which filters to apply. This file should be edited to match the desired configuration.
 
-##### **fixed parameters**
+##### **Primary parameters**
+
+These are the primary parameters you should change in the `config.yaml` corresponding to the inputs, outputs, and overall project name. Further parameters can be altered as needed, see tables below for available parameters and descriptions.
 
 |variable|default|function|type|values|
 |--------|-------|--------|----|------|
 |samplesheet|"sample_sheet.tsv"|`sample_sheet.tsv` location|string|file path|
 |out_dir|"results/"|Root location for workflow output|string|directory path|
 |project_name|"example_run"|Name for workflow run to include in outputs|string|any string|
+
+<details>
+<summary>Fixed parameters</summary>
+
+##### **Fixed parameters**
+
+Depending on your data and implementation, amending these parameters may be necessary.
+
+|variable|default|function|type|values|
+|--------|-------|--------|----|------|
 |bins|30|Size of genomic bins (in kilobases)|integer|1,5,15,30,50,100,500,1000|
 |use_seed|"TRUE"|Set whether to use `seed_val` to ensure CBS segmentation returns identical results|bool|"TRUE","FALSE"|
 |seed_val|"9999"|Value of seed to use|string|any string|
@@ -129,16 +127,26 @@ The config.yaml (`config/config.yaml`) contains the necessary information for th
 |filetype|"BAM"|File type of input file - either a aligned BAM or CRAM file|string|"BAM","CRAM"|
 |reference|""|File path to the reference used in generation of CRAM files if using the filetype = "CRAM" option|string|file path|
 |pairedEnd|"TRUE"|Boolean whether input files are paired or single end (only affects expected variance)|bool|"TRUE","FALSE"|
+</details>
+
+<details>
+<summary>Automation parameters</summary>
 
 ##### **automation parameters**
+
+Parameters here adjust the implemention type, error metrics, and flagging procedure during autofitting of absolute copy number fit.
 
 |variable|default|function|type|values|
 |--------|-------|--------|----|------|
 |autoSmooth|"FALSE"|Apply automatic smoothing of over-segmented copy number profiles|bool|"TRUE","FALSE"|
 |smoothThreshold|700|Amount of segments to trigger auto smoothing|integer|44-9999|
-|flagThreshold|0.84|auto fitting prediction probability threshold at which to flag samples as potentially poor|float|0.1.0|
-fitMethod|"errorOnly"|Autofitting method to use to select best copy number profile fit from gridsearch|string|"errorOnly","randforest"|
-|errorMetric|"clonality"|Error metric used in autofitting to determine `errorOnly` best fit or tiebreaking procedure in `randforest` autofitting methods|string|"clonality","segvariance","rmse"|
+|flagThreshold|0.84|Probability threshold at which to flag samples as potentially poor|float|0.1.0|
+fitMethod|"errorOnly"|Autofitting method to use to select best fit from gridsearch|string|"errorOnly","randforest"|
+|errorMetric|"clonality"|Error metric used to determine best fit or tiebreaking procedure autofitting|string|"clonality","segvariance","rmse"|
+</details>
+
+<details>
+<summary>Filtering parameters</summary>
 
 ##### **filtering parameters**
 
@@ -147,103 +155,93 @@ Various filters for acceptable ploidy/purity combinations for fitting absolute c
 |variable|default|function|type|values|
 |--------|-------|--------|----|------|
 |af_cutoff|0.15|Maximum difference between expected and observed _TP53_ allele fraction|float|0.0-1.0|
-|filter_underpowered |"TRUE"|Set whether to filter ploidy/purity combinations without sufficent available read depth to support the given profile|string bool|"TRUE","FALSE"|
+|filter_underpowered |"TRUE"|Filter ploidy/purity combinations without sufficent read depth support|string bool|"TRUE","FALSE"|
 |ploidy_min|1.6|Minimum ploidy value for gridsearch|float|1.0-20.0|
 |ploidy_max|8.0|Minimum ploidy value for gridsearch|float|1.0-20.0|
 |purity_min|0.15|Minimum purity value for gridsearch|float|0.0-1.0|
 |purity_max|1.0|Minimum purity value for gridsearch|float|0.0-1.0|
-|filter_homozygous|"TRUE"|Set whether to filter ploidy/purity combinations with a proportion of homozygous loss greater than `homozygous_prop`|bool|"TRUE","FALSE|
-|homozygous_prop|10000000|Proportion of genome (in basepairs) at which to filter a ploidy/purity combination where `filter_homozygous` is "TRUE"|integer|minimum=0|
-|homozygous_threshold|0.4|Threshold at which to assign homozygous loss to copy number segment counted by `homozygous_prop`|float|0.0-0.99|
+|filter_homozygous|"TRUE"|Filter proportion of homozygous loss greater than `homozygous_prop`|bool|"TRUE","FALSE|
+|homozygous_prop|10000000|Proportion of genome (in basepairs) at which to exclude fits|integer|min=0|
+|homozygous_threshold|0.4|Threshold at which to assign homozygous loss (counted by `homozygous_prop`)|float|0.0-0.99|
+</details>
 
 #### Workflow management
 ##### profile config.yaml
 
-The snakemake workflow is designed to run using job schedulers and as such uses the [snakemake executor plugins](https://snakemake.github.io/snakemake-plugin-catalog/) to manage job submission and request compute resources. By default, the provided environments and containers include profiles for `slurm` and `lsf`, as well as  `local` implementation.
+The snakemake workflow is designed to run using a job scheduler and as such uses the [snakemake executor plugins](https://snakemake.github.io/snakemake-plugin-catalog/) to manage job submission and request compute resources. By default, the provided environments and containers include profiles for `slurm` and `lsf`. A `local` implementation profile is included to allow for the workflow to run independent of a job scheduler if needed.
 
-The profile configs (`profile/*/profile.yaml`) contains the necessary information to configure the job submission parameters passed to a given workload manager (or lack thereof). Edit the appropriate `profile.yaml` to match your given compute environment or add your own executor plugin as required.
+The profile configs (`profile/*/profile.yaml`) contains the necessary information to configure the job submission parameters passed to a given workload manager (or lack thereof). Edit the appropriate `profile.yaml` and/or add your own executor plugin as required to match your given compute environment.
 
 ## Running the pipeline
 
 ### Workflow validation
 
-Validate the environment and pipeline is configured correctly by run the following using the `dry-run` mode (append the `${SIGBIND}` ENV variable if using a containerised implementation).
+Validate the environment and pipeline is configured correctly by running the following using the `dry-run` mode with the appropriate environment active or using the containerised implementation (include the aforementioned container-specific commandline options if using a containerised implementation).
 
 ```
-snakemake -n -p --profile profile/slurm/ --snakefile auto
+snakemake -n -p --snakefile auto
 ```
 
-### Runing workflow
+### Running workflow
 
-The `swgs-absolutecn` workflow provides two approaches to copy number profile fitting, `Automated` and `Staged`.
+The `swgs-absolutecn` workflow provides two approaches to perform absolute copy number fitting.
  
-- `Automated` runs the entire workflow, including segmentation, ploidy/purity gridsearch, absolute copy number fitting, read depth normalisation downsampling, utilising an autofitting procedure (error minimisation or random forest prediction) to select the best copy number fit.
+- `Auto` runs the entire workflow utilising an autofitting procedure (error minimisation or random forest prediction) to select the best fit.
 
-- `Staged` splits the workflow into stage 1 and stage 2, where manual quality control and selection of copy number fit is performed by the user after the initial gridsearch is performed.
+- `Staged` splits the workflow into `stage 1` and `stage 2`, where manual quality control and selection of best fit is performed by the user.
 
 #### Automated workflow
 
-<details>
-<summary></summary>
-
 ```
-# conda - with swgs-abscn env
+# Automated workflow for slurm 
 snakemake --profile profile/slurm/ --snakefile auto
 ```
 
-</details>
+<details>
+<summary>Staged workflow</summary>
 
 #### Staged workflow
-
-<details>
-<summary></summary>
-
-#### Stage 1 gridsearch
+##### Stage 1 gridsearch
 
 ```
 snakemake --profile profile/slurm/ --snakefile stage_1
 ```
 
-#### Stage 1 QC
-##### Fit selection
+##### Stage 1 QC
+###### Fit selection
 
 After running stage 1 copy number fits will have been generated for each sample. In most cases, multiple viable fits will have been selected for each sample and a semi-qualitative quality control process needs to be applied to select the best fitting solution or exclude a sample should no fit be good enough.
 
-Follow the guide on [fit selection](resources/quality_control_guide.md) and profile [Smoothing](#smoothing) to perform quality control and update the `{project}_fit_QC_predownsample.tsv` file. Once this step has been performed and a single acceptable fit has been selected for each sample, proceed to stage 2.
+Follow the guide on [fit selection](resources/quality_control_guide.md) and profile [smoothing](#smoothing) to perform quality control and update the `{project}_fit_QC_predownsample.tsv` file. Once this step has been performed and a single acceptable fit has been selected for each sample, proceed to stage 2.
 
-#### Stage 2
+##### Stage 2
 
-Provided quality control and fit selection was performed correctly, stage 2 of the pipeline can be performed which refits all copy number profiles using downsampled BAM files and the selected fits from stage 1.
-
-As before, confirm the pipeline is configured correctly by running with the `dry-run` mode.
-
-```
-snakemake -n --profile profile/slurm/ --snakefile stage_2
-```
-and if the previous step ran without error then run the following:
+Provided quality control and fit selection was performed correctly, stage 2 of the pipeline can be performed which refits all copy number profiles at downsampled read depths using the selected ploidy and purity from stage 1.
 ```
 snakemake --profile profile/slurm/ --snakefile stage_2
 ```
-It is good practise to perform the QC performed in stage 1 on the results of stage 2.
+It is good practice to perform the quality control on `stage_2` outputs as well.
 
 </details>
 
 ## Output files
 
-The final output is three types files located in the results directory `../sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/abs_cn_rds/`
-- `*_ds_abs_fits.tsv` - Tab-seperated file containing absolute copy number profile metadata and fitting information
-- `*_ds_absCopyNumber.rds` - QDNASeqmod class object containing binned copy number data in `rds` format
-- `*_ds_absCopyNumber_segTable.tsv` - A multisample segment table consisting of copy number segment coordinates and associated segment values as unrounded absolute copy number
+### Auto
+ For each sample fitted three files are generated per sample in the results directory `/sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/abs_cn_rds/`
+
+- `{project}_{SAMPLE_ID}_{bin}kb_ds_abs_fits.tsv` - Tab-seperated file containing absolute copy number profile metadata and fitting information.
+- `{project}_{SAMPLE_ID}_{bin}kb_ds_absCopyNumber.rds` - QDNASeqmod class object containing binned copy number data.
+- `{project}_{SAMPLE_ID}_{bin}kb_ds_absCopyNumber_segTable.tsv` - Tab-seperated segment table.
+
+### Staged
+
+Due to backwards compatibility, staged output is identical to `auto` but sample-level outputs are concatonated into three files containing all the data from each sample.
 
 ## Further details
 
 ### Smoothing
 
-A subset of samples may require smoothing of segments in order to be viable. Read the [guide](resources/smoothing_guide.md) provided here to select and update which samples require smoothing. Once the `samplesheet.tsv` has been updated with the new `smooth` values, rerun stage 1 or auto as appropriate.
-
-```
-snakemake --profile profile/slurm/ -F all --snakefile stage_1 or auto
-```
+A subset of samples may require smoothing of segments in order to be viable. If performing this manually (rather than `autoSmooth`), read the [guide](resources/smoothing_guide.md) provided here to select and update which samples require smoothing. Once the `samplesheet.tsv` has been updated with the new `smooth` values, rerun stage 1 or auto as appropriate.
 
 ### Downsampling only
 
@@ -252,27 +250,29 @@ Where ploidy and purity are provided from alternative sources, users may not nee
 ```
 Rscript scripts/processPrecomputed.R
 ```
-or for container users
+container users can run the same script provided they run the command within the container image and bind the `OUTPUTDIR`.
+
 ```
-$SIGCMD Rscript scripts/processPrecomputed.R
+singularity exec --bind OUTPUTDIR docker://phil9s/swgs-absolutecn:latest Rscript scripts/processPrecomputed.R
 ```
+### Cell lines 
+
+Cell lines (or other similar data) often deviate from tumour samples, where the expected tumour purity is known to be approximately 100%. The purity range can be set using `purity_min` to 0.95 such that the gridsearch would restrict ploidy/purity combinations to enforce this expectation.
 
 ### Reference genome
 
-This pipeline currently supports both hg19 and hg38 reference genomes by specifying the correct build in the configuration file `config/config.yaml`. Currently there are no checks in place for using files aligned to an unsupported reference genome or to check that reference genomes are correct.
+This pipeline currently supports both `hg19` and `hg38` reference genomes by specifying the correct build in the configuration file `config/config.yaml`. Currently there are no checks in place for using files aligned to an unsupported reference genome or to check that reference genomes are correct.
 
 ### Aligned read format
 
-The pipeline accepts either BAM or CRAM files as the initial input, though it currently does not support the use of both concurrently. Users should specify the filetype in the `config/config.yaml` as either BAM or CRAM and provide a reference genome matching the one used in CRAM generation using the reference parameter in the `config/config.yaml`. If using the containerised implementation, it is recommended to place the reference genome within the input file directory to reduce unnecessary directory binding.
+The pipeline accepts either BAM or CRAM files as the initial input. It does not support the use of both concurrently. Users should specify the filetype in the `config/config.yaml` as either BAM or CRAM and provide a reference genome matching the one used in CRAM generation using the reference parameter in the `config/config.yaml`. If using the containerised implementation, it is recommended to place the reference genome within the input file directory to reduce unnecessary directory binding.
 
 Using the CRAM implementation currently involves the decompresssion of CRAM files to BAM format as the underlying Rsamtools functions in QDNAseq will not load from CRAM. As such, the CRAM implementation will generate a larger diskspace footprint than the BAM implementation. The pipeline will currently remove decompressed BAMs once their required outputs are generated. 
 
 ### Profile troubleshooting
-For most users, the default parameters should work well but in certain instances, these values should be modifed. 
 
-For example, if users are not generating a sufficent number of high quality absolute copy number profiles, setting `filter_underpowered` to "FALSE" will show a larger range of fits which, although statistically underpowered, could be correct for given sample.
+For most users, the default parameters should work well but in certain instances, these values should be modifed. For example, if users are not generating a sufficent number of high quality absolute copy number profiles, setting `filter_underpowered` to `FALSE` will show a larger range of fits which, although statistically underpowered, could be correct for given sample.
 
-Another use case would be samples where the general purity range is known, for example cell line or LCM data, where the expected purity is known to be ~1.0. As such setting `purity_min` to 0.95 would restrict ploidy/purity combinations to enforce this expectation.
 
 ## Authors
 
@@ -281,4 +281,3 @@ Another use case would be samples where the general purity range is known, for e
 ## Citation
 
 Please cite this pipeline using the publication ["The copy-number landscape of recurrent ovarian high grade serous carcinoma"](https://doi.org/10.1038/s41467-023-39867-7) Smith & Bradley et al. 2023 - _Nature Communications_ and/or the version controlled zenodo repository [10.5281/zenodo.10040893](https://zenodo.org/doi/10.5281/zenodo.10040893).
-
