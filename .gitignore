@@ -8,7 +8,8 @@ lock
 .cache/
 .pixi/
 *.svg
-results/
+results/*
+!results/.dir
 
 # pixi environments
 .pixi/*

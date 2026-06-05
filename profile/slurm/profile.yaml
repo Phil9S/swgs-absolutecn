@@ -11,7 +11,7 @@ default-resources:
   slurm_account: "fmlab"
   threads: 1   # ncpus
   mem_mb: 8000  # memory MB
-  runtime: "90m"
+  runtime: "120m"
 
 printshellcmds: True
 show-failed-logs: True

@@ -5,8 +5,10 @@ rule split_input:
         tsv=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/{project}_{sample}_fitted_QC.tsv"
     container:
         image
+    log:
+        "logs/split_input_{project}_{bin}kb_{sample}.log"
     params:
-	sample="{sample}"
+        sample="{sample}"
     threads: 1
     script:
         "../scripts/split_input.R"

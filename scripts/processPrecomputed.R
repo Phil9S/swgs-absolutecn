@@ -1,6 +1,6 @@
 # processPrecomputed.R
 args <- commandArgs(trailingOnly=TRUE)
-source(file.path(snakemake@scriptdir,"funcs.R"))
+source(file.path("scripts/funcs.R"))
 
 cat("[processPrecomputed] Generating file to skip stage_1\n")
 cat("[processPrecomputed] Reading config and samplesheet files...\n")

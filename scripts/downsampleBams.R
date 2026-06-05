@@ -49,8 +49,11 @@ if(perc > 1){
 }
 
 if(filetype == "CRAM"){
-  cmd.downsample <- paste("samtools view -s ", perc," -T ",reference," -b ",
-                          bam_in," > ",outname)
+  if(perc <= 0.96){
+    cmd.downsample <- paste("samtools view -s ",perc," -T ",reference," -b ",bam_in," > ",outname)
+  } else {
+    cmd.downsample <- paste("samtools view -T ",reference," -b ",bam_in," > ",outname)
+  }
   cmd.index <- paste0("samtools index ",outname)
 
   system(cmd.downsample)

@@ -15,8 +15,6 @@ localrules: all, bam_check, sym_link
 rule all:
     input:
         expand(OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/{project}_{bin}kb_combined_QC_predownsample.tsv",project=config["project_name"],bin=config["bins"])
-        #expand(OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/{project}_fit_QC_predownsample.tsv",project=config["project_name"],bin=config["bins"])
-
 
 # pipeline rules
 include: "rules/combine_output.smk"
