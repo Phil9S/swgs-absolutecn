@@ -170,9 +170,9 @@ spec:
       - scripts/bam_check.R
       - "{{workflow.parameters.samplesheet}}"
       - "{{workflow.parameters.out-dir}}"
-    volumeMounts:
-    - name: workdir
-      mountPath: /work
+      volumeMounts:
+      - name: workdir
+        mountPath: /work
 
   - name: process-bam-task
     inputs:
@@ -193,9 +193,9 @@ spec:
           ln -s $(grep "^{{inputs.parameters.sample}}" {{workflow.parameters.samplesheet}} | cut -f7) \
             {{workflow.parameters.out-dir}}/sWGS_fitting/{{workflow.parameters.project-name}}_{{workflow.parameters.bins}}kb/bams/{{inputs.parameters.sample}}.bam
         fi
-    volumeMounts:
-    - name: workdir
-      mountPath: /work
+      volumeMounts:
+      - name: workdir
+        mountPath: /work
 
   - name: relative-cn-rds-task
     inputs:
@@ -217,9 +217,9 @@ spec:
       - "--smoothThreshold={{workflow.parameters.smoothThreshold}}"
       - "--outdir={{workflow.parameters.out-dir}}"
       - "--project={{workflow.parameters.project-name}}"
-    volumeMounts:
-    - name: workdir
-      mountPath: /work
+      volumeMounts:
+      - name: workdir
+        mountPath: /work
 
   - name: gridsearch-fitting-task
     inputs:
@@ -245,9 +245,9 @@ spec:
       - "--filter_homozygous={{workflow.parameters.filter-homozygous}}"
       - "--homozygous_prop={{workflow.parameters.homozygous-prop}}"
       - "--outdir={{workflow.parameters.out-dir}}"
-    volumeMounts:
-    - name: workdir
-      mountPath: /work
+      volumeMounts:
+      - name: workdir
+        mountPath: /work
 
   - name: autofit-task
     inputs:
@@ -265,9 +265,9 @@ spec:
       - "--fitMethod={{workflow.parameters.fitMethod}}"
       - "--errorMetric={{workflow.parameters.errorMetric}}"
       - "--outdir={{workflow.parameters.out-dir}}"
-    volumeMounts:
-    - name: workdir
-      mountPath: /work
+      volumeMounts:
+      - name: workdir
+        mountPath: /work
 
   - name: combine-output-task
     container:
@@ -283,14 +283,14 @@ spec:
           pull(SAMPLE_ID) %>%
           unique()
         cat(jsonlite::toJSON(as.list(combined)))
+      volumeMounts:
+      - name: workdir
+        mountPath: /work
     outputs:
       parameters:
       - name: filtered-samples
         valueFrom:
           jsonPath: '$'
-    volumeMounts:
-    - name: workdir
-      mountPath: /work
 
   - name: downsample-task
     inputs:
@@ -305,9 +305,9 @@ spec:
       - "--sample={{inputs.parameters.sample}}"
       - "--project={{workflow.parameters.project-name}}"
       - "--outdir={{workflow.parameters.out-dir}}"
-    volumeMounts:
-    - name: workdir
-      mountPath: /work
+      volumeMounts:
+      - name: workdir
+        mountPath: /work
 
   - name: downsampled-relative-cn-rds-task
     inputs:
@@ -330,9 +330,9 @@ spec:
       - "--smoothThreshold={{workflow.parameters.smoothThreshold}}"
       - "--outdir={{workflow.parameters.out-dir}}"
       - "--project={{workflow.parameters.project-name}}"
-    volumeMounts:
-    - name: workdir
-      mountPath: /work
+      volumeMounts:
+      - name: workdir
+        mountPath: /work
 
   - name: absolute-cn-fit-task
     inputs:
@@ -349,9 +349,9 @@ spec:
       - "--meta={{workflow.parameters.samplesheet}}"
       - "--genome={{workflow.parameters.genome}}"
       - "--outdir={{workflow.parameters.out-dir}}"
-    volumeMounts:
-    - name: workdir
-      mountPath: /work
+      volumeMounts:
+      - name: workdir
+        mountPath: /work
 
   - name: completion-task
     container:
