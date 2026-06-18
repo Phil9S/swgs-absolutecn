@@ -141,23 +141,23 @@ spec:
         depends: absolute-cn-fit
 
   - name: validate-task
-    container:
+    script:
       image: "{{workflow.parameters.image}}"
-      command: [bash]
+      command: [Rscript]
       args:
-      - "-c"
+      - "-e"
       - |
-        Rscript -e "
         library(tidyverse)
-        samples <- read_tsv('{{workflow.parameters.samplesheet}}') %>%
+        library(jsonlite)
+        samples <- read_tsv("{{workflow.parameters.samplesheet}}") %>%
           pull(SAMPLE_ID) %>%
           unique()
-        cat(jsonlite::toJSON(as.list(samples)))
-        " > /tmp/samples.json
+        cat(toJSON(as.list(samples)))
     outputs:
       parameters:
       - name: samples
-        path: /tmp/samples.json
+        valueFrom:
+          jsonPath: '$'
 
   - name: bam-check-task
     container:
