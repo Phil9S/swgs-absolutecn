@@ -2,67 +2,12 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: swgs-absolutecn-auto-
-  namespace: default
+  namespace: argo
 spec:
   entrypoint: swgs-absolutecn-auto-workflow
-  serviceAccountName: argo-workflow
+  serviceAccountName: argo-server
   ttlStrategy:
     secondsAfterCompletion: 86400
-  
-  arguments:
-    parameters:
-    - name: project-name
-      value: "example_run"
-    - name: samplesheet
-      value: "sample_sheet.tsv"
-    - name: samples
-      value: '["SAMPLE_1","SAMPLE_2"]'
-    - name: bins
-      value: "30"
-    - name: genome
-      value: "hg19"
-    - name: filetype
-      value: "BAM"
-    - name: reference
-      value: ""
-    - name: pairedEnd
-      value: "TRUE"
-    - name: use-seed
-      value: "TRUE"
-    - name: seed-val
-      value: "9999"
-    - name: ploidy-min
-      value: "1.6"
-    - name: ploidy-max
-      value: "8.0"
-    - name: purity-min
-      value: "0.15"
-    - name: purity-max
-      value: "1.0"
-    - name: af-cutoff
-      value: "0.15"
-    - name: filter-underpowered
-      value: "TRUE"
-    - name: filter-homozygous
-      value: "TRUE"
-    - name: homozygous-prop
-      value: "10000000"
-    - name: homozygous-threshold
-      value: "0.4"
-    - name: autoSmooth
-      value: "FALSE"
-    - name: smoothThreshold
-      value: "700"
-    - name: flagThreshold
-      value: "0.84"
-    - name: fitMethod
-      value: "errorOnly"
-    - name: errorMetric
-      value: "clonality"
-    - name: image
-      value: "phil9s/swgs-absolutecn:latest"
-    - name: out-dir
-      value: "results/"
 
   templates:
   - name: swgs-absolutecn-auto-workflow
@@ -140,12 +85,12 @@ spec:
 
   - name: bam-check-task
     container:
-      image: "{{workflow.parameters.image}}"
+      image: "{{workflow.parameters.image-argo}}"
       command: [Rscript]
       args:
       - scripts/bam_check.R
       - "{{workflow.parameters.samplesheet}}"
-      - "{{workflow.parameters.out-dir}}"
+      - "{{workflow.parameters.out_dir}}"
       volumeMounts:
       - name: workdir
         mountPath: /work
@@ -155,7 +100,7 @@ spec:
       parameters:
       - name: sample
     container:
-      image: "{{workflow.parameters.image}}"
+      image: "{{workflow.parameters.image-argo}}"
       command: [bash]
       args:
       - "-c"
@@ -163,11 +108,11 @@ spec:
         if [ "{{workflow.parameters.filetype}}" = "CRAM" ]; then
           samtools view -b -T {{workflow.parameters.reference}} \
             $(grep "^{{inputs.parameters.sample}}" {{workflow.parameters.samplesheet}} | cut -f7) \
-            > {{workflow.parameters.out-dir}}/sWGS_fitting/{{workflow.parameters.project-name}}_{{workflow.parameters.bins}}kb/bams/{{inputs.parameters.sample}}.bam
-          samtools index {{workflow.parameters.out-dir}}/sWGS_fitting/{{workflow.parameters.project-name}}_{{workflow.parameters.bins}}kb/bams/{{inputs.parameters.sample}}.bam
+            > {{workflow.parameters.out_dir}}/sWGS_fitting/{{workflow.parameters.project_name}}_{{workflow.parameters.bins}}kb/bams/{{inputs.parameters.sample}}.bam
+          samtools index {{workflow.parameters.out_dir}}/sWGS_fitting/{{workflow.parameters.project_name}}_{{workflow.parameters.bins}}kb/bams/{{inputs.parameters.sample}}.bam
         else
           ln -s $(grep "^{{inputs.parameters.sample}}" {{workflow.parameters.samplesheet}} | cut -f7) \
-            {{workflow.parameters.out-dir}}/sWGS_fitting/{{workflow.parameters.project-name}}_{{workflow.parameters.bins}}kb/bams/{{inputs.parameters.sample}}.bam
+            {{workflow.parameters.out_dir}}/sWGS_fitting/{{workflow.parameters.project_name}}_{{workflow.parameters.bins}}kb/bams/{{inputs.parameters.sample}}.bam
         fi
       volumeMounts:
       - name: workdir
@@ -178,7 +123,7 @@ spec:
       parameters:
       - name: sample
     container:
-      image: "{{workflow.parameters.image}}"
+      image: "{{workflow.parameters.image-argo}}"
       command: [Rscript]
       args:
       - scripts/qdnaseq_mod.R
@@ -186,13 +131,13 @@ spec:
       - "--sample={{inputs.parameters.sample}}"
       - "--meta={{workflow.parameters.samplesheet}}"
       - "--pairedEnd={{workflow.parameters.pairedEnd}}"
-      - "--use_seed={{workflow.parameters.use-seed}}"
-      - "--seed_val={{workflow.parameters.seed-val}}"
+      - "--use_seed={{workflow.parameters.use_seed}}"
+      - "--seed_val={{workflow.parameters.seed_val}}"
       - "--genome={{workflow.parameters.genome}}"
       - "--autoSmooth={{workflow.parameters.autoSmooth}}"
       - "--smoothThreshold={{workflow.parameters.smoothThreshold}}"
-      - "--outdir={{workflow.parameters.out-dir}}"
-      - "--project={{workflow.parameters.project-name}}"
+      - "--outdir={{workflow.parameters.out_dir}}"
+      - "--project={{workflow.parameters.project_name}}"
       volumeMounts:
       - name: workdir
         mountPath: /work
@@ -202,25 +147,25 @@ spec:
       parameters:
       - name: sample
     container:
-      image: "{{workflow.parameters.image}}"
+      image: "{{workflow.parameters.image-argo}}"
       command: [Rscript]
       args:
       - scripts/gridsearch.R
       - "--bin={{workflow.parameters.bins}}"
       - "--sample={{inputs.parameters.sample}}"
-      - "--project={{workflow.parameters.project-name}}"
+      - "--project={{workflow.parameters.project_name}}"
       - "--meta={{workflow.parameters.samplesheet}}"
-      - "--ploidy_min={{workflow.parameters.ploidy-min}}"
-      - "--ploidy_max={{workflow.parameters.ploidy-max}}"
-      - "--purity_min={{workflow.parameters.purity-min}}"
-      - "--purity_max={{workflow.parameters.purity-max}}"
-      - "--homozygous_threshold={{workflow.parameters.homozygous-threshold}}"
+      - "--ploidy_min={{workflow.parameters.ploidy_min}}"
+      - "--ploidy_max={{workflow.parameters.ploidy_max}}"
+      - "--purity_min={{workflow.parameters.purity_min}}"
+      - "--purity_max={{workflow.parameters.purity_max}}"
+      - "--homozygous_threshold={{workflow.parameters.homozygous_threshold}}"
       - "--genome={{workflow.parameters.genome}}"
-      - "--af_cutoff={{workflow.parameters.af-cutoff}}"
-      - "--filter_underpowered={{workflow.parameters.filter-underpowered}}"
-      - "--filter_homozygous={{workflow.parameters.filter-homozygous}}"
-      - "--homozygous_prop={{workflow.parameters.homozygous-prop}}"
-      - "--outdir={{workflow.parameters.out-dir}}"
+      - "--af_cutoff={{workflow.parameters.af_cutoff}}"
+      - "--filter_underpowered={{workflow.parameters.filter_underpowered}}"
+      - "--filter_homozygous={{workflow.parameters.filter_homozygous}}"
+      - "--homozygous_prop={{workflow.parameters.homozygous_prop}}"
+      - "--outdir={{workflow.parameters.out_dir}}"
       volumeMounts:
       - name: workdir
         mountPath: /work
@@ -230,17 +175,17 @@ spec:
       parameters:
       - name: sample
     container:
-      image: "{{workflow.parameters.image}}"
+      image: "{{workflow.parameters.image-argo}}"
       command: [Rscript]
       args:
       - scripts/autofit.R
       - "--bin={{workflow.parameters.bins}}"
       - "--sample={{inputs.parameters.sample}}"
-      - "--project={{workflow.parameters.project-name}}"
+      - "--project={{workflow.parameters.project_name}}"
       - "--flagThreshold={{workflow.parameters.flagThreshold}}"
       - "--fitMethod={{workflow.parameters.fitMethod}}"
       - "--errorMetric={{workflow.parameters.errorMetric}}"
-      - "--outdir={{workflow.parameters.out-dir}}"
+      - "--outdir={{workflow.parameters.out_dir}}"
       volumeMounts:
       - name: workdir
         mountPath: /work
@@ -250,14 +195,14 @@ spec:
       parameters:
       - name: sample
     container:
-      image: "{{workflow.parameters.image}}"
+      image: "{{workflow.parameters.image-argo}}"
       command: [Rscript]
       args:
       - scripts/downsampleBams.R
       - "--bin={{workflow.parameters.bins}}"
       - "--sample={{inputs.parameters.sample}}"
-      - "--project={{workflow.parameters.project-name}}"
-      - "--outdir={{workflow.parameters.out-dir}}"
+      - "--project={{workflow.parameters.project_name}}"
+      - "--outdir={{workflow.parameters.out_dir}}"
       volumeMounts:
       - name: workdir
         mountPath: /work
@@ -267,7 +212,7 @@ spec:
       parameters:
       - name: sample
     container:
-      image: "{{workflow.parameters.image}}"
+      image: "{{workflow.parameters.image-argo}}"
       command: [Rscript]
       args:
       - scripts/qdnaseq_mod.R
@@ -275,14 +220,14 @@ spec:
       - "--sample={{inputs.parameters.sample}}"
       - "--meta={{workflow.parameters.samplesheet}}"
       - "--pairedEnd={{workflow.parameters.pairedEnd}}"
-      - "--use_seed={{workflow.parameters.use-seed}}"
-      - "--seed_val={{workflow.parameters.seed-val}}"
+      - "--use_seed={{workflow.parameters.use_seed}}"
+      - "--seed_val={{workflow.parameters.seed_val}}"
       - "--genome={{workflow.parameters.genome}}"
       - "--downsampled=TRUE"
       - "--autoSmooth={{workflow.parameters.autoSmooth}}"
       - "--smoothThreshold={{workflow.parameters.smoothThreshold}}"
-      - "--outdir={{workflow.parameters.out-dir}}"
-      - "--project={{workflow.parameters.project-name}}"
+      - "--outdir={{workflow.parameters.out_dir}}"
+      - "--project={{workflow.parameters.project_name}}"
       volumeMounts:
       - name: workdir
         mountPath: /work
@@ -292,215 +237,29 @@ spec:
       parameters:
       - name: sample
     container:
-      image: "{{workflow.parameters.image}}"
+      image: "{{workflow.parameters.image-argo}}"
       command: [Rscript]
       args:
       - scripts/qdnaseq_rel_to_abs.R
       - "--bin={{workflow.parameters.bins}}"
       - "--sample={{inputs.parameters.sample}}"
-      - "--project={{workflow.parameters.project-name}}"
+      - "--project={{workflow.parameters.project_name}}"
       - "--meta={{workflow.parameters.samplesheet}}"
       - "--genome={{workflow.parameters.genome}}"
-      - "--outdir={{workflow.parameters.out-dir}}"
+      - "--outdir={{workflow.parameters.out_dir}}"
       volumeMounts:
       - name: workdir
         mountPath: /work
 
   - name: completion-task
     container:
-      image: "{{workflow.parameters.image}}"
+      image: "{{workflow.parameters.image-argo}}"
       command: [bash]
       args:
       - "-c"
       - |
         echo "Pipeline completed successfully"
-        ls -lh {{workflow.parameters.out-dir}}/sWGS_fitting/{{workflow.parameters.project-name}}_{{workflow.parameters.bins}}kb/absolute_POST_down_sampling/abs_cn_rds/
-
-  volumeClaimTemplates:
-  - metadata:
-      name: workdir
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 100Gi
-
-    container:
-      image: "{{workflow.parameters.image}}"
-      command: [Rscript]
-      args:
-      - scripts/bam_check.R
-      - "{{workflow.parameters.samplesheet}}"
-      - "{{workflow.parameters.out-dir}}"
-      volumeMounts:
-      - name: workdir
-        mountPath: /work
-
-  - name: process-bam-task
-    inputs:
-      parameters:
-      - name: sample
-    container:
-      image: "{{workflow.parameters.image}}"
-      command: [bash]
-      args:
-      - "-c"
-      - |
-        if [ "{{workflow.parameters.filetype}}" = "CRAM" ]; then
-          samtools view -b -T {{workflow.parameters.reference}} \
-            $(grep "^{{inputs.parameters.sample}}" {{workflow.parameters.samplesheet}} | cut -f7) \
-            > {{workflow.parameters.out-dir}}/sWGS_fitting/{{workflow.parameters.project-name}}_{{workflow.parameters.bins}}kb/bams/{{inputs.parameters.sample}}.bam
-          samtools index {{workflow.parameters.out-dir}}/sWGS_fitting/{{workflow.parameters.project-name}}_{{workflow.parameters.bins}}kb/bams/{{inputs.parameters.sample}}.bam
-        else
-          ln -s $(grep "^{{inputs.parameters.sample}}" {{workflow.parameters.samplesheet}} | cut -f7) \
-            {{workflow.parameters.out-dir}}/sWGS_fitting/{{workflow.parameters.project-name}}_{{workflow.parameters.bins}}kb/bams/{{inputs.parameters.sample}}.bam
-        fi
-      volumeMounts:
-      - name: workdir
-        mountPath: /work
-
-  - name: relative-cn-rds-task
-    inputs:
-      parameters:
-      - name: sample
-    container:
-      image: "{{workflow.parameters.image}}"
-      command: [Rscript]
-      args:
-      - scripts/qdnaseq_mod.R
-      - "--bin={{workflow.parameters.bins}}"
-      - "--sample={{inputs.parameters.sample}}"
-      - "--meta={{workflow.parameters.samplesheet}}"
-      - "--pairedEnd={{workflow.parameters.pairedEnd}}"
-      - "--use_seed={{workflow.parameters.use-seed}}"
-      - "--seed_val={{workflow.parameters.seed-val}}"
-      - "--genome={{workflow.parameters.genome}}"
-      - "--autoSmooth={{workflow.parameters.autoSmooth}}"
-      - "--smoothThreshold={{workflow.parameters.smoothThreshold}}"
-      - "--outdir={{workflow.parameters.out-dir}}"
-      - "--project={{workflow.parameters.project-name}}"
-      volumeMounts:
-      - name: workdir
-        mountPath: /work
-
-  - name: gridsearch-fitting-task
-    inputs:
-      parameters:
-      - name: sample
-    container:
-      image: "{{workflow.parameters.image}}"
-      command: [Rscript]
-      args:
-      - scripts/gridsearch.R
-      - "--bin={{workflow.parameters.bins}}"
-      - "--sample={{inputs.parameters.sample}}"
-      - "--project={{workflow.parameters.project-name}}"
-      - "--meta={{workflow.parameters.samplesheet}}"
-      - "--ploidy_min={{workflow.parameters.ploidy-min}}"
-      - "--ploidy_max={{workflow.parameters.ploidy-max}}"
-      - "--purity_min={{workflow.parameters.purity-min}}"
-      - "--purity_max={{workflow.parameters.purity-max}}"
-      - "--homozygous_threshold={{workflow.parameters.homozygous-threshold}}"
-      - "--genome={{workflow.parameters.genome}}"
-      - "--af_cutoff={{workflow.parameters.af-cutoff}}"
-      - "--filter_underpowered={{workflow.parameters.filter-underpowered}}"
-      - "--filter_homozygous={{workflow.parameters.filter-homozygous}}"
-      - "--homozygous_prop={{workflow.parameters.homozygous-prop}}"
-      - "--outdir={{workflow.parameters.out-dir}}"
-      volumeMounts:
-      - name: workdir
-        mountPath: /work
-
-  - name: autofit-task
-    inputs:
-      parameters:
-      - name: sample
-    container:
-      image: "{{workflow.parameters.image}}"
-      command: [Rscript]
-      args:
-      - scripts/autofit.R
-      - "--bin={{workflow.parameters.bins}}"
-      - "--sample={{inputs.parameters.sample}}"
-      - "--project={{workflow.parameters.project-name}}"
-      - "--flagThreshold={{workflow.parameters.flagThreshold}}"
-      - "--fitMethod={{workflow.parameters.fitMethod}}"
-      - "--errorMetric={{workflow.parameters.errorMetric}}"
-      - "--outdir={{workflow.parameters.out-dir}}"
-      volumeMounts:
-      - name: workdir
-        mountPath: /work
-
-  - name: downsample-task
-    inputs:
-      parameters:
-      - name: sample
-    container:
-      image: "{{workflow.parameters.image}}"
-      command: [Rscript]
-      args:
-      - scripts/downsampleBams.R
-      - "--bin={{workflow.parameters.bins}}"
-      - "--sample={{inputs.parameters.sample}}"
-      - "--project={{workflow.parameters.project-name}}"
-      - "--outdir={{workflow.parameters.out-dir}}"
-      volumeMounts:
-      - name: workdir
-        mountPath: /work
-
-  - name: downsampled-relative-cn-rds-task
-    inputs:
-      parameters:
-      - name: sample
-    container:
-      image: "{{workflow.parameters.image}}"
-      command: [Rscript]
-      args:
-      - scripts/qdnaseq_mod.R
-      - "--bin={{workflow.parameters.bins}}"
-      - "--sample={{inputs.parameters.sample}}"
-      - "--meta={{workflow.parameters.samplesheet}}"
-      - "--pairedEnd={{workflow.parameters.pairedEnd}}"
-      - "--use_seed={{workflow.parameters.use-seed}}"
-      - "--seed_val={{workflow.parameters.seed-val}}"
-      - "--genome={{workflow.parameters.genome}}"
-      - "--downsampled=TRUE"
-      - "--autoSmooth={{workflow.parameters.autoSmooth}}"
-      - "--smoothThreshold={{workflow.parameters.smoothThreshold}}"
-      - "--outdir={{workflow.parameters.out-dir}}"
-      - "--project={{workflow.parameters.project-name}}"
-      volumeMounts:
-      - name: workdir
-        mountPath: /work
-
-  - name: absolute-cn-fit-task
-    inputs:
-      parameters:
-      - name: sample
-    container:
-      image: "{{workflow.parameters.image}}"
-      command: [Rscript]
-      args:
-      - scripts/qdnaseq_rel_to_abs.R
-      - "--bin={{workflow.parameters.bins}}"
-      - "--sample={{inputs.parameters.sample}}"
-      - "--project={{workflow.parameters.project-name}}"
-      - "--meta={{workflow.parameters.samplesheet}}"
-      - "--genome={{workflow.parameters.genome}}"
-      - "--outdir={{workflow.parameters.out-dir}}"
-      volumeMounts:
-      - name: workdir
-        mountPath: /work
-
-  - name: completion-task
-    container:
-      image: "{{workflow.parameters.image}}"
-      command: [bash]
-      args:
-      - "-c"
-      - |
-        echo "Pipeline completed successfully"
-        ls -lh {{workflow.parameters.out-dir}}/sWGS_fitting/{{workflow.parameters.project-name}}_{{workflow.parameters.bins}}kb/absolute_POST_down_sampling/abs_cn_rds/
+        ls -lh {{workflow.parameters.out_dir}}/sWGS_fitting/{{workflow.parameters.project_name}}_{{workflow.parameters.bins}}kb/absolute_POST_down_sampling/abs_cn_rds/
 
   volumeClaimTemplates:
   - metadata:

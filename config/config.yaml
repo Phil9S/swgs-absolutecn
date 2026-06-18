@@ -44,7 +44,7 @@ homozygous_threshold: 0.4
 
 # container url for swgs-absolutecn
 image: docker://phil9s/swgs-absolutecn:latest
-
+image-argo: phil9s/swgs-absolutecn:latest
 # genome build - either hg19 or hg38
 genome: "hg19"
 
