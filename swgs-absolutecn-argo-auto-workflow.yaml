@@ -151,13 +151,13 @@ spec:
         library(jsonlite)
         samples <- read_tsv("{{workflow.parameters.samplesheet}}") %>%
           pull(SAMPLE_ID) %>%
-          unique()
-        cat(toJSON(as.list(samples)))
+          unique() %>%
+          as.list()
+        writeLines(toJSON(samples), "/tmp/output.json")
     outputs:
       parameters:
       - name: samples
-        valueFrom:
-          jsonPath: '$'
+        path: /tmp/output.json
 
   - name: bam-check-task
     container:
