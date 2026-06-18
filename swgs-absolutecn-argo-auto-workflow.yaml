@@ -143,20 +143,21 @@ spec:
   - name: validate-task
     container:
       image: "{{workflow.parameters.image}}"
-      command: [Rscript]
+      command: [bash]
       args:
-      - "-e"
+      - "-c"
       - |
+        Rscript -e "
         library(tidyverse)
-        samples <- read_tsv("{{workflow.parameters.samplesheet}}") %>%
+        samples <- read_tsv('{{workflow.parameters.samplesheet}}') %>%
           pull(SAMPLE_ID) %>%
           unique()
         cat(jsonlite::toJSON(as.list(samples)))
+        " > /tmp/samples.json
     outputs:
       parameters:
       - name: samples
-        valueFrom:
-          jsonPath: '$'
+        path: /tmp/samples.json
 
   - name: bam-check-task
     container:
