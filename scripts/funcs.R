@@ -536,6 +536,17 @@ predictProfile <- function(qctable = NULL,
       )
     )
   
+  # tie break for edge cases
+  ## For cases with multiple where ploidy is n + 2CN and twice the purity 
+  ## have the same error metric values. Select the lowest ploidy of accepted fits.
+  if(sum(qctable$use) > 1){
+    qctable <- qctable %>%
+      dplyr::mutate(use = ifelse(use == TRUE & ploidy == min(ploidy),TRUE,FALSE))
+    if(sum(qctable$use) > 1){
+      stop("multiple fits selected - unknown tiebreak failure")
+    }
+  }
+  
   if (all(!as.logical(qctable$use))) {
     qctable <- qctable %>%
       dplyr::ungroup() %>%
@@ -553,14 +564,13 @@ predictProfile <- function(qctable = NULL,
       dplyr::mutate(flag = ifelse(is.na(flag), NA, paste0("NOFIT|", flag))) %>%
       dplyr::mutate(notes = paste0("NO_FIT_FOUND|", notes))
   }
-  
   return(qctable)
 }
 
 triageProfile <- function(qctable = NULL,
                           flagThreshold = 0.84,
                           errorMetric = "segvariance") {
-  if (is.null(qctable)) {
+  if(is.null(qctable)) {
     stop("no data")
   }
   
