@@ -8,7 +8,6 @@ if all(samplesheet.precPloidy.notna()) and all(samplesheet.precPurity.notna()):
     sys.exit("all ploidy and purity values are precomputed - Run `Rscript scripts/processPrecomputed.R` and skip to stage_2")
 
 SAMPLES = list(samplesheet['SAMPLE_ID'].unique())
-FILE_LIST = list(samplesheet['file'].unique())
 
 localrules: all, bam_check, sym_link
 

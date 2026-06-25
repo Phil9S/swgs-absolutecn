@@ -1,6 +1,6 @@
 rule bam_check:
     input:
-       bam=FILE_LIST
+       bam=get_bam
     output:
         ok=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/bams/{sample}_bam.ok"
     log:

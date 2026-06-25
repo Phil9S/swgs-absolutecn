@@ -3,10 +3,6 @@ import pandas as pd
 from pathlib import Path
 from snakemake.utils import min_version
 import os.path
-#import ruamel.yaml
-#from ruamel.yaml.scalarstring import SingleQuotedScalarString, DoubleQuotedScalarString
-
-#yaml = ruamel.yaml.YAML()
 
 min_version("8.0.0")
 
@@ -41,6 +37,9 @@ if PLMIN > PLMAX:
 if PUMIN > PUMAX:
     sys.exit("Config error - Minimum purity exceeds or is equal to maximum purity")
 
-def get_bam(wildcards):
-    files = list(samplesheet.loc[(wildcards.sample), ["file"]])
-    return files
+def get_bam(wc):
+    try:
+        val = samplesheet.at[wc.sample, "file"]
+    except KeyError:
+        raise ValueError(f"Sample '{wc.sample}' not found in sample sheet ({config['samplesheet']})")
+    return str(val)

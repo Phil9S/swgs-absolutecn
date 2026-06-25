@@ -2,7 +2,7 @@
 if config['filetype'] in ["CRAM"]:
     rule cram_to_bam:
         input:
-            bam=get_bam,
+            bam=get_bam, 
             check=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/bams/{sample}_bam.ok"
         params:
             reference=config["reference"]
