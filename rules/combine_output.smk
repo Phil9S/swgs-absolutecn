@@ -11,4 +11,4 @@ rule combine_output:
         image
     threads: 1
     script:
-        "../scripts/combine_output.R"
+        "../scripts/combine_results.R"

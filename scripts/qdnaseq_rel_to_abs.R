@@ -33,6 +33,13 @@ Biobase::pData(rds.rel) <- dplyr::left_join(Biobase::pData(rds.rel),
                                             metadata,by=c("name"="SAMPLE_ID")) %>%
   as.data.frame()
 rownames(Biobase::pData(rds.rel)) <- Biobase::pData(rds.rel)$name
+
+## fix col types
+Biobase::pData(rds.rel)$ploidy <- as.numeric(Biobase::pData(rds.rel)$ploidy)
+Biobase::pData(rds.rel)$TP53cn <- as.numeric(Biobase::pData(rds.rel)$TP53cn)
+Biobase::pData(rds.rel)$purity <- as.numeric(Biobase::pData(rds.rel)$purity)
+Biobase::pData(rds.rel)$expected_TP53_AF <- as.numeric(Biobase::pData(rds.rel)$expected_TP53_AF)
+
 #Get target anchor gene segments
 gene_bin_seg <- get_gene_seg(abs_data = rds.rel,
                              genome = genome)
