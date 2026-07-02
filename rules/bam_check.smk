@@ -7,6 +7,8 @@ rule bam_check:
         "logs/bam_check_{project}_{bin}kb_{sample}.log"
     container:
         image
+    params:
+        filetype=config["filetype"]
     threads: 1
     script:
         "../scripts/bam_check.R"

@@ -5,7 +5,8 @@
 # read coverage, or incomplete files/corrupted files
 args = commandArgs(trailingOnly=TRUE)
 bam <- snakemake@input[["bam"]]
+filetype <- snakemake@params[["filetype"]]
 outname <- snakemake@output[["ok"]]
 
 source(file.path(snakemake@scriptdir,"funcs.R"))
-bamCheck(x = bam,outname = outname)
+bamCheck(x = bam,filetype = filetype,outname = outname)
