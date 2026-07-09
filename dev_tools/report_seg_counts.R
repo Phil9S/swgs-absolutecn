@@ -1,18 +1,35 @@
+## Dev script to summarise segment counts in both pre and post downsampling
+
 args <- commandArgs(trailingOnly=T)
-library(yaml)
+
+countSegs <- function(x){
+  suppressMessages(library(QDNAseqmod))
+  suppressMessages(library(Biobase))
+
+  filer <- readRDS(x)
+  pS <- filer[Biobase::featureData(filer)$use]
+  pSegs <- apply(Biobase::assayDataElement(pS,"segmented"),
+                 MARGIN=2,function(x) length(rle(x)$lengths))
+  return(pSegs)
+}
 
 cat("report segments - use 'report_seg_counts.R all' for individual seg counts\n")
 
-config <- read_yaml(file="config/config.yaml")
+config <- yaml::read_yaml(file="config/config.yaml")
 
 projectBin <- paste0(config$project_name,"_",config$bin,"kb")
 outputLoc <- paste0(config$out_dir,"sWGS_fitting/",projectBin,"/")
 
-pre <- "absolute_PRE_down_sampling/"
-post <- "absolute_POST_down_sampling/abs_cn_rds/"
+pre <- "absolute_PRE_down_sampling"
+post <- "absolute_POST_down_sampling"
 
-preFile <- paste0(outputLoc,pre,projectBin,"_relSmoothedCN.rds")
-postFile <- paste0(outputLoc,post,projectBin,"_ds_absCopyNumber.rds")
+preFiles <- list.files(path = paste0(outputLoc,pre),
+                       recursive = T,full.names = T,
+                       pattern = "_relSmoothedCN.rds")
+
+postFiles <- list.files(path = paste0(outputLoc,post),
+                       recursive = T,full.names = T ,
+                       pattern = "_ds_absCopyNumber.rds")
 
 verbose <- FALSE
 if(length(args) > 0){
@@ -21,29 +38,29 @@ if(length(args) > 0){
   }
 }
 
-if(file.exists(preFile)){
-  suppressMessages(library(QDNAseqmod))
-  suppressMessages(library(Biobase))
-  preS <- readRDS(preFile)
-  preS <- preS[featureData(preS)$use]
-  preSegs <- apply(assayDataElement(preS,"segmented"),MARGIN=2,function(x) length(rle(x)$lengths))
-  cat("\nPre-downsampled segments\n")
+if(any(file.exists(postFiles))){
+  cat("\ncounting pre-downsampled segments")
+  preSegs <- unlist(lapply(preFiles,FUN = countSegs))
   if(verbose){
     print(preSegs)
   } else {
+    cat("\npre-downsampled segments")
     print(summary(preSegs))
-  }
-  if(file.exists(postFile)){
-    postS <- readRDS(postFile)
-    postS <- postS[featureData(postS)$use]
-    postSegs <- apply(assayDataElement(postS,"segmented"),MARGIN=2,function(x) length(rle(x)$lengths))
-    cat("\nPost-downsampled segments\n")
-    if(verbose){
-      print(postSegs)
-    } else {
-      print(summary(postSegs))
-    }
   }
 } else {
   cat("no pre or post downsampled files found\n")
+}
+
+if(any(file.exists(postFiles))){
+  cat("\ncounting post-downsampled segments")
+  postSegs <- unlist(lapply(postFiles[postFiles],countSegs))
+  if(verbose){
+
+    print(postSegs)
+  } else {
+    cat("\npost-downsampled segments")
+    print(summary(postSegs))
+  }
+} else {
+  cat("\nNo post downsampled files found\n")
 }
