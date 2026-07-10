@@ -2,18 +2,15 @@
 
 args <- commandArgs(trailingOnly=T)
 
-countSegs <- function(x){
-  suppressMessages(library(QDNAseqmod))
-  suppressMessages(library(Biobase))
-
-  filer <- readRDS(x)
-  pS <- filer[Biobase::featureData(filer)$use]
-  pSegs <- apply(Biobase::assayDataElement(pS,"segmented"),
-                 MARGIN=2,function(x) length(rle(x)$lengths))
+countSegsTab <- function(x,stg="pre"){
+  filer <- read.table(x,nrows = 1,header = T,sep = "\t")
+  pSample <- filer$SAMPLE_ID
+  pSegs <- ifelse(stg=="pre",filer$segments,filer$segments.post)
+  names(pSegs) <- pSample
   return(pSegs)
 }
 
-cat("report segments - use 'report_seg_counts.R all' for individual seg counts\n")
+cat("report_seg_counts.R - use 'report_seg_counts.R all' for individual seg counts\n")
 
 config <- yaml::read_yaml(file="config/config.yaml")
 
@@ -23,42 +20,44 @@ outputLoc <- paste0(config$out_dir,"sWGS_fitting/",projectBin,"/")
 pre <- "absolute_PRE_down_sampling"
 post <- "absolute_POST_down_sampling"
 
-preFiles <- list.files(path = paste0(outputLoc,pre),
+preFilesTab <- list.files(path = paste0(outputLoc,pre),
                        recursive = T,full.names = T,
-                       pattern = "_relSmoothedCN.rds")
+                       pattern = "_QC_predownsample.tsv")
 
-postFiles <- list.files(path = paste0(outputLoc,post),
-                       recursive = T,full.names = T ,
-                       pattern = "_ds_absCopyNumber.rds")
+postFilesTab <- list.files(path = paste0(outputLoc,post),
+                        recursive = T,full.names = T ,
+                        pattern = "_ds_abs_fits.tsv")
 
 verbose <- FALSE
+
 if(length(args) > 0){
   if(args[1] == "all"){
     verbose <- TRUE
   }
 }
 
-if(any(file.exists(postFiles))){
-  cat("\ncounting pre-downsampled segments")
-  preSegs <- unlist(lapply(preFiles,FUN = countSegs))
+if(any(file.exists(preFilesTab))){
+  cat("counting pre-downsampled segments...")
+  preSegsTab <- unlist(lapply(preFilesTab,FUN = countSegsTab,stg="pre"))
   if(verbose){
-    print(preSegs)
+    cat("\npost-downsampled segments")
+    print(preSegsTab)
   } else {
-    cat("\npre-downsampled segments")
-    print(summary(preSegs))
+    cat("\npre-downsampled segments\n")
+    print(summary(preSegsTab))
   }
 } else {
   cat("no pre or post downsampled files found\n")
 }
 
-if(any(file.exists(postFiles))){
-  cat("\ncounting post-downsampled segments")
-  postSegs <- unlist(lapply(postFiles[postFiles],countSegs))
+if(any(file.exists(postFilesTab))){
+  cat("\ncounting post-downsampled segments...")
+  postSegs <- unlist(lapply(postFilesTab,countSegsTab,stg="post"))
   if(verbose){
-
+    cat("\npost-downsampled segments\n")
     print(postSegs)
   } else {
-    cat("\npost-downsampled segments")
+    cat("\npost-downsampled segments\n")
     print(summary(postSegs))
   }
 } else {
