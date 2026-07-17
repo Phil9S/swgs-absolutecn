@@ -11,4 +11,4 @@ rule bam_check:
         filetype=config["filetype"]
     threads: 1
     script:
-        "../scripts/bam_check.R"
+        "../scripts/bamCheck.R"

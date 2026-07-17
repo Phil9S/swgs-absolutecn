@@ -1,6 +1,6 @@
 rule ds_relRDS:
     input:
-        bams=expand(OUT_DIR+"sWGS_fitting/{{project}}_{{bin}}kb/absolute_POST_down_sampling/downsampled_bams/{{sample}}.bam")
+        bam=expand(OUT_DIR+"sWGS_fitting/{{project}}_{{bin}}kb/absolute_POST_down_sampling/downsampled_bams/{{sample}}.bam")
     output:
         rds=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/{sample}/relative_cn_rds/{project}_{sample}_{bin}kb_relSmoothedCN.rds"
     log:
@@ -18,4 +18,4 @@ rule ds_relRDS:
         autoSmooth=config["autoSmooth"],
         smoothThreshold=config["smoothThreshold"]
     script:
-        "../scripts/qdnaseq_mod.R"
+        "../scripts/qdnaseqMod.R"

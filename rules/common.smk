@@ -23,7 +23,7 @@ if any(samplesheet.SAMPLE_ID.duplicated()):
     sys.exit("Sample sheet contains duplicated sample ids")
     
 # set container uri
-image = config["image"]
+image = "docker://" + config["workflowimage"]
 
 ##### CHECK MAX > MIN #####
 PLMIN=config["ploidy_min"]

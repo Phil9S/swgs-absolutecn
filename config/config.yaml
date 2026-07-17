@@ -20,7 +20,7 @@ seed_val: '9999'
 
 # fitler underpowered solutions - TRUE or FALSE
 # Default TRUE
-filter_underpowered: 'FALSE'
+filter_underpowered: 'TRUE'
 
 # ploidy range
 # Default min = 1.6 | max = 8
@@ -35,24 +35,25 @@ purity_max: 1.0
 # Homozygous loss filter - TRUE or FALSE
 # Default "TRUE"
 filter_homozygous: 'TRUE'
+
 # Threshold basepairs lost
 # Default 10000000 / 10Mbase
 homozygous_prop: 10000000
+
 # Absolute CN homozygous loss threshold
 # Default 0.4
 homozygous_threshold: 0.4
 
 # container url for swgs-absolutecn
-image: docker://phil9s/swgs-absolutecn:latest
-image-argo: phil9s/swgs-absolutecn:latest
+workflowimage: phil9s/swgs-absolutecn:latest
+
 # genome build - either hg19 or hg38
 genome: "hg19"
 
 # filetype - BAM or CRAM
 # Default 'BAM'
-# CRAMs can be used but are temporarily converted to BAMs
-# during the workflow due to Rsamtools limitations
 filetype: "BAM"
+
 # reference - reference used in CRAM generation for conversion back to BAM
 reference: "reference/hsa.GRCh37_g1kp2.fa"
 
@@ -61,17 +62,17 @@ reference: "reference/hsa.GRCh37_g1kp2.fa"
 pairedEnd: 'TRUE'
 
 # automatically smooth profiles with segment counts above smoothThreshold
-# Default - 'FALSE' / 700 segments
+# Default - 'FALSE' / 300 segments
 autoSmooth: 'FALSE'
-smoothThreshold: 700
+smoothThreshold: 300
 
 # autofit profiles
 ## flagthresold determines at what potint samples are flagged as potentially poor fits
 flagThreshold: 0.84 # default 0.84
-## method for selecting best fit - either 'randforest' model or lowest error 'errorOnly'
+
+# method for selecting best fit - either 'randforest' model or lowest error 'errorOnly'
 fitMethod: "errorOnly"
-## errorMetric for errorOnly fitting and tiebreaker procedure in randforest
+
+# errorMetric for errorOnly fitting and tiebreaker procedure in randforest
 ## Either 'clonality', 'segvariance' or 'rmse'
 errorMetric: "clonality"
-
-

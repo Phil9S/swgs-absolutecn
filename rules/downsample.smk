@@ -4,7 +4,7 @@ rule downsample:
         meta=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/{sample}/{project}_{sample}_fitted_QC.tsv",
         rds=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/{sample}/relative_cn_rds/{project}_{sample}_{bin}kb_relSmoothedCN.rds"
     output:
-        ds=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/downsampled_bams/{sample}.bam"
+        bam=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/downsampled_bams/{sample}.bam"
     log:
         "logs/downsample_{project}_{bin}kb_{sample}.log"
     container:

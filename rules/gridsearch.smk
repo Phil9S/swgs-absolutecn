@@ -1,4 +1,4 @@
-rule gridsearch_fitting:
+rule gridsearch:
     input:
         rds=expand(OUT_DIR+"sWGS_fitting/{{project}}_{{bin}}kb/absolute_PRE_down_sampling/{{sample}}/relative_cn_rds/{{project}}_{{sample}}_{{bin}}kb_relSmoothedCN.rds")
     output:

@@ -1,6 +1,5 @@
 # processPrecomputed.R
 args <- commandArgs(trailingOnly=TRUE)
-source(file.path("scripts/funcs.R"))
 
 cat("[processPrecomputed] Generating file to skip stage_1\n")
 cat("[processPrecomputed] Reading config and samplesheet files...\n")
@@ -66,6 +65,7 @@ writeLines(text = as.character(samplesheet$SAMPLE_ID),
 
 # generate QC file
 cat("[processPrecomputed] Generating stage_2 QC file input...\n")
+fittingColumnNames <- get(utils::data("fittingColumnNames",envir = environment()))
 preFileCols <- c(fittingColumnNames,"PATIENT_ID","precPloidy","precPurity","TP53freq","smooth",
 "rank_clonality","pl_diff","new_state_n","new_state")
 
@@ -75,7 +75,7 @@ samplesheetNew <- samplesheet %>%
   dplyr::mutate(ploidy = precPloidy,purity = precPurity) %>%
   dplyr::relocate(ploidy,purity,.before="precPloidy") %>%
   dplyr::mutate(!!!setNames(rep(NA, length(preFileCols)), preFileCols[which(!preFileCols %in% exclude)])) %>%
-  dplyr::mutate(downsample_depth = getDownsampleDepth(ploidy=ploidy,purity=purity,nbins_ref_genome=nbins_ref_genome)) %>%
+  dplyr::mutate(downsample_depth = rswgsabsolutecn::getDownsampleDepth(ploidy=ploidy,purity=purity,nbins_ref_genome=nbins_ref_genome)) %>%
   dplyr::mutate(use = TRUE) %>%
   dplyr::mutate(notes = "using preprocessed ploidy purity values") %>%
   dplyr::select(all_of(preFileCols),use,notes)

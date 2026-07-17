@@ -9,37 +9,38 @@
 # being sampled.
 args = commandArgs(trailingOnly=TRUE)
 
-bam_in <- snakemake@input[["bam"]]
+bam <- snakemake@input[["bam"]]
 meta <- snakemake@input[["meta"]]
 rds <- snakemake@input[["rds"]]
-outname <- snakemake@output[["ds"]]
-sample_name <- snakemake@params[["sample"]]
+bamOut <- snakemake@output[["bam"]]
+sampleName <- snakemake@params[["sample"]]
 prplpu <- as.logical(snakemake@params[["prplpu"]])
-filetype <- snakemake@params[["filetype"]]
+fileType <- snakemake@params[["filetype"]]
 reference <- snakemake@params[["reference"]]
-source(file.path(snakemake@scriptdir,"funcs.R"))
-options(scipen=999)
 
-fit.qc <- read.table(file = meta,header = T,sep = "\t",na.strings = "")
-fit.qc.filt <- fit.qc %>%
-  dplyr::filter(SAMPLE_ID == sample_name) %>%
+options(scipen=999)
+`%>%` <- dplyr::`%>%`
+
+fitQC <- read.table(file = meta,header = T,sep = "\t",na.strings = "")
+fitQCFilt <- fitQC %>%
+  dplyr::filter(SAMPLE_ID == sampleName) %>%
   dplyr::filter(use == TRUE)
 
 if(prplpu){
   # Get read count using SAMtools if prplpu is set for all samples as the 
   # stage_1 fitting is not performed
-  cmd.totalreads <- paste0("samtools view -c -F 260 ",bam_in)
-  tot.reads <- as.numeric(system(cmd.totalreads,intern=TRUE))
-  read.data <- data.frame(name = fit.qc.filt$SAMPLE_ID,total.reads = tot.reads)
+  cmdTotalreads <- paste0("samtools view -c -F 260 ",bam)
+  totReads <- as.numeric(system(cmdTotalreads,intern=TRUE))
+  readData <- data.frame(name = fitQCFilt$SAMPLE_ID,total.reads = totReads)
 } else {
   relative_smoothed <- readRDS(rds)
-  read.data <- Biobase::phenoData(relative_smoothed)@data
+  readData <- Biobase::phenoData(relative_smoothed)@data
 }
 
-fit.qc.filt$total.reads <- read.data$total.reads[match(x = fit.qc.filt$SAMPLE_ID,read.data$name)]
-fit.qc.filt$ratio <- round(fit.qc.filt$downsample_depth / fit.qc.filt$total.reads,digits = 4)
+fitQCFilt$total.reads <- readData$total.reads[match(x = fitQCFilt$SAMPLE_ID,readData$name)]
+fitQCFilt$ratio <- round(fitQCFilt$downsample_depth / fitQCFilt$total.reads,digits = 4)
 
-perc <- fit.qc.filt %>% .$ratio
+perc <- fitQCFilt %>% .$ratio
 
 if(perc > 1){
   perc <- 1
@@ -48,30 +49,30 @@ if(perc > 1){
   perc <- 0.0001
 }
 
-if(filetype == "CRAM"){
+if(fileType == "CRAM"){
   if(perc <= 0.96){
-    cmd.downsample <- paste("samtools view -s ",perc," -T ",reference," -b ",bam_in," > ",outname)
+    cmdDownsample <- paste("samtools view -s ",perc," -T ",reference," -b ",bam," > ",bamOut)
   } else {
-    cmd.downsample <- paste("samtools view -T ",reference," -b ",bam_in," > ",outname)
+    cmdDownsample <- paste("samtools view -T ",reference," -b ",bam," > ",bamOut)
   }
-  cmd.index <- paste0("samtools index ",outname)
+  cmdIndex <- paste0("samtools index ",bamOut)
 
-  system(cmd.downsample)
-  system(cmd.index)
+  system(cmdDownsample)
+  system(cmdIndex)
  
 } else {
   if(perc <= 0.96){
-    cmd.downsample <- paste("samtools view -s ", perc," -b ",
-                            bam_in," > ",outname)
-    cmd.index <- paste0("samtools index ",outname)
+    cmdDownsample <- paste("samtools view -s ", perc," -b ",bam," > ",bamOut)
+    cmdIndex <- paste0("samtools index ",bamOut)
    
-    system(cmd.downsample)
-    system(cmd.index)
+    system(cmdDownsample)
+    system(cmdIndex)
     
-  }else{
-    cmd.copy <- paste0("ln -s ",bam_in," ",outname)
-    cmd.index <- paste0("samtools index ",outname)
-    system(cmd.copy)
-    system(cmd.index)
+  } else {
+    cmdCopy <- paste0("ln -s ",bam," ",bamOut)
+    cmdIndex <- paste0("samtools index ",bamOut)
+    system(cmdCopy)
+    system(cmdIndex)
   }
 }
+
