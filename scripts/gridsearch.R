@@ -7,33 +7,64 @@
 # grab commandline arguments passed via snakemake object
 args = commandArgs(trailingOnly=TRUE)
 
-rds <- snakemake@input[["rds"]]
-meta <- snakemake@params[["meta"]]
+if(exists("snakemake")){
+  rds <- snakemake@input[["rds"]]
+  meta <- snakemake@params[["meta"]]
+  
+  pdfOut <- snakemake@output[["pdf"]]
+  tsvOut <- snakemake@output[["tsv"]]
+  plotOut <- snakemake@output[["plot"]]
+  filtOut <- snakemake@output[["filt"]]
+  fitOut <- snakemake@output[["fit"]]
+  
+  bin <- as.numeric(snakemake@params[["bin"]])
+  project <- snakemake@params[["project"]]
+  genome <- as.character(snakemake@params[["genome"]]) # hg19 or hg38
+  
+  pl_min <- snakemake@params[["ploidy_min"]] # default 1.6 
+  pl_max <- snakemake@params[["ploidy_max"]] # default 8
+  pu_min <- snakemake@params[["purity_min"]] # default 0.15
+  pu_max <- snakemake@params[["purity_max"]] # default 1
+  sampleName <- as.character(snakemake@params[["sample"]])
+  
+  af_cutoff <- as.numeric(snakemake@params[["af_cutoff"]])
+  
+  filter_underpowered <- as.logical(snakemake@params[["filter_underpowered"]]) # Filter for powered fits only
+  filter_homozygous <- as.logical(snakemake@params[["filter_homozygous"]]) # filter homozygous loss
+  homozygous_prop <- as.numeric(snakemake@params[["homozygous_prop"]])
+  homozygous_thrsh <- as.numeric(snakemake@params[["homozygous_threshold"]]) # default 0.4
+  
+} else {
+  
+  opts <- optparse::parse_args(rswgsabsolutecn::setArgs(script = "gridsearch"))
+  
+  rds <- opts$rds
+  meta <- opts$meta
+  
+  tsvOut <- opts$tsvOut
+  plotOut <- opts$plotOut
+  filtOut <- opts$filtOut
+  fitOut <- opts$fitOut
+  
+  bin <- as.numeric(opts$bin)
+  project <- opts$project
+  genome <- opts$genome
+  
+  pl_min <- opts$pl_min
+  pl_max <- opts$pl_max
+  pu_min <-opts$pu_min
+  pu_max <- opts$pu_max
+  sampleName <- as.character(opts$sampleName)
+  
+  af_cutoff <- as.numeric(opts$af_cutoff)
+  
+  filter_underpowered <- as.logical(opts$filter_underpowered)
+  filter_homozygous <- as.logical(opts$filter_homozygous)
+  homozygous_prop <- as.numeric(opts$homozygous_prop)
+  homozygous_thrsh <- as.numeric(opts$homozygous_thrsh)
+}
+
 metadata <- read.table(file = meta,header=T,sep="\t")
-
-pdfOut <- snakemake@output[["pdf"]]
-tsvOut <- snakemake@output[["tsv"]]
-plotOut <- snakemake@output[["plot"]]
-filtOut <- snakemake@output[["filt"]]
-fitOut <- snakemake@output[["fit"]]
-
-bin <- as.numeric(snakemake@params[["bin"]])
-project <- snakemake@params[["project"]]
-genome <- as.character(snakemake@params[["genome"]]) # hg19 or hg38
-
-pl_min <- snakemake@params[["ploidy_min"]] # default 1.6 
-pl_max <- snakemake@params[["ploidy_max"]] # default 8
-pu_min <- snakemake@params[["purity_min"]] # default 0.15
-pu_max <- snakemake@params[["purity_max"]] # default 1
-sampleName <- as.character(snakemake@params[["sample"]])
-
-af_cutoff <- as.numeric(snakemake@params[["af_cutoff"]])
-
-filter_underpowered <- as.logical(snakemake@params[["filter_underpowered"]]) # Filter for powered fits only
-filter_homozygous <- as.logical(snakemake@params[["filter_homozygous"]]) # filter homozygous loss
-
-homozygous_prop <- as.numeric(snakemake@params[["homozygous_prop"]])
-homozygous_thrsh <- as.numeric(snakemake@params[["homozygous_threshold"]]) # default 0.4
 
 # source functions (temp until moved to package) and set scipen
 options(scipen = 999)

@@ -4,26 +4,38 @@
 # of the CBS-segmented RDS object generated from the downsampled BAM file
 
 args = commandArgs(trailingOnly=TRUE)
+
+if(exists("snakemake")){
+  #inputs
+  rds <- snakemake@input[["rds"]]
+  meta <- snakemake@input[["meta"]]
+  bin <- as.numeric(snakemake@params[["bin"]])
+  project <- snakemake@params[["project"]]
+  genome <- snakemake@params[["genome"]]
+  sampleName <- snakemake@params[["sample"]]
+  tsvOut <- snakemake@output[["tsv"]]
+  rdsOut <- snakemake@output[["rds"]]
+  tabOut <- snakemake@output[["tab"]]
+  plotOut <- snakemake@output[["plot"]]
+} else {
+  opts <- optparse::parse_args(rswgsabsolutecn::setArgs(script = "qdnaseqRelToAbs"))
+  
+  rds <- opts$rds
+  meta <- opts$meta
+  bin <- as.numeric(opts$bin)
+  project <- opts$project
+  genome <- opts$genome
+  sampleName <-opts$sampleName
+  tsvOut <- opts$tsvOut
+  rdsOut <- opts$rdsOut
+  tabOut <- opts$tabOut
+  plotOut <- opts$plotOut
+}
+
 options(scipen = 999)
 `%>%` <- dplyr::`%>%`
 
-#inputs
-rds <- snakemake@input[["rds"]]
-meta <- snakemake@input[["meta"]]
 metadata <- read.table(meta,header = T,sep = "\t")
-
-# params
-bin <- as.numeric(snakemake@params[["bin"]])
-project <- snakemake@params[["project"]]
-genome <- snakemake@params[["genome"]]
-sampleName <- snakemake@params[["sample"]]
-
-#outputs
-tsvOut <- snakemake@output[["tsv"]]
-rdsOut <- snakemake@output[["rds"]]
-tabOut <- snakemake@output[["tab"]]
-plotOut <- snakemake@output[["plot"]]
-
 metadata <- metadata[metadata$use == "TRUE",]
 
 # load rds object

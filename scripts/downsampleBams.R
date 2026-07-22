@@ -9,14 +9,29 @@
 # being sampled.
 args = commandArgs(trailingOnly=TRUE)
 
-bam <- snakemake@input[["bam"]]
-meta <- snakemake@input[["meta"]]
-rds <- snakemake@input[["rds"]]
-bamOut <- snakemake@output[["bam"]]
-sampleName <- snakemake@params[["sample"]]
-prplpu <- as.logical(snakemake@params[["prplpu"]])
-fileType <- snakemake@params[["filetype"]]
-reference <- snakemake@params[["reference"]]
+
+if(exists("snakemake")){
+  bam <- snakemake@input[["bam"]]
+  meta <- snakemake@input[["meta"]]
+  rds <- snakemake@input[["rds"]]
+  bamOut <- snakemake@output[["bam"]]
+  sampleName <- snakemake@params[["sample"]]
+  prplpu <- as.logical(snakemake@params[["prplpu"]])
+  fileType <- snakemake@params[["filetype"]]
+  reference <- snakemake@params[["reference"]]
+} else {
+  opts <- optparse::parse_args(rswgsabsolutecn::setArgs(script = "downsampleBams"))
+  
+  bam <- opts$bam
+  meta <- opts$meta
+  rds <- opts$rds
+  bamOut <- opts$bamOut
+  sampleName <- opts$sampleName
+  prplpu <- opts$prplpu
+  fileType <- opts$fileType
+  reference <- opts$reference
+}
+
 
 options(scipen=999)
 `%>%` <- dplyr::`%>%`

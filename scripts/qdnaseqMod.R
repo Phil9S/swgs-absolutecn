@@ -3,23 +3,40 @@
 # use downstream This script performs both pre and post downsampling profile
 # binning and segmentation, includes parameters for PE/SE data, and
 # auto-smoothing functions
-options(scipen = 999)
 args = commandArgs(trailingOnly=TRUE)
 
-bin <- as.numeric(snakemake@params[["bin"]])
-pairedEnd <- as.logical(snakemake@params[["pairedEnd"]])
-sampleName <- snakemake@params[["sample"]]
-meta <- snakemake@params[["meta"]]
+if(exists("snakemake")){
+  
+  bin <- as.numeric(snakemake@params[["bin"]])
+  sampleName <- snakemake@params[["sample"]]
+  meta <- snakemake@params[["meta"]]
+  bam <- snakemake@input[["bam"]]
+  rdsOut <- snakemake@output[["rds"]]
+  genome <- as.character(snakemake@params[["genome"]])
+  autoSmooth <- as.logical(snakemake@params[["autoSmooth"]])
+  smoothThreshold <- as.numeric(snakemake@params[["smoothThreshold"]])
+  use_seed <- snakemake@params[["use_seed"]]
+  seed_val <- snakemake@params[["seed_val"]]
+  pairedEnd <- as.logical(snakemake@params[["pairedEnd"]])
+
+} else {
+  opts <- optparse::parse_args(rswgsabsolutecn::setArgs(script = "qdnaseqMod"))
+  
+  bin <- as.numeric(opts$bin)
+  sampleName <- opts$sampleName
+  meta <- opts$meta
+  bam <- opts$bam
+  rdsOut <- opts$rdsOut
+  genome <- as.character(opts$genome)
+  autoSmooth <- as.logical(opts$autoSmooth)
+  smoothThreshold <- as.numeric(opts$smoothThreshold)
+  use_seed <- opts$
+  seed_val <- opts$
+  pairedEnd <- as.logical(opts$pairedEnd)  
+}
+
+options(scipen = 999)
 metadata <- read.table(file = meta,header=T,sep="\t")
-use_seed <- snakemake@params[["use_seed"]]
-seed_val <- snakemake@params[["seed_val"]]
-
-bam <- snakemake@input[["bam"]]
-rdsOut <- snakemake@output[["rds"]]
-
-genome <- as.character(snakemake@params[["genome"]])
-autoSmooth <- as.logical(snakemake@params[["autoSmooth"]])
-smoothThreshold <- as.numeric(snakemake@params[["smoothThreshold"]])
 
 # Samples to smooth
 smooth <- unique(metadata$smooth[metadata$SAMPLE_ID == sampleName])

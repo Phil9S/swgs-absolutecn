@@ -4,13 +4,23 @@
 # flags fits which are low confidence or potentially poor
 args = commandArgs(trailingOnly=TRUE)
 
-tsv <- snakemake@input[["tsv"]]
-fitsTable <- read.table(file = tsv,header=T,sep="\t")
-tsvOut <- snakemake@output[["tsv"]]
+if(exists("snakemake")){
+  tsv <- snakemake@input[["tsv"]]
+  tsvOut <- snakemake@output[["tsv"]]
+  flagThreshold <- snakemake@params[["flagThreshold"]]
+  fitMethod <- snakemake@params[["fitMethod"]]
+  errorMetric <- snakemake@params[["errorMetric"]]
+} else {
+  opts <- optparse::parse_args(rswgsabsolutecn::setArgs(script = "autofit"))
+  
+  tsv <- opts$tsv
+  tsvOut <- opts$tsvOut
+  flagThreshold <- opts$flagThreshold
+  fitMethod <- opts$fitMethod
+  errorMetric <- opts$errorMetric
+}
 
-flagThreshold <- snakemake@params[["flagThreshold"]]
-fitMethod <- snakemake@params[["fitMethod"]]
-errorMetric <- snakemake@params[["errorMetric"]]
+fitsTable <- read.table(file = tsv,header=T,sep="\t")
 
 if(fitMethod == "randforest"){
   fitModel <- get(utils::data("swgs_abs_rfranger_model",

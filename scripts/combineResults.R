@@ -3,15 +3,25 @@
 # of swgs-abscn to match previous (<2.0.0) version using staged implementation
 args = commandArgs(trailingOnly=TRUE)
 
+if(exists("snakemake")){
+  tsv <- snakemake@input[["tsv"]]
+  rds <- snakemake@input[["rds"]]
+  tab <- snakemake@input[["tab"]]
+  tsvOut <- snakemake@output[["tsv"]]
+  rdsOut <- snakemake@output[["rds"]]
+  tabOut <- snakemake@output[["tab"]]
+} else {
+  opts <- optparse::parse_args(rswgsabsolutecn::setArgs(script = "combineResults"))
+  
+  tsv <- opts$tsv
+  rds <- opts$rds
+  tab <- opts$tab
+  tsvOut <- opts$tsvOut
+  rdsOut <- opts$rdsOut
+  tabOut <- opts$tabOut
+}
+
 options(scipen = 999)
-
-rds <- snakemake@input[["rds"]]
-tsv <- snakemake@input[["tsv"]]
-tab <- snakemake@input[["tab"]]
-
-rdsOut <- snakemake@output[["rds"]]
-tsvOut <- snakemake@output[["tsv"]]
-tabOut <- snakemake@output[["tab"]]
 
 ## combining stage_2 outputs
 if(!is.null(tab)){
