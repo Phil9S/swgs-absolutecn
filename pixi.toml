@@ -24,5 +24,4 @@ r-remotes = "*"
 r-ranger = "*"
 r-parsnip = "*"
 r-optparse = ">=1.7.5,<2"
-snakefmt = ">=2.0.3,<3"
 
