@@ -37,10 +37,9 @@ if(length(args) > 0){
 }
 
 if(any(file.exists(preFilesTab))){
-  cat("counting pre-downsampled segments...")
   preSegsTab <- unlist(lapply(preFilesTab,FUN = countSegsTab,stg="pre"))
   if(verbose){
-    cat("\npost-downsampled segments")
+    cat("\npre-downsampled segments\n")
     print(preSegsTab)
   } else {
     cat("\npre-downsampled segments\n")
@@ -51,7 +50,6 @@ if(any(file.exists(preFilesTab))){
 }
 
 if(any(file.exists(postFilesTab))){
-  cat("\ncounting post-downsampled segments...")
   postSegs <- unlist(lapply(postFilesTab,countSegsTab,stg="post"))
   if(verbose){
     cat("\npost-downsampled segments\n")

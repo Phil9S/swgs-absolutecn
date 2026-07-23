@@ -1,6 +1,6 @@
 ---
 # Sample sheet
-samplesheet: "sample_sheet.tsv"
+samplesheet: "config/sample_sheet.tsv"
 
 # Output location
 out_dir: "results/"
