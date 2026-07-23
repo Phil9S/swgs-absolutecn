@@ -1,10 +1,10 @@
 rule relRDS:
     input:
-        bam=expand(OUT_DIR+"sWGS_fitting/{{project}}_{{bin}}kb/bams/{{sample}}.bam")
+        bam=expand(Path(OUT_DIR,"sWGS_fitting/{{project}}_{{bin}}kb/bams/{{sample}}.bam")),
     output:
-        rds=OUT_DIR+"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/{sample}/relative_cn_rds/{project}_{sample}_{bin}kb_relSmoothedCN.rds"
+        rds=Path(OUT_DIR,"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/{sample}/relative_cn_rds/{project}_{sample}_{bin}kb_relSmoothedCN.rds"),
     log:
-        "logs/relRDS_{project}_{bin}kb_{sample}.log"
+        "logs/relRDS_{project}_{bin}kb_{sample}.log",
     container:
         image
     params:
@@ -16,7 +16,6 @@ rule relRDS:
         genome=config["genome"],
         sample="{sample}",
         autoSmooth=config["autoSmooth"],
-        smoothThreshold=config["smoothThreshold"]
+        smoothThreshold=config["smoothThreshold"],
     script:
         "../scripts/qdnaseqMod.R"
-
