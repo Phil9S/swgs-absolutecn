@@ -292,6 +292,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-future.apply-1.20.0-r43hc72bb7e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-gargle-1.6.0-r43h785f33e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-generics-0.1.4-r43hc72bb7e_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/r-getopt-1.20.4-r43ha770c72_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-ggplot2-3.5.2-r43hc72bb7e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-globals-0.18.0-r43hc72bb7e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-googledrive-2.1.2-r43hc72bb7e_0.conda
@@ -311,6 +312,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-memoise-2.0.1-r43hc72bb7e_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-modelr-0.1.11-r43hc72bb7e_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-munsell-0.5.1-r43hc72bb7e_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/r-optparse-1.7.5-r43hc72bb7e_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-parsnip-1.3.3-r43hc72bb7e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-pillar-1.11.0-r43hc72bb7e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-pkgconfig-2.0.3-r43hc72bb7e_4.conda
@@ -4015,6 +4017,16 @@ packages:
   license_family: MIT
   size: 86435
   timestamp: 1746861655717
+- conda: https://conda.anaconda.org/conda-forge/noarch/r-getopt-1.20.4-r43ha770c72_1.conda
+  sha256: 790964f438a34a8eda85d3902097ae49164616a6fef3b7329fdeb85a77cb9ae2
+  md5: cf6793c369dbc7ef63d9c1bc9b186615
+  depends:
+  - r-base >=4.3,<4.4.0a0
+  license: GPL-2.0-or-later
+  license_family: GPL3
+  run_exports: {}
+  size: 51039
+  timestamp: 1720044048111
 - conda: https://conda.anaconda.org/conda-forge/noarch/r-ggplot2-3.5.2-r43hc72bb7e_0.conda
   sha256: fa102880aaa7c52bdd528f49b0340bc147d3a2aeb3fe2a323bed93e36b63ea07
   md5: 0245640d7215b4e4f1f07ce7cb08378f
@@ -4265,6 +4277,17 @@ packages:
   license_family: MIT
   size: 246278
   timestamp: 1719751678498
+- conda: https://conda.anaconda.org/conda-forge/noarch/r-optparse-1.7.5-r43hc72bb7e_1.conda
+  sha256: abb952034a0bd16b6d91ff49b263018afd71b929d9a0ff377c4dd44b457c6974
+  md5: ae32080aac0f74e73e7cd6e774db1c73
+  depends:
+  - r-base >=4.3,<4.4.0a0
+  - r-getopt >=1.20.2
+  license: GPL-2.0-or-later
+  license_family: GPL2
+  run_exports: {}
+  size: 89632
+  timestamp: 1720319967605
 - conda: https://conda.anaconda.org/conda-forge/noarch/r-parsnip-1.3.3-r43hc72bb7e_0.conda
   sha256: 55f182183ebed62a2e29874ef0ae0ecf50ae1b5e7fffff816ef5bb8e92d54a8a
   md5: f26e7d11067fdca458035136819d9c8a

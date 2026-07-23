@@ -23,4 +23,5 @@ bioconductor-qdnaseq = "*"
 r-remotes = "*"
 r-ranger = "*"
 r-parsnip = "*"
+r-optparse = ">=1.7.5,<2"
 
