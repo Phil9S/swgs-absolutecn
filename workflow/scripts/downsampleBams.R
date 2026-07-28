@@ -84,7 +84,7 @@ if(fileType == "CRAM"){
     system(cmdIndex)
     
   } else {
-    cmdCopy <- paste0("ln -s ",bam," ",bamOut)
+    cmdCopy <- paste0("cp -P ",bam," ",bamOut)
     cmdIndex <- paste0("samtools index ",bamOut)
     system(cmdCopy)
     system(cmdIndex)

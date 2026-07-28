@@ -11,7 +11,6 @@ if all(samplesheet.precPloidy.notna()) and all(samplesheet.precPurity.notna()):
 
 SAMPLES = get_ds_bams(PROJECT, BIN)
 
-
 localrules:
     all,
     ds_symlink,
@@ -25,7 +24,6 @@ rule all:
             project=config["project_name"],
             bin=config["bins"],
         ),
-
 
 # pipeline rules
 include: "rules/split_input.smk"

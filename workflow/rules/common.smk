@@ -7,10 +7,7 @@ import os.path
 min_version("8.0.0")
 
 ##### load config and sample sheets #####
-
-
 configfile: "config/config.yaml"
-
 
 validate(config, schema="../schemas/config.schema.yaml")
 
@@ -75,13 +72,13 @@ def get_ds_bams(P, b):
                 if all(~ftb.SAMPLE_ID.duplicated()):
                     d = list(ftb["SAMPLE_ID"])
                 else:
-                    sys.exit("QC file contains duplicated sample ids marked 'TRUE'")
+                    sys.exit("Error - QC file contains duplicated sample ids marked 'TRUE'")
             else:
-                sys.exit("QC file 'use' column contains non-boolean values")
+                sys.exit("Error - QC file 'use' column contains non-boolean values")
         else:
-            sys.exit("QC file is empty. Filtering criteria may need adjusting")
+            sys.exit("Error - QC file is empty. Filtering criteria may need adjusting")
     else:
-        sys.exit("QC file from stage 1 is missing")
+        sys.exit("Error - QC file from stage 1 is missing")
     return d
 
 

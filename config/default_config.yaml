@@ -20,7 +20,7 @@ seed_val: '9999'
 
 # fitler underpowered solutions - TRUE or FALSE
 # Default TRUE
-filter_underpowered: 'TRUE'
+filter_underpowered: 'FALSE'
 
 # ploidy range
 # Default min = 1.6 | max = 8
