@@ -66,7 +66,7 @@ if(perc > 1){
 
 if(fileType == "CRAM"){
   if(perc <= 0.96){
-    cmdDownsample <- paste("samtools view -s ",perc," -T ",reference," -b ",bam," > ",bamOut)
+    cmdDownsample <- paste("samtools view -s 99.",perc," -T ",reference," -b ",bam," > ",bamOut)
   } else {
     cmdDownsample <- paste("samtools view -T ",reference," -b ",bam," > ",bamOut)
   }
@@ -77,7 +77,7 @@ if(fileType == "CRAM"){
  
 } else {
   if(perc <= 0.96){
-    cmdDownsample <- paste("samtools view -s ", perc," -b ",bam," > ",bamOut)
+    cmdDownsample <- paste("samtools view -s 99.", perc," -b ",bam," > ",bamOut)
     cmdIndex <- paste0("samtools index ",bamOut)
    
     system(cmdDownsample)
