@@ -1,6 +1,6 @@
 # Dockerfile build from pixi env
 # Based on https://github.com/pavelzw/pixi-docker-example
-FROM ghcr.io/prefix-dev/pixi:0.67.0 AS build
+FROM ghcr.io/prefix-dev/pixi:latest AS build
 
 # copy source code, pixi.toml and pixi.lock to the container
 WORKDIR /app
@@ -14,7 +14,7 @@ RUN pixi install --frozen --locked --run-post-link-scripts
 #RUN pixi run export TAR="tar --no-same-permissions --no-same-owner" && export TMPDIR=/tmp
 RUN export TAR="tar --no-same-permissions --no-same-owner" && export TMPDIR=/tmp && pixi run Rscript -e 'remotes::install_github(repo = "markowetzlab/QDNAseq.hg38",quiet=TRUE,upgrade=FALSE,force=FALSE)'
 RUN export TAR="tar --no-same-permissions --no-same-owner" && export TMPDIR=/tmp && pixi run Rscript -e 'remotes::install_github(repo = "markowetzlab/QDNAseqmod",quiet=TRUE,upgrade=FALSE,force=FALSE)'
-
+RUN export TAR="tar --no-same-permissions --no-same-owner" && export TMPDIR=/tmp && pixi run Rscript -e 'remotes::install_github(repo = "markowetzlab/r-swgs-absolutecn",quiet=TRUE,upgrade=FALSE,force=FALSE)'
 #RUN pixi shell-hook -s bash > /shell-hook
 #RUN echo "#!/bin/bash" > /app/entrypoint.sh
 #RUN cat /shell-hook >> /app/entrypoint.sh
