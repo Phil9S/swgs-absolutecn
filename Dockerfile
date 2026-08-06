@@ -24,13 +24,14 @@ FROM debian:12-slim AS production
 RUN TZ=Etc/UTC && \
 ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
 echo $TZ > /etc/timezone
-RUN apt-get update && apt-get install -y locales \
-    && locale-gen en_US.UTF-8 \
-    && update-locale LANG=en_US.UTF-8
 
-ENV LANG=en_US.UTF-8
-ENV LANGUAGE=en_US:en
-ENV LC_ALL=en_US.UTF-8
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends locales && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+ENV LANGUAGE=C.UTF-8
 
 WORKDIR /app
 COPY . .
