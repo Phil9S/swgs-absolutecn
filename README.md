@@ -17,7 +17,7 @@ This pipeline implements a method for generating absolute copy number profiles f
 
 The error function, `clonality`, which measures segment residual from integer state across the genome and is computed as mean absolute error (MAE), in which a lower value is suggestive of better confirmation to integer copy number states, and therefore a better absolute copy number profile. variant allele fraction achoring utilises the near-ubiquitous presence of somatic homozygous _TP53_ variants in high grade serous ovarian cancer as an anchoring point for a copy number fit. Experimentally validated _TP53_ allele fractions at homozygous sites are compared to an expected homozygous _TP53_ variant allele fraction, as determined by the copy number value of the segment overlapping the _TP53_ locus. The smaller absolute differences between the experimental and expected _TP53_ variant allele fractions is suggestive of a better fit. Minimisation of the `clonality` error function, expected-to-experimental TP53 distance, and manual review of fits allows for the selection of an optimal absolute copy number profile for a given sample.
 
-The selected fits are subject to a calculation of power to detect copy number alterations, as described [here](https://gmacintyre.shinyapps.io/sWGS_power/), in which the read depth of a given sample is assessed against its selected ploidy-purity combination. This process both determines if 1) a sample has a sufficient number of reads to support the selected ploidy-purity combination and 2) an optimal target number of reads to perform sample-specific read down sampling. This process normalises the read depth between samples in a ploidy and purity dependent manner so that read variance across segments is consistent, while excluding samples which are not supported by a sufficient number of reads.
+The selected fits are subject to a calculation of power to detect copy number alterations in which the read depth of a given sample is assessed against its selected ploidy-purity combination. This process both determines if 1) a sample has a sufficient number of reads to support the selected ploidy-purity combination and 2) an optimal target number of reads to perform sample-specific read down sampling. This process normalises the read depth between samples in a ploidy and purity dependent manner so that read variance across segments is consistent, while excluding samples which are not supported by a sufficient number of reads.
 
 Samples passing all filtering criteria then undergo read downsampling to the specified target number of reads determined by the previous steps and absolute copy number profiles fitted at the ploidy-purity combination selected prior.
 </details>
@@ -86,16 +86,16 @@ The container can be found [here](https://hub.docker.com/r/phil9s/swgs-absolutec
 ### Preparing workflow
 #### Sample sheet
 
-The workflow uses tab-separated file, `sample_sheet.tsv`, to specify the samples and associated BAM files to use as inputs. The `sample_sheet.tsv` schema is validated prior to executing the workflow and contains the fields below.
+The workflow uses tab-separated file, `sample_sheet.tsv`, to specify the samples and associated BAM files to use as inputs. The `sample_sheet.tsv` schema is validated prior to executing the workflow and contains the fields below. An example `sample_sheet.tsv` is provided in the `config/` directory.
 
 ##### Sample sheet example
 
 |PATIENT_ID|SAMPLE_ID|TP53freq|smooth|file          |precPloidy|precPurity|
 |----------|---------|--------|------|--------------|----------|----------|
-|PAT1      |SAM1     |0.45    |TRUE  |/data/SAM1.bam|NA        |NA        |
-|PAT1      |SAM2     |0.55    |FALSE |/data/SAM2.bam|2.4       |0.75      |
-|PAT2      |SAM3     |NA      |FALSE |/data/SAM3.bam|NA        |0.43      |
-|PAT2      |SAM4     |NA      |TRUE  |/data/SAM4.bam|3.2       |NA        |
+|PAT1      |SAM1     |0.45    |TRUE  |`/data/SAM1.bam`|NA        |NA        |
+|PAT1      |SAM2     |0.55    |FALSE |`/data/SAM2.bam`|2.4       |0.75      |
+|PAT2      |SAM3     |NA      |FALSE |`/data/SAM3.bam`|NA        |0.43      |
+|PAT2      |SAM4     |NA      |TRUE  |`/data/SAM4.bam`|3.2       |NA        |
 
 #### config file
 
@@ -107,8 +107,8 @@ These are the primary parameters you should change in the `config.yaml` correspo
 
 |variable|default|function|type|values|
 |--------|-------|--------|----|------|
-|samplesheet|"sample_sheet.tsv"|`sample_sheet.tsv` location|string|file path|
-|out_dir|"results/"|Root location for workflow output|string|directory path|
+|samplesheet|`config/sample_sheet.tsv`|`sample_sheet.tsv` location|string|file path|
+|out_dir|`results/`|Root location for workflow output|string|directory path|
 |project_name|"example_run"|Name for workflow run to include in outputs|string|any string|
 
 <details>
@@ -140,7 +140,7 @@ Parameters here adjust the implemention type, error metrics, and flagging proced
 |--------|-------|--------|----|------|
 |autoSmooth|"FALSE"|Apply automatic smoothing of over-segmented copy number profiles|bool|"TRUE","FALSE"|
 |smoothThreshold|700|Amount of segments to trigger auto smoothing|integer|44-9999|
-|flagThreshold|0.84|Probability threshold at which to flag samples as potentially poor|float|0.1.0|
+|flagThreshold|0.84|Probability threshold at which to flag samples as potentially poor|float|0.0-1.0|
 fitMethod|"errorOnly"|Autofitting method to use to select best fit from gridsearch|string|"errorOnly","randforest"|
 |errorMetric|"clonality"|Error metric used to determine best fit or tiebreaking procedure autofitting|string|"clonality","segvariance","rmse"|
 </details>
@@ -160,9 +160,9 @@ Various filters for acceptable ploidy/purity combinations for fitting absolute c
 |ploidy_max|8.0|Minimum ploidy value for gridsearch|float|1.0-20.0|
 |purity_min|0.15|Minimum purity value for gridsearch|float|0.0-1.0|
 |purity_max|1.0|Minimum purity value for gridsearch|float|0.0-1.0|
-|filter_homozygous|"TRUE"|Filter proportion of homozygous loss greater than `homozygous_prop`|bool|"TRUE","FALSE|
-|homozygous_prop|10000000|Proportion of genome (in basepairs) at which to exclude fits|integer|min=0|
-|homozygous_threshold|0.4|Threshold at which to assign homozygous loss (counted by `homozygous_prop`)|float|0.0-0.99|
+|filter_homozygous|"TRUE"|Filter fits with homozygous loss greater than `homozygous_prop`|bool|"TRUE","FALSE|
+|homozygous_prop|10000000|Proportion of genome (in basepairs) called as homozygous loss at which to exclude fits|integer|min=0|
+|homozygous_threshold|0.4|Copy nubmer value at which to assign homozygous loss (counted by `homozygous_prop`)|float|0.0-0.99|
 </details>
 
 #### Workflow management
@@ -179,7 +179,7 @@ The profile configs (`profile/*/profile.yaml`) contains the necessary informatio
 Validate the environment and pipeline is configured correctly by running the following using the `dry-run` mode with the appropriate environment active or using the containerised implementation (include the aforementioned container-specific commandline options if using a containerised implementation).
 
 ```
-snakemake -n -p --snakefile auto
+snakemake -n -p --snakefile workflow/auto
 ```
 
 ### Running workflow
@@ -193,8 +193,8 @@ The `swgs-absolutecn` workflow provides two approaches to perform absolute copy 
 #### Automated workflow
 
 ```
-# Automated workflow for slurm 
-snakemake --profile profile/slurm/ --snakefile auto
+# Automated workflow for slurm (adjust to match your required profile)
+snakemake --profile profile/slurm/ --snakefile workflow/auto
 ```
 
 <details>
@@ -204,7 +204,7 @@ snakemake --profile profile/slurm/ --snakefile auto
 ##### Stage 1 gridsearch
 
 ```
-snakemake --profile profile/slurm/ --snakefile stage_1
+snakemake --profile profile/slurm/ --snakefile workflow/stage_1
 ```
 
 ##### Stage 1 QC
@@ -218,7 +218,7 @@ Follow the guide on [fit selection](resources/quality_control_guide.md) and prof
 
 Provided quality control and fit selection was performed correctly, stage 2 of the pipeline can be performed which refits all copy number profiles at downsampled read depths using the selected ploidy and purity from stage 1.
 ```
-snakemake --profile profile/slurm/ --snakefile stage_2
+snakemake --profile profile/slurm/ --snakefile workflow/stage_2
 ```
 It is good practice to perform the quality control on `stage_2` outputs as well.
 
@@ -239,6 +239,10 @@ Due to backwards compatibility, staged output is identical to `auto` but sample-
 
 ## Further details
 
+### Profile troubleshooting
+
+For most users, the default parameters should work well but in certain instances, these values should be modifed. For example, if users are not generating a sufficent number of high quality absolute copy number profiles, setting `filter_underpowered` to `FALSE` will show a larger range of fits which, although statistically underpowered, could be correct for given sample.
+
 ### Smoothing
 
 A subset of samples may require smoothing of segments in order to be viable. If performing this manually (rather than `autoSmooth`), read the [guide](resources/smoothing_guide.md) provided here to select and update which samples require smoothing. Once the `samplesheet.tsv` has been updated with the new `smooth` values, rerun stage 1 or auto as appropriate.
@@ -248,12 +252,12 @@ A subset of samples may require smoothing of segments in order to be viable. If 
 Where ploidy and purity are provided from alternative sources, users may not need perform a gridsearch. Provided all samples have a valid `precPloidy` and `precPurity`, the `processPrecomputed.R` script can generate all the required output files to skip directly to read depth normalisation (via read downsampling), at which point Stage 2 or auto can be executed as previously described.
 
 ```
-Rscript scripts/processPrecomputed.R
+Rscript workflow/scripts/processPrecomputed.R
 ```
 container users can run the same script provided they run the command within the container image and bind the `OUTPUTDIR`.
 
 ```
-singularity exec --bind OUTPUTDIR docker://phil9s/swgs-absolutecn:latest Rscript scripts/processPrecomputed.R
+singularity exec --bind OUTPUTDIR docker://phil9s/swgs-absolutecn:latest Rscript workflow/resources/processPrecomputed.R
 ```
 ### Cell lines 
 
@@ -268,11 +272,6 @@ This pipeline currently supports both `hg19` and `hg38` reference genomes by spe
 The pipeline accepts either BAM or CRAM files as the initial input. It does not support the use of both concurrently. Users should specify the filetype in the `config/config.yaml` as either BAM or CRAM and provide a reference genome matching the one used in CRAM generation using the reference parameter in the `config/config.yaml`. If using the containerised implementation, it is recommended to place the reference genome within the input file directory to reduce unnecessary directory binding.
 
 Using the CRAM implementation currently involves the decompresssion of CRAM files to BAM format as the underlying Rsamtools functions in QDNAseq will not load from CRAM. As such, the CRAM implementation will generate a larger diskspace footprint than the BAM implementation. The pipeline will currently remove decompressed BAMs once their required outputs are generated. 
-
-### Profile troubleshooting
-
-For most users, the default parameters should work well but in certain instances, these values should be modifed. For example, if users are not generating a sufficent number of high quality absolute copy number profiles, setting `filter_underpowered` to `FALSE` will show a larger range of fits which, although statistically underpowered, could be correct for given sample.
-
 
 ## Authors
 
