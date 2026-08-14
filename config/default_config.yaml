@@ -76,3 +76,7 @@ fitMethod: "errorOnly"
 # errorMetric for errorOnly fitting and tiebreaker procedure in randforest
 ## Either 'clonality', 'segvariance' or 'rmse'
 errorMetric: "clonality"
+
+# Compute CIN signatures (auto only)
+## Default FALSE
+computeSigs: 'TRUE'

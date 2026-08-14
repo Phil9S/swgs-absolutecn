@@ -1,7 +1,7 @@
 # Check if packages are installed
 listOfAllPackages = c("Biobase","tidyverse","QDNAseq",
 	"QDNAseqmod","QDNAseq.hg19","QDNAseq.hg38","rswgsabsolutecn",
-	"matrixStats","parallel","plyr","ranger","parsnip")
+	"matrixStats","parallel","plyr","ranger","parsnip","CINSignatureQuantification")
 
 for(thisPackage in listOfAllPackages) {
   
