@@ -1,7 +1,6 @@
 # Dockerfile build from pixi env
 # Based on https://github.com/pavelzw/pixi-docker-example
 FROM ghcr.io/prefix-dev/pixi:latest AS build
-
 # copy source code, pixi.toml and pixi.lock to the container
 WORKDIR /app
 COPY install_env.sh .
@@ -32,7 +31,7 @@ RUN apt-get update && \
 ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
 ENV LANGUAGE=C.UTF-8
-
+COPY . /workspace
 WORKDIR /app
 COPY . .
 # only copy the production environment into prod container

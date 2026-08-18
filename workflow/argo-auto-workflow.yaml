@@ -13,14 +13,13 @@ spec:
       - name: bin
         value: "30"
       - name: outDir
-        value: results/
+        value: /mnt/data/results/
       - name: samplesheet
-        value: config/sample_sheet.tsv
+        value: /mnt/data/sample_sheet.tsv
       - name: samples
         value: |
           [
-            {"sampleId": "SAMPLE_1", "bam": "/data/SAMPLE_1.bam"},
-            {"sampleId": "SAMPLE_2", "bam": "/data/SAMPLE_2.bam"}
+            {"sampleId": "SAMPLE_1", "bam": "/mnt/data/RMNISTHS_0_point_1xdownsample.bam"}
           ]
       - name: genome
         value: hg19
@@ -64,7 +63,10 @@ spec:
         value: clonality
       - name: prplpu
         value: "FALSE"
-
+  volumes:
+    - name: bam-data
+      hostPath:
+        path: /mnt/data
   templates:
     - name: auto-pipeline
       dag:
@@ -194,10 +196,13 @@ spec:
           - name: okOut
       container:
         image: "{{workflow.parameters.workflowImage}}"
+        volumeMounts:
+          - name: bam-data
+            mountPath: /mnt/data
         command: ["bash", "-c"]
         args:
           - |
-            Rscript workflow/scripts/bamCheck.R \
+            Rscript /workspace/workflow/scripts/bamCheck.R \
               --bam "{{inputs.parameters.bam}}" \
               --fileType "{{inputs.parameters.fileType}}" \
               --okOut "{{inputs.parameters.okOut}}"
