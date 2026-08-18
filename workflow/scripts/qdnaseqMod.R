@@ -6,7 +6,7 @@
 args = commandArgs(trailingOnly=TRUE)
 
 if(exists("snakemake")){
-  
+
   bin <- as.numeric(snakemake@params[["bin"]])
   sampleName <- snakemake@params[["sample"]]
   meta <- snakemake@params[["meta"]]
@@ -21,7 +21,7 @@ if(exists("snakemake")){
 
 } else {
   opts <- optparse::parse_args(rswgsabsolutecn::setArgs(script = "qdnaseqMod"))
-  
+
   bin <- as.numeric(opts$bin)
   sampleName <- opts$sampleName
   meta <- opts$meta
@@ -30,9 +30,9 @@ if(exists("snakemake")){
   genome <- as.character(opts$genome)
   autoSmooth <- as.logical(opts$autoSmooth)
   smoothThreshold <- as.numeric(opts$smoothThreshold)
-  use_seed <- opts$
-  seed_val <- opts$
-  pairedEnd <- as.logical(opts$pairedEnd)  
+  use_seed <- opts$use_seed
+  seed_val <- opts$seed_val
+  pairedEnd <- as.logical(opts$pairedEnd)
 }
 
 options(scipen = 999)
@@ -66,7 +66,7 @@ readCountsFiltered <- QDNAseqmod::applyFilters(object = readCounts)
 # estimate correction for GC content and mappability
 readCountsFiltered <- QDNAseqmod::estimateCorrection(object = readCountsFiltered)
 
-## Edge case error check for BAM files which pass a quick check but are insufficient to 
+## Edge case error check for BAM files which pass a quick check but are insufficient to
 # produce a loess model from the data present. No way to fix this other than removing the file.
 if(is.na(Biobase::pData(readCountsFiltered)$loess.span)){
   stop(paste0(Biobase::sampleNames(readCountsFiltered),
@@ -87,7 +87,7 @@ copyNumbersSmooth <- QDNAseqmod::smoothOutlierBins(object = copyNumbers)
 copyNumbersSegmented <- QDNAseqmod::segmentBins(object = copyNumbersSmooth,
                                                 transformFun="sqrt",seeds=seed)
 
-# smooth copy number segmentation 
+# smooth copy number segmentation
 copyNumbersSegmentedSmooth <- rswgsabsolutecn::smoothSample(relcn = copyNumbersSegmented,
                                             smooth=smooth,maxSegs=maxSegs,
                                             seed=seed)
