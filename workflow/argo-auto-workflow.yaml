@@ -86,13 +86,26 @@ spec:
                   value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/bams/{{item.sampleId}}_bam.ok"
             withParam: "{{workflow.parameters.samples}}"
 
-          - name: rel-rds
+          - name: process-bam
             dependencies: [bam-check]
-            template: qdnaseq-mod
+            template: process-bam
             arguments:
               parameters:
                 - name: bam
                   value: "{{item.bam}}"
+                - name: sampleId
+                  value: "{{item.sampleId}}"
+                - name: bamOut
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/bams/{{item.sampleId}}.bam"
+            withParam: "{{workflow.parameters.samples}}"
+
+          - name: rel-rds
+            dependencies: [process-bam]
+            template: qdnaseq-mod
+            arguments:
+              parameters:
+                - name: bam
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/bams/{{item.sampleId}}.bam"
                 - name: sampleId
                   value: "{{item.sampleId}}"
                 - name: meta
@@ -203,10 +216,35 @@ spec:
         command: ["bash", "-c"]
         args:
           - |
+            mkdir -p "$(dirname "{{inputs.parameters.okOut}}")"
             Rscript /workspace/workflow/scripts/bamCheck.R \
               --bam "{{inputs.parameters.bam}}" \
               --fileType "{{inputs.parameters.fileType}}" \
               --okOut "{{inputs.parameters.okOut}}"
+
+    - name: process-bam
+      inputs:
+        parameters:
+          - name: bam
+          - name: sampleId
+          - name: bamOut
+      container:
+        image: "{{workflow.parameters.workflowImage}}"
+        volumeMounts:
+          - name: bam-data
+            mountPath: /mnt/data
+        command: ["bash", "-c"]
+        args:
+          - |
+            mkdir -p "$(dirname "{{inputs.parameters.bamOut}}")"
+            if [ "{{workflow.parameters.fileType}}" = "CRAM" ]; then
+              samtools view -b \
+                -T "{{workflow.parameters.reference}}" \
+                "{{inputs.parameters.bam}}" > "{{inputs.parameters.bamOut}}"
+              samtools index "{{inputs.parameters.bamOut}}"
+            else
+              ln -s "{{inputs.parameters.bam}}" "{{inputs.parameters.bamOut}}"
+            fi
 
     - name: qdnaseq-mod
       inputs:
@@ -223,6 +261,7 @@ spec:
         command: ["bash", "-c"]
         args:
           - |
+            mkdir -p "$(dirname "{{inputs.parameters.rdsOut}}")"
             Rscript workflow/scripts/qdnaseqMod.R \
               --bin "{{workflow.parameters.bin}}" \
               --sampleName "{{inputs.parameters.sampleId}}" \
@@ -255,6 +294,7 @@ spec:
         command: ["bash", "-c"]
         args:
           - |
+            mkdir -p "$(dirname "{{inputs.parameters.tsvOut}}")"
             Rscript workflow/scripts/gridsearch.R \
               --rds "{{inputs.parameters.rds}}" \
               --meta "{{inputs.parameters.meta}}" \
@@ -290,6 +330,7 @@ spec:
         command: ["bash", "-c"]
         args:
           - |
+            mkdir -p "$(dirname "{{inputs.parameters.tsvOut}}")"
             Rscript workflow/scripts/autofit.R \
               --tsv "{{inputs.parameters.tsv}}" \
               --tsvOut "{{inputs.parameters.tsvOut}}" \
@@ -313,6 +354,7 @@ spec:
         command: ["bash", "-c"]
         args:
           - |
+            mkdir -p "$(dirname "{{inputs.parameters.bamOut}}")"
             Rscript workflow/scripts/downsampleBams.R \
               --bam "{{inputs.parameters.bam}}" \
               --meta "{{inputs.parameters.meta}}" \
@@ -341,6 +383,7 @@ spec:
         command: ["bash", "-c"]
         args:
           - |
+            mkdir -p "$(dirname "{{inputs.parameters.tsvOut}}")"
             Rscript workflow/scripts/qdnaseqRelToAbs.R \
               --rds "{{inputs.parameters.rds}}" \
               --meta "{{inputs.parameters.meta}}" \
