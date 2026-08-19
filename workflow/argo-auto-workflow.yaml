@@ -3,6 +3,7 @@ kind: Workflow
 metadata:
   generateName: swgs-auto-
 spec:
+  serviceAccountName: argo-workflow
   entrypoint: auto-pipeline
   arguments:
     parameters:
@@ -140,7 +141,7 @@ spec:
             arguments:
               parameters:
                 - name: bam
-                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/bams/{{item.sampleId}}.bam"
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/bams/{{item.sampleId}}.bam" 
                 - name: meta
                   value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/absolute_POST_down_sampling/{{item.sampleId}}/{{workflow.parameters.projectName}}_{{item.sampleId}}_fitted_QC.tsv"
                 - name: rds
@@ -216,6 +217,9 @@ spec:
           - name: rdsOut
       container:
         image: "{{workflow.parameters.workflowImage}}"
+        volumeMounts:
+          - name: bam-data
+            mountPath: /mnt/data
         command: ["bash", "-c"]
         args:
           - |
@@ -245,12 +249,16 @@ spec:
           - name: plotOut
       container:
         image: "{{workflow.parameters.workflowImage}}"
+        volumeMounts:
+          - name: bam-data
+            mountPath: /mnt/data
         command: ["bash", "-c"]
         args:
           - |
             Rscript workflow/scripts/gridsearch.R \
               --rds "{{inputs.parameters.rds}}" \
               --meta "{{inputs.parameters.meta}}" \
+              --pdfOut "{{inputs.parameters.pdfOut}}" \
               --tsvOut "{{inputs.parameters.tsvOut}}" \
               --plotOut "{{inputs.parameters.plotOut}}" \
               --filtOut "{{inputs.parameters.filtOut}}" \
@@ -276,6 +284,9 @@ spec:
           - name: tsvOut
       container:
         image: "{{workflow.parameters.workflowImage}}"
+        volumeMounts:
+          - name: bam-data
+            mountPath: /mnt/data
         command: ["bash", "-c"]
         args:
           - |
@@ -296,6 +307,9 @@ spec:
           - name: sampleId
       container:
         image: "{{workflow.parameters.workflowImage}}"
+        volumeMounts:
+          - name: bam-data
+            mountPath: /mnt/data
         command: ["bash", "-c"]
         args:
           - |
@@ -321,6 +335,9 @@ spec:
           - name: plotOut
       container:
         image: "{{workflow.parameters.workflowImage}}"
+        volumeMounts:
+          - name: bam-data
+            mountPath: /mnt/data
         command: ["bash", "-c"]
         args:
           - |

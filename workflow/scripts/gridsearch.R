@@ -41,6 +41,7 @@ if(exists("snakemake")){
   rds <- opts$rds
   meta <- opts$meta
   
+  pdfOut <- opts$pdfOut
   tsvOut <- opts$tsvOut
   plotOut <- opts$plotOut
   filtOut <- opts$filtOut

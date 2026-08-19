@@ -30,8 +30,8 @@ if(exists("snakemake")){
   genome <- as.character(opts$genome)
   autoSmooth <- as.logical(opts$autoSmooth)
   smoothThreshold <- as.numeric(opts$smoothThreshold)
-  use_seed <- opts$
-  seed_val <- opts$
+  use_seed <- opts$use_seed
+  seed_val <- opts$seed_val
   pairedEnd <- as.logical(opts$pairedEnd)  
 }
 
@@ -55,9 +55,9 @@ if(use_seed){
   seed <- NULL
 }
 
-## generate annotation file either by preloading calculated files or generating new one
+# generate annotation file either by preloading calculated files or generating new one
 bins <- QDNAseqmod::getBinAnnotations(binSize=bin,genome=genome)
-readCounts <- QDNAseqmod::binReadCounts(bamfiles = bam,bins = bins,
+readCounts <- QDNAseqmod::binReadCounts(bamfiles = bam,bins = bins,bamnames = sampleName,
                                         chunkSize = 1e7,pairedEnds = pairedEnd)
 
 # apply filter based on loess fit residuals and encode/1000-genome blacklist
@@ -91,6 +91,5 @@ copyNumbersSegmented <- QDNAseqmod::segmentBins(object = copyNumbersSmooth,
 copyNumbersSegmentedSmooth <- rswgsabsolutecn::smoothSample(relcn = copyNumbersSegmented,
                                             smooth=smooth,maxSegs=maxSegs,
                                             seed=seed)
-
 # save output to file
 saveRDS(copyNumbersSegmentedSmooth,rdsOut)

@@ -10,7 +10,7 @@ lock
 *.svg
 results/*
 !results/.dir
-
+data/
 # pixi environments
 .pixi/*
 !.pixi/config.toml
