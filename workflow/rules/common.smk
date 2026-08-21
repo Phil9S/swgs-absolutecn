@@ -34,6 +34,9 @@ PLMAX = config["ploidy_max"]
 PUMIN = config["purity_min"]
 PUMAX = config["purity_max"]
 
+# Set computeSigs
+SIGS = config["computeSigs"]
+
 if PLMIN > PLMAX:
     sys.exit("Config error - Minimum ploidy exceeds or is equal to maximum ploidy")
 

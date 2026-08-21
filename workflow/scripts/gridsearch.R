@@ -1,4 +1,4 @@
-# gridsearch.R 
+# gridsearch.R
 ## Outputs a table of absolute copy number fits across a ploidy and purity gridsearch
 ## using mean absolute error (aka clonality) error function, sorted by lowest.
 ## it is designed to be used in conjunction with TP53 allele frequency to determine
@@ -10,55 +10,55 @@ args = commandArgs(trailingOnly=TRUE)
 if(exists("snakemake")){
   rds <- snakemake@input[["rds"]]
   meta <- snakemake@params[["meta"]]
-  
+
   pdfOut <- snakemake@output[["pdf"]]
   tsvOut <- snakemake@output[["tsv"]]
   plotOut <- snakemake@output[["plot"]]
   filtOut <- snakemake@output[["filt"]]
   fitOut <- snakemake@output[["fit"]]
-  
+
   bin <- as.numeric(snakemake@params[["bin"]])
   project <- snakemake@params[["project"]]
   genome <- as.character(snakemake@params[["genome"]]) # hg19 or hg38
-  
-  pl_min <- snakemake@params[["ploidy_min"]] # default 1.6 
+
+  pl_min <- snakemake@params[["ploidy_min"]] # default 1.6
   pl_max <- snakemake@params[["ploidy_max"]] # default 8
   pu_min <- snakemake@params[["purity_min"]] # default 0.15
   pu_max <- snakemake@params[["purity_max"]] # default 1
   sampleName <- as.character(snakemake@params[["sample"]])
-  
+
   af_cutoff <- as.numeric(snakemake@params[["af_cutoff"]])
-  
+
   filter_underpowered <- as.logical(snakemake@params[["filter_underpowered"]]) # Filter for powered fits only
   filter_homozygous <- as.logical(snakemake@params[["filter_homozygous"]]) # filter homozygous loss
   homozygous_prop <- as.numeric(snakemake@params[["homozygous_prop"]])
   homozygous_thrsh <- as.numeric(snakemake@params[["homozygous_threshold"]]) # default 0.4
-  
+
 } else {
-  
+
   opts <- optparse::parse_args(rswgsabsolutecn::setArgs(script = "gridsearch"))
-  
+
   rds <- opts$rds
   meta <- opts$meta
-  
+
   pdfOut <- opts$pdfOut
   tsvOut <- opts$tsvOut
   plotOut <- opts$plotOut
   filtOut <- opts$filtOut
   fitOut <- opts$fitOut
-  
+
   bin <- as.numeric(opts$bin)
   project <- opts$project
   genome <- opts$genome
-  
+
   pl_min <- opts$pl_min
   pl_max <- opts$pl_max
   pu_min <-opts$pu_min
   pu_max <- opts$pu_max
   sampleName <- as.character(opts$sampleName)
-  
+
   af_cutoff <- as.numeric(opts$af_cutoff)
-  
+
   filter_underpowered <- as.logical(opts$filter_underpowered)
   filter_homozygous <- as.logical(opts$filter_homozygous)
   homozygous_prop <- as.numeric(opts$homozygous_prop)
@@ -71,7 +71,7 @@ metadata <- read.table(file = meta,header=T,sep="\t")
 options(scipen = 999)
 
 # read in relative copy number and extract model and read data
-rdsObj <- readRDS(rds) 
+rdsObj <- readRDS(rds)
 total_reads <- Biobase::pData(rdsObj)$total.reads
 
 # set whitelisted ref_genome_bins for fixed bin size
@@ -110,21 +110,21 @@ for(i in 1:length(ploidies)){
   rowres <- data.frame()
   for(j in 1:length(purities)){
     purity <- purities[j]
-    
+
     gridVals <- rswgsabsolutecn::gridStats(obj = relcn,ploidy = ploidy,purity = purity)
-    
+
     downsample_depth <- rswgsabsolutecn::getDownsampleDepth(ploidy,purity,nbins_ref_genome)
     num_segs <- length(rle(as.numeric(gridVals$seg))$values)
-    
+
     errors <- rswgsabsolutecn::getErrors(data = gridVals)
-    
+
     targetCNVal <- median(gridVals$seg[gene_bin_seg])
     TP53cn <- round(rswgsabsolutecn::depthtocn(targetCNVal,purity,gridVals$seqdepth),1) # to 1 decimal place
     expected_TP53_AF <- TP53cn * purity / (TP53cn * purity + 2 * (1-purity))
-    
+
     hmzyg <- sum(gridVals$abs_seg <= homozygous_thrsh) * bin_size
     powered <- downsample_depth < total_reads
-    
+
     r <- c(ploidy,purity,num_segs,errors,downsample_depth,
            powered,TP53cn,expected_TP53_AF,hmzyg)
     r <- as.data.frame(t(r))
@@ -165,18 +165,18 @@ write.table(filteredTables$pruned,fitOut,
 
 ll <- nrow(filteredTables$pruned)
 png(plotOut,type = "cairo", w= 450*ll, h = 350)
-par(mfrow = c(1,ll)) 
+par(mfrow = c(1,ll))
 for(n in 1:nrow(filteredTables$pruned)){
-  
+
   ploidy <- filteredTables$pruned[n,]$ploidy
   purity <- filteredTables$pruned[n,]$purity
-  
+
   gridValsPlot <- rswgsabsolutecn::gridStats(obj = relcn,ploidy = ploidy,purity = purity)
   errors <- rswgsabsolutecn::getErrors(gridValsPlot)
-  
+
   Biobase::assayDataElement(relcn,"copynumber") <- gridValsPlot$abs_cn
   Biobase::assayDataElement(relcn,"segmented") <- gridValsPlot$abs_seg
-  
+
   rswgsabsolutecn::plotProfile(relcn,ploidy = ploidy,purity = purity,
               clonality = errors["clonality"],rmse = errors["rmse"])
 }

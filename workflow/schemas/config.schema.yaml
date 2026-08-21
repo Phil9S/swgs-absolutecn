@@ -84,6 +84,9 @@ properties:
   errorMetric:
     type: string
     enum: ["clonality","segvariance","rmse"]
+  computeSigs:
+    type: string
+    enum: ["TRUE","FALSE"]
 
 # entries that have to be in the config file for successful validation
 required:
@@ -109,4 +112,5 @@ required:
   - flagThreshold
   - fitMethod
   - errorMetric
+  - computeSigs
 
