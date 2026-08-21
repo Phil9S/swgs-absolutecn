@@ -18,6 +18,9 @@ RUN export TAR="tar --no-same-permissions --no-same-owner" && \
 RUN export TAR="tar --no-same-permissions --no-same-owner" && \
 	export TMPDIR=/tmp && \
 	pixi run Rscript -e 'remotes::install_github(repo = "markowetzlab/r-swgs-absolutecn",quiet=TRUE,upgrade=FALSE,force=FALSE)'
+RUN export TAR="tar --no-same-permissions --no-same-owner" && \
+        export TMPDIR=/tmp && \
+        pixi run Rscript -e 'remotes::install_github(repo = "markowetzlab/cinsignaturequantification",quiet=TRUE,upgrade=FALSE,force=FALSE)'
 
 FROM debian:12-slim AS production
 RUN TZ=Etc/UTC && \
