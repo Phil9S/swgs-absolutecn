@@ -1,7 +1,7 @@
 ## Run CINSignatureQuant on swgs-abscn results
 args <- commandArgs(trailingOnly=T)
 
-# Library loading needed for package data as CINSignatureQuantification package
+# Explicit library loading needed for package data as CINSignatureQuantification package
 # does not explicitly reference datasets
 library(CINSignatureQuantification)
 
@@ -11,14 +11,14 @@ if(exists("snakemake")){
   tsvOutMac <- snakemake@output[["tsvMac"]]
   bin <- as.numeric(snakemake@params[["bin"]])
   project <- snakemake@params[["project"]]
-  genome <- as.character(snakemake@params[["genome"]]) # hg19 or hg38
+  genome <- as.character(snakemake@params[["genome"]])
   sampleName <- as.character(snakemake@params[["sample"]])
 } else {
-  opts <- optparse::parse_args(rswgsabsolutecn::setArgs(script = "gridsearch"))
-  
+  opts <- optparse::parse_args(rswgsabsolutecn::setArgs(script = "computeSignatures"))
+
   tsv <- opts$tsv
-  tsvOutDrews <- opts$tsvOut
-  tsvOutMac <- opts$tsvOut
+  tsvOutDrews <- opts$tsvDrews
+  tsvOutMac <- opts$tsvMac
   bin <- as.numeric(opts$bin)
   project <- opts$project
   genome <- opts$genome
@@ -33,7 +33,7 @@ segs$start <- as.numeric(segs$start)
 segs$end <- as.numeric(segs$end)
 segs$segVal <- as.numeric(segs$segVal)
 segs$segVal[segs$segVal < 0] <- 0
-## Generate 
+## Generate
 cnsigs_drews <- CINSignatureQuantification::quantifyCNSignatures(segs,
                                                                  experimentName = projectBin,
                                                                  method = "drews",build = genome)

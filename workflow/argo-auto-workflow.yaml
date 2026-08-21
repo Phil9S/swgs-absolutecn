@@ -201,6 +201,21 @@ spec:
                   value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/absolute_POST_down_sampling/{{item.sampleId}}/abs_cn_rds/plots/{{item.sampleId}}.png"
             withParam: "{{workflow.parameters.samples}}"
 
+          - name: compute-signatures
+            dependencies: [rel-to-abs]
+            template: compute-signatures
+            arguments:
+              parameters:
+                - name: sampleId
+                  value: "{{item.sampleId}}"
+                - name: segTable
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/absolute_POST_down_sampling/{{item.sampleId}}/abs_cn_rds/{{workflow.parameters.projectName}}_{{item.sampleId}}_{{workflow.parameters.bin}}kb_ds_absCopyNumber_segTable.tsv"
+                - name: tsvDrews
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/cin_signatures/{{item.sampleId}}/{{workflow.parameters.projectName}}_{{item.sampleId}}_{{workflow.parameters.bin}}kb_DREWS_CIN_signature_acts.tsv"
+                - name: tsvMac
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/cin_signatures/{{item.sampleId}}/{{workflow.parameters.projectName}}_{{item.sampleId}}_{{workflow.parameters.bin}}kb_MAC_CIN_signature_acts.tsv"
+            withParam: "{{workflow.parameters.samples}}"
+
     - name: bam-check
       inputs:
         parameters:
@@ -398,3 +413,28 @@ spec:
               --rdsOut "{{inputs.parameters.rdsOut}}" \
               --tabOut "{{inputs.parameters.tabOut}}" \
               --plotOut "{{inputs.parameters.plotOut}}"
+
+    - name: compute-signatures
+      inputs:
+        parameters:
+          - name: sampleId
+          - name: segTable
+          - name: tsvDrews
+          - name: tsvMac
+      container:
+        image: "{{workflow.parameters.workflowImage}}"
+        volumeMounts:
+          - name: bam-data
+            mountPath: /mnt/data
+        command: ["bash", "-c"]
+        args:
+          - |
+            mkdir -p "$(dirname "{{inputs.parameters.tsvDrews}}")"
+            Rscript /workspace/workflow/scripts/computeSignatures.R \
+              --tsv "{{inputs.parameters.segTable}}" \
+              --tsvDrews "{{inputs.parameters.tsvDrews}}" \
+              --tsvMac "{{inputs.parameters.tsvMac}}" \
+              --bin "{{workflow.parameters.bin}}" \
+              --project "{{workflow.parameters.projectName}}" \
+              --genome "{{workflow.parameters.genome}}" \
+              --sampleName "{{inputs.parameters.sampleId}}"
