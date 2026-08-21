@@ -1,0 +1,400 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: swgs-auto-
+spec:
+  serviceAccountName: argo-workflow
+  entrypoint: auto-pipeline
+  arguments:
+    parameters:
+      - name: workflowImage
+        value: phil9s/swgs-absolutecn:latest
+      - name: projectName
+        value: example_run
+      - name: bin
+        value: "30"
+      - name: outDir
+        value: /mnt/data/results/
+      - name: samplesheet
+        value: /mnt/data/sample_sheet.tsv
+      - name: samples
+        value: |
+          [
+            {"sampleId": "SAMPLE_1", "bam": "/mnt/data/RMNISTHS_0_point_1xdownsample.bam"}
+          ]
+      - name: genome
+        value: hg19
+      - name: fileType
+        value: BAM
+      - name: reference
+        value: ""
+      - name: pairedEnd
+        value: "TRUE"
+      - name: useSeed
+        value: "TRUE"
+      - name: seedVal
+        value: "9999"
+      - name: autoSmooth
+        value: "FALSE"
+      - name: smoothThreshold
+        value: "300"
+      - name: ploidyMin
+        value: "1.6"
+      - name: ploidyMax
+        value: "8.0"
+      - name: purityMin
+        value: "0.15"
+      - name: purityMax
+        value: "1.0"
+      - name: homozygousThreshold
+        value: "0.4"
+      - name: afCutoff
+        value: "0.15"
+      - name: filterUnderpowered
+        value: "FALSE"
+      - name: filterHomozygous
+        value: "TRUE"
+      - name: homozygousProp
+        value: "10000000"
+      - name: flagThreshold
+        value: "0.84"
+      - name: fitMethod
+        value: errorOnly
+      - name: errorMetric
+        value: clonality
+      - name: prplpu
+        value: "FALSE"
+  volumes:
+    - name: bam-data
+      hostPath:
+        path: /mnt/data
+  templates:
+    - name: auto-pipeline
+      dag:
+        tasks:
+          - name: bam-check
+            template: bam-check
+            arguments:
+              parameters:
+                - name: bam
+                  value: "{{item.bam}}"
+                - name: sampleId
+                  value: "{{item.sampleId}}"
+                - name: fileType
+                  value: "{{workflow.parameters.fileType}}"
+                - name: okOut
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/bams/{{item.sampleId}}_bam.ok"
+            withParam: "{{workflow.parameters.samples}}"
+
+          - name: process-bam
+            dependencies: [bam-check]
+            template: process-bam
+            arguments:
+              parameters:
+                - name: bam
+                  value: "{{item.bam}}"
+                - name: sampleId
+                  value: "{{item.sampleId}}"
+                - name: bamOut
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/bams/{{item.sampleId}}.bam"
+            withParam: "{{workflow.parameters.samples}}"
+
+          - name: rel-rds
+            dependencies: [process-bam]
+            template: qdnaseq-mod
+            arguments:
+              parameters:
+                - name: bam
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/bams/{{item.sampleId}}.bam"
+                - name: sampleId
+                  value: "{{item.sampleId}}"
+                - name: meta
+                  value: "{{workflow.parameters.samplesheet}}"
+                - name: rdsOut
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/absolute_PRE_down_sampling/{{item.sampleId}}/relative_cn_rds/{{workflow.parameters.projectName}}_{{item.sampleId}}_{{workflow.parameters.bin}}kb_relSmoothedCN.rds"
+            withParam: "{{workflow.parameters.samples}}"
+
+          - name: gridsearch
+            dependencies: [rel-rds]
+            template: gridsearch
+            arguments:
+              parameters:
+                - name: rds
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/absolute_PRE_down_sampling/{{item.sampleId}}/relative_cn_rds/{{workflow.parameters.projectName}}_{{item.sampleId}}_{{workflow.parameters.bin}}kb_relSmoothedCN.rds"
+                - name: meta
+                  value: "{{workflow.parameters.samplesheet}}"
+                - name: sampleId
+                  value: "{{item.sampleId}}"
+                - name: tsvOut
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/absolute_PRE_down_sampling/{{item.sampleId}}/clonality_results/{{workflow.parameters.projectName}}_{{item.sampleId}}_clonality.tsv"
+                - name: pdfOut
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/absolute_PRE_down_sampling/{{item.sampleId}}/clonality_results/{{workflow.parameters.projectName}}_{{item.sampleId}}_clonality.pdf"
+                - name: filtOut
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/absolute_PRE_down_sampling/{{item.sampleId}}/{{workflow.parameters.projectName}}_{{item.sampleId}}_filtered_results.tsv"
+                - name: fitOut
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/absolute_PRE_down_sampling/{{item.sampleId}}/{{workflow.parameters.projectName}}_{{item.sampleId}}_fit_QC_predownsample.tsv"
+                - name: plotOut
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/absolute_PRE_down_sampling/{{item.sampleId}}/plots/{{item.sampleId}}.png"
+            withParam: "{{workflow.parameters.samples}}"
+
+          - name: autofit
+            dependencies: [gridsearch]
+            template: autofit
+            arguments:
+              parameters:
+                - name: tsv
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/absolute_PRE_down_sampling/{{item.sampleId}}/{{workflow.parameters.projectName}}_{{item.sampleId}}_fit_QC_predownsample.tsv"
+                - name: tsvOut
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/absolute_POST_down_sampling/{{item.sampleId}}/{{workflow.parameters.projectName}}_{{item.sampleId}}_fitted_QC.tsv"
+            withParam: "{{workflow.parameters.samples}}"
+
+          - name: downsample
+            dependencies: [autofit]
+            template: downsample-bams
+            arguments:
+              parameters:
+                - name: bam
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/bams/{{item.sampleId}}.bam" 
+                - name: meta
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/absolute_POST_down_sampling/{{item.sampleId}}/{{workflow.parameters.projectName}}_{{item.sampleId}}_fitted_QC.tsv"
+                - name: rds
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/absolute_PRE_down_sampling/{{item.sampleId}}/relative_cn_rds/{{workflow.parameters.projectName}}_{{item.sampleId}}_{{workflow.parameters.bin}}kb_relSmoothedCN.rds"
+                - name: bamOut
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/absolute_POST_down_sampling/downsampled_bams/{{item.sampleId}}.bam"
+                - name: sampleId
+                  value: "{{item.sampleId}}"
+            withParam: "{{workflow.parameters.samples}}"
+
+          - name: ds-rel-rds
+            dependencies: [downsample]
+            template: qdnaseq-mod
+            arguments:
+              parameters:
+                - name: bam
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/absolute_POST_down_sampling/downsampled_bams/{{item.sampleId}}.bam"
+                - name: sampleId
+                  value: "{{item.sampleId}}"
+                - name: meta
+                  value: "{{workflow.parameters.samplesheet}}"
+                - name: rdsOut
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/absolute_POST_down_sampling/{{item.sampleId}}/relative_cn_rds/{{workflow.parameters.projectName}}_{{item.sampleId}}_{{workflow.parameters.bin}}kb_relSmoothedCN.rds"
+            withParam: "{{workflow.parameters.samples}}"
+
+          - name: rel-to-abs
+            dependencies: [ds-rel-rds, autofit]
+            template: qdnaseq-rel-to-abs
+            arguments:
+              parameters:
+                - name: rds
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/absolute_POST_down_sampling/{{item.sampleId}}/relative_cn_rds/{{workflow.parameters.projectName}}_{{item.sampleId}}_{{workflow.parameters.bin}}kb_relSmoothedCN.rds"
+                - name: meta
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/absolute_POST_down_sampling/{{item.sampleId}}/{{workflow.parameters.projectName}}_{{item.sampleId}}_fitted_QC.tsv"
+                - name: sampleId
+                  value: "{{item.sampleId}}"
+                - name: tsvOut
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/absolute_POST_down_sampling/{{item.sampleId}}/abs_cn_rds/{{workflow.parameters.projectName}}_{{item.sampleId}}_{{workflow.parameters.bin}}kb_ds_abs_fits.tsv"
+                - name: rdsOut
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/absolute_POST_down_sampling/{{item.sampleId}}/abs_cn_rds/{{workflow.parameters.projectName}}_{{item.sampleId}}_{{workflow.parameters.bin}}kb_ds_absCopyNumber.rds"
+                - name: tabOut
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/absolute_POST_down_sampling/{{item.sampleId}}/abs_cn_rds/{{workflow.parameters.projectName}}_{{item.sampleId}}_{{workflow.parameters.bin}}kb_ds_absCopyNumber_segTable.tsv"
+                - name: plotOut
+                  value: "{{workflow.parameters.outDir}}sWGS_fitting/{{workflow.parameters.projectName}}_{{workflow.parameters.bin}}kb/absolute_POST_down_sampling/{{item.sampleId}}/abs_cn_rds/plots/{{item.sampleId}}.png"
+            withParam: "{{workflow.parameters.samples}}"
+
+    - name: bam-check
+      inputs:
+        parameters:
+          - name: bam
+          - name: sampleId
+          - name: fileType
+          - name: okOut
+      container:
+        image: "{{workflow.parameters.workflowImage}}"
+        volumeMounts:
+          - name: bam-data
+            mountPath: /mnt/data
+        command: ["bash", "-c"]
+        args:
+          - |
+            mkdir -p "$(dirname "{{inputs.parameters.okOut}}")"
+            Rscript /workspace/workflow/scripts/bamCheck.R \
+              --bam "{{inputs.parameters.bam}}" \
+              --fileType "{{inputs.parameters.fileType}}" \
+              --okOut "{{inputs.parameters.okOut}}"
+
+    - name: process-bam
+      inputs:
+        parameters:
+          - name: bam
+          - name: sampleId
+          - name: bamOut
+      container:
+        image: "{{workflow.parameters.workflowImage}}"
+        volumeMounts:
+          - name: bam-data
+            mountPath: /mnt/data
+        command: ["bash", "-c"]
+        args:
+          - |
+            mkdir -p "$(dirname "{{inputs.parameters.bamOut}}")"
+            if [ "{{workflow.parameters.fileType}}" = "CRAM" ]; then
+              samtools view -b \
+                -T "{{workflow.parameters.reference}}" \
+                "{{inputs.parameters.bam}}" > "{{inputs.parameters.bamOut}}"
+              samtools index "{{inputs.parameters.bamOut}}"
+            else
+              cp -P "{{inputs.parameters.bam}}" "{{inputs.parameters.bamOut}}"
+              samtools index "{{inputs.parameters.bamOut}}"
+            fi
+
+    - name: qdnaseq-mod
+      inputs:
+        parameters:
+          - name: bam
+          - name: sampleId
+          - name: meta
+          - name: rdsOut
+      container:
+        image: "{{workflow.parameters.workflowImage}}"
+        volumeMounts:
+          - name: bam-data
+            mountPath: /mnt/data
+        command: ["bash", "-c"]
+        args:
+          - |
+            mkdir -p "$(dirname "{{inputs.parameters.rdsOut}}")"
+            Rscript workflow/scripts/qdnaseqMod.R \
+              --bin "{{workflow.parameters.bin}}" \
+              --sampleName "{{inputs.parameters.sampleId}}" \
+              --meta "{{inputs.parameters.meta}}" \
+              --bam "{{inputs.parameters.bam}}" \
+              --rdsOut "{{inputs.parameters.rdsOut}}" \
+              --genome "{{workflow.parameters.genome}}" \
+              --autoSmooth "{{workflow.parameters.autoSmooth}}" \
+              --smoothThreshold "{{workflow.parameters.smoothThreshold}}" \
+              --use_seed "{{workflow.parameters.useSeed}}" \
+              --seed_val "{{workflow.parameters.seedVal}}" \
+              --pairedEnd "{{workflow.parameters.pairedEnd}}"
+
+    - name: gridsearch
+      inputs:
+        parameters:
+          - name: rds
+          - name: meta
+          - name: sampleId
+          - name: tsvOut
+          - name: pdfOut
+          - name: filtOut
+          - name: fitOut
+          - name: plotOut
+      container:
+        image: "{{workflow.parameters.workflowImage}}"
+        volumeMounts:
+          - name: bam-data
+            mountPath: /mnt/data
+        command: ["bash", "-c"]
+        args:
+          - |
+            mkdir -p "$(dirname "{{inputs.parameters.tsvOut}}")"
+            mkdir -p "$(dirname "{{inputs.parameters.plotOut}}")"
+            Rscript workflow/scripts/gridsearch.R \
+              --rds "{{inputs.parameters.rds}}" \
+              --meta "{{inputs.parameters.meta}}" \
+              --pdfOut "{{inputs.parameters.pdfOut}}" \
+              --tsvOut "{{inputs.parameters.tsvOut}}" \
+              --plotOut "{{inputs.parameters.plotOut}}" \
+              --filtOut "{{inputs.parameters.filtOut}}" \
+              --fitOut "{{inputs.parameters.fitOut}}" \
+              --bin "{{workflow.parameters.bin}}" \
+              --project "{{workflow.parameters.projectName}}" \
+              --genome "{{workflow.parameters.genome}}" \
+              --pl_min "{{workflow.parameters.ploidyMin}}" \
+              --pl_max "{{workflow.parameters.ploidyMax}}" \
+              --pu_min "{{workflow.parameters.purityMin}}" \
+              --pu_max "{{workflow.parameters.purityMax}}" \
+              --sampleName "{{inputs.parameters.sampleId}}" \
+              --af_cutoff "{{workflow.parameters.afCutoff}}" \
+              --filter_underpowered "{{workflow.parameters.filterUnderpowered}}" \
+              --filter_homozygous "{{workflow.parameters.filterHomozygous}}" \
+              --homozygous_prop "{{workflow.parameters.homozygousProp}}" \
+              --homozygous_thrsh "{{workflow.parameters.homozygousThreshold}}"
+
+    - name: autofit
+      inputs:
+        parameters:
+          - name: tsv
+          - name: tsvOut
+      container:
+        image: "{{workflow.parameters.workflowImage}}"
+        volumeMounts:
+          - name: bam-data
+            mountPath: /mnt/data
+        command: ["bash", "-c"]
+        args:
+          - |
+            mkdir -p "$(dirname "{{inputs.parameters.tsvOut}}")"
+            Rscript workflow/scripts/autofit.R \
+              --tsv "{{inputs.parameters.tsv}}" \
+              --tsvOut "{{inputs.parameters.tsvOut}}" \
+              --flagThreshold "{{workflow.parameters.flagThreshold}}" \
+              --fitMethod "{{workflow.parameters.fitMethod}}" \
+              --errorMetric "{{workflow.parameters.errorMetric}}"
+
+    - name: downsample-bams
+      inputs:
+        parameters:
+          - name: bam
+          - name: meta
+          - name: rds
+          - name: bamOut
+          - name: sampleId
+      container:
+        image: "{{workflow.parameters.workflowImage}}"
+        volumeMounts:
+          - name: bam-data
+            mountPath: /mnt/data
+        command: ["bash", "-c"]
+        args:
+          - |
+            mkdir -p "$(dirname "{{inputs.parameters.bamOut}}")"
+            Rscript workflow/scripts/downsampleBams.R \
+              --bam "{{inputs.parameters.bam}}" \
+              --meta "{{inputs.parameters.meta}}" \
+              --rds "{{inputs.parameters.rds}}" \
+              --bamOut "{{inputs.parameters.bamOut}}" \
+              --sampleName "{{inputs.parameters.sampleId}}" \
+              --prplpu "{{workflow.parameters.prplpu}}" \
+              --fileType "{{workflow.parameters.fileType}}" \
+              --reference "{{workflow.parameters.reference}}"
+
+    - name: qdnaseq-rel-to-abs
+      inputs:
+        parameters:
+          - name: rds
+          - name: meta
+          - name: sampleId
+          - name: tsvOut
+          - name: rdsOut
+          - name: tabOut
+          - name: plotOut
+      container:
+        image: "{{workflow.parameters.workflowImage}}"
+        volumeMounts:
+          - name: bam-data
+            mountPath: /mnt/data
+        command: ["bash", "-c"]
+        args:
+          - |
+            mkdir -p "$(dirname "{{inputs.parameters.tsvOut}}")"
+            mkdir -p "$(dirname "{{inputs.parameters.plotOut}}")"
+            Rscript workflow/scripts/qdnaseqRelToAbs.R \
+              --rds "{{inputs.parameters.rds}}" \
+              --meta "{{inputs.parameters.meta}}" \
+              --bin "{{workflow.parameters.bin}}" \
+              --project "{{workflow.parameters.projectName}}" \
+              --genome "{{workflow.parameters.genome}}" \
+              --sampleName "{{inputs.parameters.sampleId}}" \
+              --tsvOut "{{inputs.parameters.tsvOut}}" \
+              --rdsOut "{{inputs.parameters.rdsOut}}" \
+              --tabOut "{{inputs.parameters.tabOut}}" \
+              --plotOut "{{inputs.parameters.plotOut}}"
