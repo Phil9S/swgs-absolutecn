@@ -3,7 +3,7 @@ kind: Workflow
 metadata:
   generateName: swgs-auto-
 spec:
-  serviceAccountName: argo-workflow
+  serviceAccountName: argo
   entrypoint: auto-pipeline
   arguments:
     parameters:
