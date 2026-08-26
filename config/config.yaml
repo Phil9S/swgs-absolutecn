@@ -78,5 +78,5 @@ fitMethod: "errorOnly"
 errorMetric: "clonality"
 
 # Compute CIN signatures (auto only)
-# Default FALSE
-computeSigs: 'TRUE'
+## Default FALSE
+computeSigs: 'FALSE'

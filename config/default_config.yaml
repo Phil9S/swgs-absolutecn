@@ -79,4 +79,4 @@ errorMetric: "clonality"
 
 # Compute CIN signatures (auto only)
 ## Default FALSE
-computeSigs: 'TRUE'
+computeSigs: 'FALSE'

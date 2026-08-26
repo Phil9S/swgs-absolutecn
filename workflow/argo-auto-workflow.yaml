@@ -149,6 +149,7 @@ spec:
           - name: compute-signatures
             dependencies: [rel-to-abs]
             template: compute-signatures
+            when: "{{workflow.parameters.computeSigs}} == TRUE"
             arguments:
               parameters:
                 - name: sampleId
