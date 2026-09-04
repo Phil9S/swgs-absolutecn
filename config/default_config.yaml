@@ -78,5 +78,6 @@ fitMethod: "errorOnly"
 errorMetric: "clonality"
 
 # Compute CIN signatures (auto only)
+## Requires installation of CINSignatureQuantification R package
 ## Default FALSE
 computeSigs: 'FALSE'

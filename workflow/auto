@@ -41,6 +41,17 @@ else:
                 bin=config["bins"],
             )
 
+if SIGS == "TRUE":
+    try:
+        subprocess.run(["Rscript", "-e",
+            'if (!requireNamespace("CINSignatureQuantification", quietly=TRUE)) quit(status=1)'],
+            check=True)
+    except subprocess.CalledProcessError:
+        raise WorkflowError(
+            "computeSigs = TRUE but CINSignatureQuantification is not installed.\n"
+            "See README section 'Optional - CINSignatureQuantification' for install instructions"
+            " and license terms (non-commercial use only)."
+        )
 # pipeline rules
 include: "rules/bam_check.smk"
 include: "rules/process_bam.smk"

@@ -3,6 +3,20 @@ args <- commandArgs(trailingOnly=T)
 
 # Explicit library loading needed for package data as CINSignatureQuantification package
 # does not explicitly reference datasets
+if (!requireNamespace("CINSignatureQuantification", quietly = TRUE)) {
+  stop(
+    "\nCINSignatureQuantification is required when computeSigs = TRUE.\n\n",
+    "This package is licensed under the GAP Available Source License v1.0 ",
+    "(non-commercial academic use only,\n see https://github.com/markowetzlab/CINSignatureQuantification/blob/main/LICENSE)",
+    "and is NOT bundled with this pipeline for that reason.\n\n",
+    "To install it run:\n",
+    "Rscript -e 'remotes::install_github(\"markowetzlab/CINSignatureQuantification\")'\n\n",
+    "By installing it you agree to its license terms, including the non-commercial restriction."
+				      )
+}
+
+# Licensed under GAP ASL v1.0 (see LICENSE-ASL), because this script
+# depends on and is a derivative interface to CINSignatureQuantification.
 library(CINSignatureQuantification)
 
 if(exists("snakemake")){

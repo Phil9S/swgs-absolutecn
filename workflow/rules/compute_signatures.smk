@@ -12,7 +12,7 @@ rule compute_signatures:
     log:
         "logs/compute_signatures_{project}_{bin}kb_{sample}.log",
     container:
-        "docker://phil9s/cinsignaturequantification:latest"
+        ""
     params:
         bin="{bin}",
         genome=config["genome"],
