@@ -1,3 +1,16 @@
 logs/*
+sample_sheet.tsv
 .snakemake/
 profile/slurm/__pycache__/
+scripts/.Rhistory
+.Rhistory
+lock
+.cache/
+.pixi/
+*.svg
+results/*
+!results/.dir
+data/
+# pixi environments
+.pixi/*
+!.pixi/config.toml

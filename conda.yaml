@@ -1,0 +1,25 @@
+name: swgs-abscn
+channels:
+  - conda-forge
+  - bioconda 
+dependencies:
+  - r-base=4.3.3
+  - snakemake>=8.0.0
+  - snakemake-executor-plugin-slurm
+  - snakemake-executor-plugin-lsf
+  - python
+  - pandas
+  - samtools
+  - bioconductor-biobase
+  - bioconductor-biocgenerics
+  - r-tidyverse
+  - r-matrixstats
+  - r-plyr
+  - bioconductor-qdnaseq
+  - bioconductor-qdnaseq.hg19
+  - r-remotes
+  - r-ranger
+  - r-parsnip
+  - r-optparse
+  - pytest
+
