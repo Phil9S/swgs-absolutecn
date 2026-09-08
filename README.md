@@ -237,6 +237,29 @@ It is good practice to perform the quality control on `stage_2` outputs as well.
 
 Due to backwards compatibility, staged output is identical to `auto` but sample-level outputs are concatonated into three files containing all the data from each sample.
 
+## Optional step - CINSignatureQuantification
+
+The `swgs-absolutecn` pipeline contains code automatically to compute [CIN signatures](https://github.com/markowetzlab/CINSignatureQuantification) for the fitted profiles. By default the required R package, `CINSignatureQuantification`, is not included due to licensing constraints and must be manually installed by the user.
+
+Users are soley responsible for ensuring adherment to the [license agreement](https://github.com/markowetzlab/CINSignatureQuantification#licence).
+
+#### Virtual environment
+
+For virtual environment-based installs users can activate the installed environment and install the package from github into the environment libaries
+
+```
+Rscript -e 'remotes::install_github("markowetzlab/CINSignatureQuantification")'
+```
+
+#### Container
+
+For container-based users, modifications should be made to the `compute_signatures.smk` snakemake rule found in the `workflow/rules/` directory. The URL of the `CINSignatureQuantification` should be added to the `container` parameter.
+
+```
+container:
+  "docker://phil9s/cinsignaturequantification:latest"
+```
+
 ## Further details
 
 ### Profile troubleshooting
