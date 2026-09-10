@@ -254,14 +254,13 @@ Rscript -e 'remotes::install_github("markowetzlab/CINSignatureQuantification")'
 
 #### Container
 
-For container-based users, modifications should be made to the `compute_signatures.smk` snakemake rule found in the `workflow/rules/` directory. The URL of the `CINSignatureQuantification` should be added to the `container` parameter.
+Edit the config parameter `cinsigimage` to the URL or location of the `CINSignatureQuantification` container which will then be pulled by snakemake on job execution.
 
 ```
-container:
-  "docker://phil9s/cinsignaturequantification:latest"
+cinsigimage: "docker://phil9s/cinsignaturequantification:latest"
 ```
 
-Users can then set `computeSigs` in the config to `TRUE` when running the `auto` fitting workflow and CIN signatures will be automatically generated for each fitted sample.
+Users can then set `computeSigs` in the config to `TRUE` when running the fitting workflow and CIN signatures will be automatically generated and written to the `cin_signatures` directory.
 
 ## Further details
 
