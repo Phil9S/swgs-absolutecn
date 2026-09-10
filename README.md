@@ -242,7 +242,7 @@ Due to backwards compatibility, staged output is identical to `auto` but sample-
 
 The `swgs-absolutecn` pipeline contains code automatically to compute [CIN signatures](https://github.com/markowetzlab/CINSignatureQuantification) for the fitted profiles. By default the required R package, `CINSignatureQuantification`, is not included due to licensing constraints and must be manually installed by the user.
 
-Users are soley responsible for ensuring adherment to the [license agreement](https://github.com/markowetzlab/CINSignatureQuantification#licence).
+Users are soley responsible for ensuring adherence to the [license agreement](https://github.com/markowetzlab/CINSignatureQuantification#licence).
 
 #### Virtual environment
 
