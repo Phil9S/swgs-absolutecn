@@ -34,6 +34,7 @@ ENV LANGUAGE=C.UTF-8
 COPY . /workspace
 WORKDIR /app
 COPY . .
+COPY LICENSE /licenses/LICENSE
 # only copy the production environment into prod container
 # please note that the "prefix" (path) needs to stay the same as in the build container
 COPY --from=build /app/.pixi/envs/default /app/.pixi/envs/default

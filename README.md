@@ -143,6 +143,7 @@ Parameters here adjust the implemention type, error metrics, and flagging proced
 |flagThreshold|0.84|Probability threshold at which to flag samples as potentially poor|float|0.0-1.0|
 fitMethod|"errorOnly"|Autofitting method to use to select best fit from gridsearch|string|"errorOnly","randforest"|
 |errorMetric|"clonality"|Error metric used to determine best fit or tiebreaking procedure autofitting|string|"clonality","segvariance","rmse"|
+computeSigs|"FALSE"|Compute [CIN signatures](https://github.com/markowetzlab/CINSignatureQuantification/) on fitted profiles - see [here](#optional-step---cinsignaturequantification)|bool|"TRUE","FALSE"|
 </details>
 
 <details>
@@ -236,6 +237,30 @@ It is good practice to perform the quality control on `stage_2` outputs as well.
 ### Staged
 
 Due to backwards compatibility, staged output is identical to `auto` but sample-level outputs are concatonated into three files containing all the data from each sample.
+
+## Optional step - CINSignatureQuantification
+
+The `swgs-absolutecn` pipeline contains code automatically to compute [CIN signatures](https://github.com/markowetzlab/CINSignatureQuantification) for the fitted profiles. By default the required R package, `CINSignatureQuantification`, is not included due to licensing constraints and must be manually installed by the user.
+
+Users are soley responsible for ensuring adherence to the [license agreement](https://github.com/markowetzlab/CINSignatureQuantification#licence).
+
+#### Virtual environment
+
+For virtual environment-based installs users can install the environment as detailed, activate the installed environment, and install the package from github into the environment libaries
+
+```
+Rscript -e 'remotes::install_github("markowetzlab/CINSignatureQuantification")'
+```
+
+#### Container
+
+Edit the config parameter `cinsigimage` to the URL or location of the `CINSignatureQuantification` container which will then be pulled by snakemake on job execution.
+
+```
+cinsigimage: "docker://phil9s/cinsignaturequantification:latest"
+```
+
+Users can then set `computeSigs` in the config to `TRUE` when running the fitting workflow and CIN signatures will be automatically generated and written to the `cin_signatures` directory.
 
 ## Further details
 

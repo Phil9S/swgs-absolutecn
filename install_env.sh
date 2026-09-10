@@ -10,8 +10,6 @@ echo -e "[${script}] Installing additional packages - QDNAseqmod package"
 Rscript -e 'remotes::install_github(repo = "markowetzlab/QDNAseqmod",quiet=TRUE,upgrade=FALSE,force=FALSE)'
 echo -e "[${script}] Installing additional packages - rswgsabsolutecn package"
 Rscript -e 'remotes::install_github(repo = "markowetzlab/r-swgs-absolutecn",quiet=TRUE,upgrade=FALSE,force=FALSE)'
-echo -e "[${script}] Installing additional packages - CINSignatureQuantification package"
-Rscript -e 'remotes::install_github(repo = "markowetzlab/CINSignatureQuantification",quiet=TRUE,upgrade=FALSE,force=FALSE)'
 echo -e "[${script}] Testing package installation..."
 Rscript resources/package_load.R
 # END
