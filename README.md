@@ -246,7 +246,7 @@ Users are soley responsible for ensuring adherence to the [license agreement](ht
 
 #### Virtual environment
 
-For virtual environment-based installs users can install the environment as detailed, activate the installed environment, and install the package from github into the environment libaries
+For virtual environment-based installs users can install the environment as follows; activate the installed environment and install the package from github into the environment libraries
 
 ```
 Rscript -e 'remotes::install_github("markowetzlab/CINSignatureQuantification")'
