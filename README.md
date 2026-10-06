@@ -124,7 +124,7 @@ Depending on your data and implementation, amending these parameters may be nece
 |use_seed|"TRUE"|Set whether to use `seed_val` to ensure CBS segmentation returns identical results|bool|"TRUE","FALSE"|
 |seed_val|"9999"|Value of seed to use|string|any string|
 |genome|"hg19"|Name of reference genome to use for QDNAseq bin annotations|string|"hg19","hg38" |
-|filetype|"BAM"|File type of input file - either a aligned BAM or CRAM file|string|"BAM","CRAM"|
+|filetype|"BAM"|File type of input file - either a BAM or CRAM file|string|"BAM","CRAM"|
 |reference|""|File path to the reference used in generation of CRAM files if using the filetype = "CRAM" option|string|file path|
 |pairedEnd|"TRUE"|Boolean whether input files are paired or single end (only affects expected variance)|bool|"TRUE","FALSE"|
 </details>
@@ -158,9 +158,9 @@ Various filters for acceptable ploidy/purity combinations for fitting absolute c
 |af_cutoff|0.15|Maximum difference between expected and observed _TP53_ allele fraction|float|0.0-1.0|
 |filter_underpowered |"TRUE"|Filter ploidy/purity combinations without sufficent read depth support|string bool|"TRUE","FALSE"|
 |ploidy_min|1.6|Minimum ploidy value for gridsearch|float|1.0-20.0|
-|ploidy_max|8.0|Minimum ploidy value for gridsearch|float|1.0-20.0|
+|ploidy_max|8.0|Maximum ploidy value for gridsearch|float|1.0-20.0|
 |purity_min|0.15|Minimum purity value for gridsearch|float|0.0-1.0|
-|purity_max|1.0|Minimum purity value for gridsearch|float|0.0-1.0|
+|purity_max|1.0|Maximum purity value for gridsearch|float|0.0-1.0|
 |filter_homozygous|"TRUE"|Filter fits with homozygous loss greater than `homozygous_prop`|bool|"TRUE","FALSE|
 |homozygous_prop|10000000|Proportion of genome (in basepairs) called as homozygous loss at which to exclude fits|integer|min=0|
 |homozygous_threshold|0.4|Copy nubmer value at which to assign homozygous loss (counted by `homozygous_prop`)|float|0.0-0.99|
