@@ -1,0 +1,28 @@
+[workspace]
+authors = ["Phil9S <philip.smith@cruk.cam.ac.uk>"]
+channels = ["conda-forge", "bioconda"]
+name = "swgs-abscn"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[dependencies]
+r-base = "4.3.3.*"
+snakemake = ">=8.0.0"
+snakemake-executor-plugin-slurm = "*"
+snakemake-executor-plugin-lsf = "*"
+python = "*"
+pandas = "*"
+samtools = "*"
+bioconductor-biobase = "*"
+bioconductor-biocgenerics = "*"
+r-tidyverse = "*"
+r-matrixstats = "*"
+r-plyr = "*"
+bioconductor-qdnaseq = "*"
+"bioconductor-qdnaseq.hg19" = "*"
+r-remotes = "*"
+r-ranger = "*"
+r-parsnip = "*"
+r-optparse = ">=1.7.5,<2"
+pytest = ">=9.1.1,<10"
+
