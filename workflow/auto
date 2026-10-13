@@ -6,7 +6,7 @@ if any(samplesheet.SAMPLE_ID.duplicated()):
 
 if all(samplesheet.precPloidy.notna()) and all(samplesheet.precPurity.notna()):
     sys.exit(
-        "all ploidy and purity values are precomputed - Run `Rscript scripts/processPrecomputed.R` and skip to stage_2"
+        "all ploidy and purity values are precomputed - Run `Rscript workflow/scripts/processPrecomputed.R` and use stage_2"
     )
 
 SAMPLES = list(samplesheet["SAMPLE_ID"].unique())
@@ -14,6 +14,9 @@ SAMPLES = list(samplesheet["SAMPLE_ID"].unique())
 prplpu = "FALSE"
 if all(samplesheet.precPloidy.notna()) and all(samplesheet.precPurity.notna()):
     prplpu = "TRUE"
+
+## Define snakefile as Auto
+AUTO = True
 
 localrules:
     all,
@@ -41,17 +44,6 @@ else:
                 bin=config["bins"],
             )
 
-if SIGS == "TRUE":
-    try:
-        subprocess.run(["Rscript", "-e",
-            'if (!requireNamespace("CINSignatureQuantification", quietly=TRUE)) quit(status=1)'],
-            check=True)
-    except subprocess.CalledProcessError:
-        raise WorkflowError(
-            "computeSigs = TRUE but CINSignatureQuantification is not installed.\n"
-            "See README section 'Optional - CINSignatureQuantification' for install instructions"
-            " and license terms (non-commercial use only)."
-        )
 # pipeline rules
 include: "rules/bam_check.smk"
 include: "rules/process_bam.smk"

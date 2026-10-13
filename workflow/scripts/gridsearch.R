@@ -164,21 +164,23 @@ write.table(filteredTables$pruned,fitOut,
             sep="\t",col.names=T,row.names=F,quote=F)
 
 ll <- nrow(filteredTables$pruned)
-png(plotOut,type = "cairo", w= 450*ll, h = 350)
-par(mfrow = c(1,ll))
-for(n in 1:nrow(filteredTables$pruned)){
 
-  ploidy <- filteredTables$pruned[n,]$ploidy
-  purity <- filteredTables$pruned[n,]$purity
+if(ll > 0){
+  png(plotOut,type = "cairo", w= 450*ll, h = 350)
+  par(mfrow = c(1,ll))
+  for(n in 1:nrow(filteredTables$pruned)){
 
-  gridValsPlot <- rswgsabsolutecn::gridStats(obj = relcn,ploidy = ploidy,purity = purity)
-  errors <- rswgsabsolutecn::getErrors(gridValsPlot)
+    ploidy <- filteredTables$pruned[n,]$ploidy
+    purity <- filteredTables$pruned[n,]$purity
 
-  Biobase::assayDataElement(relcn,"copynumber") <- gridValsPlot$abs_cn
-  Biobase::assayDataElement(relcn,"segmented") <- gridValsPlot$abs_seg
+    gridValsPlot <- rswgsabsolutecn::gridStats(obj = relcn,ploidy = ploidy,purity = purity)
+    errors <- rswgsabsolutecn::getErrors(gridValsPlot)
 
-  rswgsabsolutecn::plotProfile(relcn,ploidy = ploidy,purity = purity,
+    Biobase::assayDataElement(relcn,"copynumber") <- gridValsPlot$abs_cn
+    Biobase::assayDataElement(relcn,"segmented") <- gridValsPlot$abs_seg
+
+    rswgsabsolutecn::plotProfile(relcn,ploidy = ploidy,purity = purity,
               clonality = errors["clonality"],rmse = errors["rmse"])
+  }
+  dev.off()
 }
-dev.off()
-

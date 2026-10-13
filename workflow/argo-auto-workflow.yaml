@@ -368,7 +368,7 @@ spec:
           - name: tsvDrews
           - name: tsvMac
       container:
-        image: ""
+        image: "{{workflow.parameters.cinsigimage}}"
         volumeMounts:
           - name: bam-data
             mountPath: /mnt/data

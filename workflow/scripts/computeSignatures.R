@@ -7,12 +7,12 @@ if (!requireNamespace("CINSignatureQuantification", quietly = TRUE)) {
   stop(
     "\nCINSignatureQuantification is required when computeSigs = TRUE.\n\n",
     "This package is licensed under the GAP Available Source License v1.0 ",
-    "(non-commercial academic use only,\n see https://github.com/markowetzlab/CINSignatureQuantification/blob/main/LICENSE)",
-    "and is NOT bundled with this pipeline for that reason.\n\n",
-    "To install it run:\n",
+    "(non-commercial academic use only) \nand is NOT bundled with this pipeline.",
+    " See https://github.com/markowetzlab/CINSignatureQuantification/blob/main/LICENSE).",
+    "\n\n",
+    "For virtual environment installations run:\n",
     "Rscript -e 'remotes::install_github(\"markowetzlab/CINSignatureQuantification\")'\n\n",
-    "By installing it you agree to its license terms, including the non-commercial restriction."
-				      )
+    "For containerised implementation please see swgs-absolutecn README\n")
 }
 
 # Licensed under GAP ASL v1.0 (see LICENSE-ASL), because this script
@@ -26,7 +26,6 @@ if(exists("snakemake")){
   bin <- as.numeric(snakemake@params[["bin"]])
   project <- snakemake@params[["project"]]
   genome <- as.character(snakemake@params[["genome"]])
-  sampleName <- as.character(snakemake@params[["sample"]])
 } else {
   opts <- optparse::parse_args(rswgsabsolutecn::setArgs(script = "computeSignatures"))
 
@@ -36,7 +35,6 @@ if(exists("snakemake")){
   bin <- as.numeric(opts$bin)
   project <- opts$project
   genome <- opts$genome
-  sampleName <- as.character(opts$sampleName)
 }
 
 projectBin <- paste0(project,"_",bin,"kb")
