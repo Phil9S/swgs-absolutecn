@@ -18,3 +18,4 @@ dependencies:
   - bioconductor-qdnaseq
   - bioconductor-qdnaseq.hg19
   - r-remotes
+  - setuptools<81
