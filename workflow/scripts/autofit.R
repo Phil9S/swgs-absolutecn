@@ -20,7 +20,8 @@ if(exists("snakemake")){
   errorMetric <- opts$errorMetric
 }
 
-fitsTable <- read.table(file = tsv,header=T,sep="\t")
+fitsTable <- read.table(file = tsv,header=T,sep="\t",
+  colClasses = c(SAMPLE_ID = "character", PATIENT_ID = "character"))
 
 if(fitMethod == "randforest"){
   fitModel <- get(utils::data("swgs_abs_rfranger_model",

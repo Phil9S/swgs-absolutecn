@@ -36,7 +36,8 @@ if(exists("snakemake")){
 }
 
 options(scipen = 999)
-metadata <- read.table(file = meta,header=T,sep="\t")
+metadata <- read.table(file = meta,header=T,sep="\t",
+  colClasses = c(SAMPLE_ID = "character", PATIENT_ID = "character"))
 
 # Samples to smooth
 smooth <- unique(metadata$smooth[metadata$SAMPLE_ID == sampleName])

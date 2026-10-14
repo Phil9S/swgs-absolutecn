@@ -26,7 +26,8 @@ options(scipen = 999)
 ## combining stage_2 outputs
 if(!is.null(tab)){
     combinedTab <- do.call(rbind,lapply(tab,FUN = function(x){
-	y <- read.table(x,sep="\t",header = T)
+	y <- read.table(x,sep="\t",header = T,
+    colClasses = c(SAMPLE_ID = "character", PATIENT_ID = "character"))
 	return(y)
     }))
 

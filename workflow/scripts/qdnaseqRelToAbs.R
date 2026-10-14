@@ -9,8 +9,6 @@ if(exists("snakemake")){
   #inputs
   rds <- snakemake@input[["rds"]]
   meta <- snakemake@input[["meta"]]
-  bin <- as.numeric(snakemake@params[["bin"]])
-  project <- snakemake@params[["project"]]
   genome <- snakemake@params[["genome"]]
   sampleName <- snakemake@params[["sample"]]
   tsvOut <- snakemake@output[["tsv"]]
@@ -22,8 +20,6 @@ if(exists("snakemake")){
   
   rds <- opts$rds
   meta <- opts$meta
-  bin <- as.numeric(opts$bin)
-  project <- opts$project
   genome <- opts$genome
   sampleName <-opts$sampleName
   tsvOut <- opts$tsvOut
@@ -35,7 +31,8 @@ if(exists("snakemake")){
 options(scipen = 999)
 `%>%` <- dplyr::`%>%`
 
-metadata <- read.table(meta,header = T,sep = "\t")
+metadata <- read.table(meta,header = T,sep = "\t",
+  colClasses = c(SAMPLE_ID = "character", PATIENT_ID = "character"))
 metadata <- metadata[metadata$use == "TRUE",]
 
 # load rds object
@@ -83,9 +80,9 @@ colnames(res) <- get(utils::data("rel2absColumnNames",package = "rswgsabsolutecn
 
 dsFittingColumnNames <- get(utils::data("dsFittingColumnNames",package = "rswgsabsolutecn",envir = environment()))
 resFormat <- res %>%
-  dplyr::select(-c("ploidy","purity")) %>%
+  dplyr::select(-c("ploidy","purity","PATIENT_ID","TP53freq")) %>%
   dplyr::left_join(.,Biobase::pData(abs_profiles),
-                   by=c("SAMPLE_ID"="name","PATIENT_ID","TP53freq"),
+                   by=c("SAMPLE_ID"="name"),
                    suffix = c(".post",".pre")) %>%
   dplyr::relocate(any_of(dsFittingColumnNames)) %>%
   dplyr::select(-c("pl_diff","new_state_n","new_state","rank_clonality")) %>%

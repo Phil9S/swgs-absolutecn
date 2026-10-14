@@ -15,7 +15,7 @@ sampleName <- snakemake@params[["sample"]]
   sampleName <- opts$sampleName
 }
 
-QCTable <- read.table(tsv,header = T,sep = "\t")
+QCTable <- read.table(tsv,header = T,sep = "\t",colClasses = c(SAMPLE_ID = "character", PATIENT_ID = "character"))
 QCTableSplit <- split(QCTable,f = as.factor(QCTable$SAMPLE_ID))
 
 splitTable <- QCTableSplit[[sampleName]]
