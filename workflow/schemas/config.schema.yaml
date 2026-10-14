@@ -6,20 +6,19 @@ type: object
 
 # possible entries of the config file and which type they should be
 properties:
-  samples:
+  samplesheet:
     type: string
   out_dir:
     type: string
   bins:
     type: number 
     enum: [1,5,15,30,50,100,500,1000]
-    uniqueItems: true
   project_name:
     type: string
   af_cutoff:
     type: number
-    minimum: 0
-    maximum: 1.0
+    exclusiveMinimum: 0
+    exclusiveMaximum: 1.0
   use_seed:
     type: string
     enum: ["TRUE","FALSE"]
@@ -30,19 +29,19 @@ properties:
     enum: ["TRUE","FALSE"]
   ploidy_min:
     type: number
-    minimum: 1
+    exclusiveMinimum: 1
     maximum: 20
   ploidy_max:
     type: number
-    minimum: 1
+    exclusiveMinimum: 1
     maximum: 20
   purity_min:
     type: number
-    minimum: 0
+    exclusiveMinimum: 0
     maximum: 1.0
   purity_max:
     type: number
-    minimum: 0
+    exclusiveMinimum: 0
     maximum: 1.0
   filter_homozygous:
     type: string
@@ -54,7 +53,7 @@ properties:
     type: number
     minimum: 0
     maximum: 0.99
-  image_base_url:
+  workflowimage:
     type: string
   genome:
     type: string
@@ -87,6 +86,8 @@ properties:
   computeSigs:
     type: string
     enum: ["TRUE","FALSE"]
+  cinsigimage:
+    type: string
 
 # entries that have to be in the config file for successful validation
 required:
@@ -113,4 +114,4 @@ required:
   - fitMethod
   - errorMetric
   - computeSigs
-
+  - cinsigimage

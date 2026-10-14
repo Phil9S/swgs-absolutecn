@@ -5,11 +5,9 @@ properties:
   PATIENT_ID: 
     description: "Patient name/identifier (Can be duplicated)"
     type: string
-    uniqueItems: false
   SAMPLE_ID: 
     description: "Unique sample name/identifier"
     type: string
-    uniqueItems: true
   TP53freq: 
     type: number
     minimum: 0
@@ -19,13 +17,13 @@ properties:
     description: "Path for each samples bam file"
     type: string
   smooth: 
-    description: "True or fale boolean as to apply segment smoothing or not"
+    description: "True or false boolean as to apply segment smoothing or not"
     type: boolean
   precPloidy:
     description: "pre-computed sample ploidy"
     anyOf:
       - type: number
-        minimum: 1
+        exclusiveMinimum: 1
         maximum: 20
       - type: string
         enum: ["NA"]
@@ -33,7 +31,7 @@ properties:
     description: "pre-computed sample purity"
     anyOf:
       - type: number
-        minimum: 0
+        exclusiveMinimum: 0
         maximum: 1.0
       - type: string
         enum: ["NA"]

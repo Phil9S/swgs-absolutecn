@@ -81,3 +81,6 @@ errorMetric: "clonality"
 ## Requires installation of CINSignatureQuantification R package
 ## Default FALSE
 computeSigs: 'FALSE'
+# Docker image of CINSignatureQuantification R package
+# Not provided for license reasons, see README for instructions on image location
+cinsigimage: ''

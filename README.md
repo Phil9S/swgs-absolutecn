@@ -144,6 +144,7 @@ Parameters here adjust the implemention type, error metrics, and flagging proced
 fitMethod|"errorOnly"|Autofitting method to use to select best fit from gridsearch|string|"errorOnly","randforest"|
 |errorMetric|"clonality"|Error metric used to determine best fit or tiebreaking procedure autofitting|string|"clonality","segvariance","rmse"|
 computeSigs|"FALSE"|Compute [CIN signatures](https://github.com/markowetzlab/CINSignatureQuantification/) on fitted profiles - see [here](#optional-step---cinsignaturequantification)|bool|"TRUE","FALSE"|
+|cinsigimage|""|Docker/Apptainer image URL for [CIN signatures](https://github.com/markowetzlab/CINSignatureQuantification/) image|string|URL|
 </details>
 
 <details>
@@ -254,10 +255,10 @@ Rscript -e 'remotes::install_github("markowetzlab/CINSignatureQuantification")'
 
 #### Container
 
-Edit the config parameter `cinsigimage` to the URL or location of the `CINSignatureQuantification` container which will then be pulled by snakemake on job execution.
+Edit the config parameter `cinsigimage` to the image URL for `CINSignatureQuantification` container (same format as `workflowimage`), which will then be pulled by snakemake on job execution when running with containers enabled (`--use-singularity`/`--sdm apptainer`).
 
 ```
-cinsigimage: "docker://phil9s/cinsignaturequantification:latest"
+cinsigimage: phil9s/cinsignaturequantification:latest
 ```
 
 Users can then set `computeSigs` in the config to `TRUE` when running the fitting workflow and CIN signatures will be automatically generated and written to the `cin_signatures` directory.
