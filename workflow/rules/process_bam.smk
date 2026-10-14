@@ -22,6 +22,9 @@ if config["filetype"] in ["CRAM"]:
             "samtools view -b -T {params.reference} {input.bam} > {output} && samtools index {output}"
 
 else:
+    # symlinking run locally
+    localrules:
+        sym_link,
 
     rule sym_link:
         input:
@@ -29,10 +32,12 @@ else:
             check=Path(OUT_DIR,"sWGS_fitting/{project}_{bin}kb/bams/{sample}_bam.ok"),
         output:
             expand(Path(OUT_DIR,"sWGS_fitting/{{project}}_{{bin}}kb/bams/{{sample}}.bam")),
+        params:
+            bam_abs=lambda wc, input: os.path.abspath(input.bam),
         log:
             "logs/sym_link_{project}_{bin}kb_{sample}.log",
         container:
             image
         threads: 1
         shell:
-            "ln -s {input.bam} {output}"
+            "ln -s {params.bam_abs} {output}"

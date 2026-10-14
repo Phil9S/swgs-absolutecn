@@ -1,9 +1,6 @@
 # Stage_1 - pre-downsampling workflow.
 include: "rules/common.smk"
 
-if any(samplesheet.SAMPLE_ID.duplicated()):
-    sys.exit("Sample sheet contains duplicated sample ids")
-
 if all(samplesheet.precPloidy.notna()) and all(samplesheet.precPurity.notna()):
     sys.exit(
         "all ploidy and purity values are precomputed - Run `Rscript workflow/scripts/processPrecomputed.R` and skip to stage_2"
@@ -14,7 +11,6 @@ SAMPLES = list(samplesheet["SAMPLE_ID"].unique())
 localrules:
     all,
     bam_check,
-    sym_link,
 
 rule all:
     input:

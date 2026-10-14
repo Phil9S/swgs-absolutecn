@@ -1,9 +1,6 @@
 ## Autofit snakemake file
 include: "rules/common.smk"
 
-if any(samplesheet.SAMPLE_ID.duplicated()):
-    sys.exit("Sample sheet contains duplicated sample ids")
-
 if all(samplesheet.precPloidy.notna()) and all(samplesheet.precPurity.notna()):
     sys.exit(
         "all ploidy and purity values are precomputed - Run `Rscript workflow/scripts/processPrecomputed.R` and use stage_2"
@@ -12,8 +9,6 @@ if all(samplesheet.precPloidy.notna()) and all(samplesheet.precPurity.notna()):
 SAMPLES = list(samplesheet["SAMPLE_ID"].unique())
 
 prplpu = "FALSE"
-if all(samplesheet.precPloidy.notna()) and all(samplesheet.precPurity.notna()):
-    prplpu = "TRUE"
 
 ## Define snakefile as Auto
 AUTO = True
@@ -21,7 +16,6 @@ AUTO = True
 localrules:
     all,
     bam_check,
-    sym_link,
 
 if SIGS == "TRUE":
     rule all:
