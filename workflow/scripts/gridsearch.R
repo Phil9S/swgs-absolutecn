@@ -65,7 +65,8 @@ if(exists("snakemake")){
   homozygous_thrsh <- as.numeric(opts$homozygous_thrsh)
 }
 
-metadata <- read.table(file = meta,header=T,sep="\t")
+metadata <- read.table(file = meta,header=T,sep="\t",
+  colClasses = c(SAMPLE_ID = "character", PATIENT_ID = "character"))
 
 # source functions (temp until moved to package) and set scipen
 options(scipen = 999)
@@ -176,11 +177,22 @@ if(ll > 0){
     gridValsPlot <- rswgsabsolutecn::gridStats(obj = relcn,ploidy = ploidy,purity = purity)
     errors <- rswgsabsolutecn::getErrors(gridValsPlot)
 
-    Biobase::assayDataElement(relcn,"copynumber") <- gridValsPlot$abs_cn
-    Biobase::assayDataElement(relcn,"segmented") <- gridValsPlot$abs_seg
+    plotObj <- relcn
+    Biobase::assayDataElement(plotObj,"copynumber") <- gridValsPlot$abs_cn
+    Biobase::assayDataElement(plotObj,"segmented") <- gridValsPlot$abs_seg
 
-    rswgsabsolutecn::plotProfile(relcn,ploidy = ploidy,purity = purity,
+    rswgsabsolutecn::plotProfile(plotObj,ploidy = ploidy,purity = purity,
               clonality = errors["clonality"],rmse = errors["rmse"])
   }
+  dev.off()
+} else {
+  # No fits passed filtering - placeholder plot output
+  message(paste0(sampleName," - no fits passed filtering, writing placeholder plot"))
+  png(plotOut,type = "cairo", w = 450, h = 350)
+  par(mar = c(0,0,0,0))
+  plot.new()
+  text(x = 0.5,y = 0.5,
+       labels = paste0(sampleName,"\nNo fits passed filtering criteria"),
+       cex = 1.2)
   dev.off()
 }
