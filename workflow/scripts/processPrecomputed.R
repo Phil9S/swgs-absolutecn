@@ -1,22 +1,27 @@
 # processPrecomputed.R
 args <- commandArgs(trailingOnly=TRUE)
 
+`%>%` <- dplyr::`%>%`
+
 cat("[processPrecomputed] Generating file to skip stage_1\n")
 cat("[processPrecomputed] Reading config and samplesheet files...\n")
 config <- yaml::read_yaml(file="config/config.yaml")
-samplesheet <- read.table(config$samplesheet,header=TRUE,sep="\t")
-projectBin <- paste0(config$project_name,"_",config$bin,"kb")
-outputLoc <- paste0(config$out_dir,"sWGS_fitting/",projectBin,"/")
+samplesheet <- read.table(config$samplesheet,header=TRUE,sep="\t",
+  colClasses = c(SAMPLE_ID = "character", PATIENT_ID = "character"))
+projectBin <- paste0(config$project_name,"_",config$bins,"kb")
+# Ensure single trailing slash on out_dir
+outDir <- sub("/*$","/",config$out_dir)
+outputLoc <- paste0(outDir,"sWGS_fitting/",projectBin,"/")
+genome <- as.character(config$genome)
 
 if(any(is.na(samplesheet$precPloidy)) | any(is.na(samplesheet$precPurity))){
-  stop(paste0("Missing precomputed ploidy and purity values - check ",
-	            config$samplesheet))
+  stop(paste0("Missing precomputed ploidy and purity values - check ",config$samplesheet))
 }
 
 cat("[processPrecomputed] Loading genome bin data...\n")
-bin <- config$bin
+bin <- config$bins
 bin_size <- bin * 1000
-bins <- QDNAseqmod::getBinAnnotations(binSize = bin)
+bins <- QDNAseqmod::getBinAnnotations(binSize = bin, genome = genome)
 
 # Actual number of bins varies in stage_1 due to filtering so total usable bins
 # is adjusted to attempt to fix this. 0.932 ratio between actual usable bins and
@@ -30,24 +35,37 @@ if(!dir.exists(outputLoc)){
   dir.create(outputLoc,recursive=TRUE)
 }
 
-cat("[processPrecomputed] Verifying BAM files...\n")
-# check bams
-bam <- samplesheet$file
-outname <- paste0(outputLoc,"bam.ok")
-bamCheck(x = bam,outname = outname)
-
-cat("[processPrecomputed] Creating BAM file symlinks...\n")
-# generate symlinks for BAMs
 symoutLoc <- paste0(outputLoc,"bams/")
 if(!dir.exists(symoutLoc)){
   dir.create(symoutLoc,recursive=TRUE)
 }
 
+cat("[processPrecomputed] Verifying BAM files...\n")
+okFiles <- paste0(symoutLoc,samplesheet$SAMPLE_ID,"_bam.ok")
+unlink(c(okFiles,sub("_bam.ok$","_bam.invalid",okFiles)))
 for(i in 1:nrow(samplesheet)){
-	symcmd <- paste0("ln -s ",samplesheet$file[i]," ",
-	                 symoutLoc,samplesheet$SAMPLE_ID[i],".bam")
-	system(symcmd)
+  rswgsabsolutecn::bamCheck(x = samplesheet$file[i],filetype = config$filetype,
+                            outname = okFiles[i])
 }
+failedBams <- samplesheet$SAMPLE_ID[!file.exists(okFiles)]
+if(length(failedBams) > 0){
+  stop(paste0("BAM check failed for sample(s): ",paste0(failedBams,collapse = ", "),
+              " - see *_bam.invalid files in ",symoutLoc))
+}
+
+cat("[processPrecomputed] Creating BAM file symlinks...\n")
+# generate symlinks for BAMs
+for(i in 1:nrow(samplesheet)){
+  bamAbs <- normalizePath(samplesheet$file[i], mustWork = TRUE)
+  linkOut <- paste0(symoutLoc,samplesheet$SAMPLE_ID[i],".bam")
+  if(file.exists(linkOut) || nzchar(Sys.readlink(linkOut))){
+    unlink(linkOut)
+  }
+  if(!file.symlink(bamAbs, linkOut)){
+    stop(paste0("Failed to create symlink: ",linkOut," -> ",bamAbs))
+  }
+}
+
 
 cat("[processPrecomputed] Generating spoof Pre-downsampled RDS files...\n")
 # spoof RDS files from stage_1
@@ -58,19 +76,18 @@ if(!dir.exists(rdsoutLoc)){
 
 for(i in 1:nrow(samplesheet)){
 	writeLines(text = as.character(samplesheet$SAMPLE_ID[i]),
-		paste0(rdsoutLoc,config$project,"_",samplesheet$SAMPLE_ID[i],"_",bin,"kb_relSmoothedCN.rds"))
+		paste0(rdsoutLoc,project,"_",samplesheet$SAMPLE_ID[i],"_",bin,"kb_relSmoothedCN.rds"))
 }
 writeLines(text = as.character(samplesheet$SAMPLE_ID),
-                paste0(outputLoc,pre,"relative_cn_rds/",projectBin,"_relSmoothedCN.rds"))
+    paste0(outputLoc,pre,"relative_cn_rds/",projectBin,"_relSmoothedCN.rds"))
 
 # generate QC file
 cat("[processPrecomputed] Generating stage_2 QC file input...\n")
-fittingColumnNames <- get(utils::data("fittingColumnNames",envir = environment()))
+fittingColumnNames <- get(utils::data("fittingColumnNames",package = "rswgsabsolutecn",envir = environment()))
 preFileCols <- c(fittingColumnNames,"PATIENT_ID","precPloidy","precPurity","TP53freq","smooth",
 "rank_clonality","pl_diff","new_state_n","new_state")
 
-exclude <- c("SAMPLE_ID","PATIENT_ID","ploidy","purity","smooth","precPloidy","precPurity")
-
+exclude <- c("SAMPLE_ID","PATIENT_ID","ploidy","purity","smooth","precPloidy","precPurity","TP53freq")
 samplesheetNew <- samplesheet %>%
   dplyr::mutate(ploidy = precPloidy,purity = precPurity) %>%
   dplyr::relocate(ploidy,purity,.before="precPloidy") %>%

@@ -19,3 +19,7 @@ if(exists("snakemake")){
 }
 
 rswgsabsolutecn::bamCheck(x = bam,filetype = fileType,outname = okOut)
+# explicitly check for the existence of the output file to ensure that the BAM check passed
+if(!file.exists(okOut)){
+  stop(paste0("BAM check failed: ", bam, " - see ", sub("_bam\\.ok$","_bam.invalid",okOut)))
+}

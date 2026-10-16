@@ -25,22 +25,22 @@ options(scipen = 999)
 
 ## combining stage_2 outputs
 if(!is.null(tab)){
-    combinedTab <- do.call(rbind,lapply(tab,FUN = function(x){
-	y <- read.table(x,sep="\t",header = T,
-    colClasses = c(SAMPLE_ID = "character", PATIENT_ID = "character"))
-	return(y)
-    }))
+  combinedTab <- do.call(rbind,lapply(tab,FUN = function(x){
+  y <- read.table(x,sep="\t",header = T,
+  colClasses = c(sample = "character"))
+  return(y)
+}))
 
-    write.table(x = combinedTab,file = tabOut,
-		            append = F,quote = F,
-			    sep = "\t",row.names = F,col.names = T)
-
+write.table(x = combinedTab,file = tabOut,
+  append = F,quote = F,
+  sep = "\t",row.names = F,col.names = T)
 }
 
 
 combinedTsv <- do.call(rbind,lapply(tsv,FUN = function(x){
-	y <- read.table(x,sep="\t",header = T)
-	return(y)
+  y <- read.table(x,sep="\t",header = T,
+  colClasses = c(SAMPLE_ID = "character", PATIENT_ID = "character"))
+  return(y)
 }))
 
 rdsList <- lapply(rds,readRDS)
@@ -49,5 +49,5 @@ combinedRDS <- rswgsabsolutecn::collapseRDS(rdsList)
 saveRDS(object = combinedRDS,rdsOut)
 
 write.table(x = combinedTsv,file = tsvOut,
-            append = F,quote = F,sep = "\t",
-	    row.names = F,col.names = T)
+  append = F,quote = F,sep = "\t",
+  row.names = F,col.names = T)

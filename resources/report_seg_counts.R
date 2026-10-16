@@ -14,8 +14,10 @@ cat("report_seg_counts.R - use 'report_seg_counts.R all' for individual seg coun
 
 config <- yaml::read_yaml(file="config/config.yaml")
 
-projectBin <- paste0(config$project_name,"_",config$bin,"kb")
-outputLoc <- paste0(config$out_dir,"sWGS_fitting/",projectBin,"/")
+projectBin <- paste0(config$project_name,"_",config$bins,"kb")
+# Ensure single trailing slash on out_dir
+outDir <- sub("/*$","/",config$out_dir)
+outputLoc <- paste0(outDir,"sWGS_fitting/",projectBin,"/")
 
 pre <- "absolute_PRE_down_sampling"
 post <- "absolute_POST_down_sampling"
