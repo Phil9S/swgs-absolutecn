@@ -16,7 +16,6 @@ AUTO = False
 
 localrules:
     all,
-    ds_symlink,
 
 if SIGS == "TRUE":
     rule all:

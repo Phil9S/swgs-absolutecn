@@ -2,6 +2,13 @@
 options(scipen = 999)
 args = commandArgs(trailingOnly=TRUE)
 
+# Redirect R output, messages, warnings and errors to the Snakemake rule log
+if(exists("snakemake")){
+  logFile <- file(snakemake@log[[1]], open = "wt")
+  sink(logFile, type = "output")
+  sink(logFile, type = "message")
+}
+
 if(exists("snakemake")){
 tsv <- snakemake@input[["tsv"]]
 tsvOut <- snakemake@output[["tsv"]]

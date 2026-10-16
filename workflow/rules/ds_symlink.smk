@@ -1,6 +1,7 @@
 # symlinking run locally
-    localrules:
-        ds_symlink,
+localrules:
+  ds_symlink,
+
 rule ds_symlink:
     input:
         bam=get_bam,
@@ -8,8 +9,10 @@ rule ds_symlink:
         expand(OUT_DIR + "sWGS_fitting/{{project}}_{{bin}}kb/bams/{{sample}}.bam"),
     params:
         bam_abs=lambda wc, input: os.path.abspath(input.bam),
+    log:
+        "logs/ds_symlink_{project}_{bin}kb_{sample}.log",
     threads: 1
     container:
             image
     shell:
-        "ln -s {params.bam_abs} {output}"
+        "ln -s {params.bam_abs} {output} 2> {log}"

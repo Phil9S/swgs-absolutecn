@@ -5,6 +5,13 @@
 # read coverage, or incomplete files/corrupted files
 args = commandArgs(trailingOnly=TRUE)
 
+# Redirect R output, messages, warnings and errors to the Snakemake rule log
+if(exists("snakemake")){
+  logFile <- file(snakemake@log[[1]], open = "wt")
+  sink(logFile, type = "output")
+  sink(logFile, type = "message")
+}
+
 ## Set args based on if using snakemake or cmdline
 if(exists("snakemake")){
   bam <- snakemake@input[["bam"]]

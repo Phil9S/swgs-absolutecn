@@ -19,7 +19,7 @@ if config["filetype"] in ["CRAM"]:
         params:
             reference=config["reference"],
         shell:
-            "samtools view -b -T {params.reference} {input.bam} > {output} && samtools index {output}"
+            "(samtools view -b -T {params.reference} {input.bam} > {output} && samtools index {output}) 2> {log}"
 
 else:
     # symlinking run locally
@@ -40,4 +40,4 @@ else:
             image
         threads: 1
         shell:
-            "ln -s {params.bam_abs} {output}"
+            "ln -s {params.bam_abs} {output} 2> {log}"

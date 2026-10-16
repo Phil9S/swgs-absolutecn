@@ -7,6 +7,13 @@
 # grab commandline arguments passed via snakemake object
 args = commandArgs(trailingOnly=TRUE)
 
+# Redirect R output, messages, warnings and errors to the Snakemake rule log
+if(exists("snakemake")){
+  logFile <- file(snakemake@log[[1]], open = "wt")
+  sink(logFile, type = "output")
+  sink(logFile, type = "message")
+}
+
 if(exists("snakemake")){
   rds <- snakemake@input[["rds"]]
   meta <- snakemake@params[["meta"]]

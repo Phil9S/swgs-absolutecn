@@ -1,6 +1,13 @@
 ## Run CINSignatureQuant on swgs-abscn results
 args <- commandArgs(trailingOnly=T)
 
+# Redirect R output, messages, warnings and errors to the Snakemake rule log
+if(exists("snakemake")){
+  logFile <- file(snakemake@log[[1]], open = "wt")
+  sink(logFile, type = "output")
+  sink(logFile, type = "message")
+}
+
 # Explicit library loading needed for package data as CINSignatureQuantification package
 # does not explicitly reference datasets
 if (!requireNamespace("CINSignatureQuantification", quietly = TRUE)) {
