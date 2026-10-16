@@ -13,6 +13,6 @@ rule ds_symlink:
         "logs/ds_symlink_{project}_{bin}kb_{sample}.log",
     threads: 1
     container:
-            image
+        image
     shell:
         "ln -s {params.bam_abs} {output} 2> {log}"

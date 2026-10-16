@@ -22,7 +22,7 @@ if (!requireNamespace("CINSignatureQuantification", quietly = TRUE)) {
     "For containerised implementation please see swgs-absolutecn README\n")
 }
 
-# Licensed under GAP ASL v1.0 (see LICENSE-ASL), because this script
+# Licensed under GAP ASL v1.0 because this script
 # depends on and is a derivative interface to CINSignatureQuantification.
 library(CINSignatureQuantification)
 

@@ -18,7 +18,7 @@ rule rel_to_abs:
         plot=OUT_DIR
         + "sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/{sample}/abs_cn_rds/plots/{sample}.png",
     log:
-        "logs/rel_to_rds_{project}_{bin}kb_{sample}.log",
+        "logs/rel_to_abs_{project}_{bin}kb_{sample}.log",
     container:
         image
     params:

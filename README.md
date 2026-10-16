@@ -140,11 +140,11 @@ Parameters here adjust the implemention type, error metrics, and flagging proced
 |--------|-------|--------|----|------|
 |autoSmooth|"FALSE"|Apply automatic smoothing of over-segmented copy number profiles|bool|"TRUE","FALSE"|
 |smoothThreshold|700|Amount of segments to trigger auto smoothing|integer|44-9999|
-|flagThreshold|0.84|Probability threshold at which to flag samples as potentially poor|float|0.0-1.0|
+|flagThreshold|0.84|Probability threshold at which to flag samples as potentially poor|float|0.0-0.99|
 fitMethod|"errorOnly"|Autofitting method to use to select best fit from gridsearch|string|"errorOnly","randforest"|
 |errorMetric|"clonality"|Error metric used to determine best fit or tiebreaking procedure autofitting|string|"clonality","segvariance","rmse"|
 computeSigs|"FALSE"|Compute [CIN signatures](https://github.com/markowetzlab/CINSignatureQuantification/) on fitted profiles - see [here](#optional-step---cinsignaturequantification)|bool|"TRUE","FALSE"|
-|cinsigimage|""|Docker/Apptainer image for [CIN signatures](https://github.com/markowetzlab/CINSignatureQuantification/) image|string|URL|
+|cinsigimage|""|Docker/Apptainer image for [CIN signatures](https://github.com/markowetzlab/CINSignatureQuantification/)|string|URL|
 </details>
 
 <details>
@@ -156,10 +156,10 @@ Various filters for acceptable ploidy/purity combinations for fitting absolute c
 
 |variable|default|function|type|values|
 |--------|-------|--------|----|------|
-|af_cutoff|0.15|Maximum difference between expected and observed _TP53_ allele fraction|float|0.0-1.0|
+|af_cutoff|0.15|Maximum difference between expected and observed _TP53_ allele fraction|float|0.0 < x < 1.0|
 |filter_underpowered |"TRUE"|Filter ploidy/purity combinations without sufficent read depth support|string bool|"TRUE","FALSE"|
-|ploidy_min|1.6|Minimum ploidy value for gridsearch|float|1.0-20.0|
-|ploidy_max|8.0|Maximum ploidy value for gridsearch|float|1.0-20.0|
+|ploidy_min|1.6|Minimum ploidy value for gridsearch|float|1.0 < x <= 20.0|
+|ploidy_max|8.0|Maximum ploidy value for gridsearch|float|1.0 < x <= 20.0|
 |purity_min|0.15|Minimum purity value for gridsearch|float|0.0-1.0|
 |purity_max|1.0|Maximum purity value for gridsearch|float|0.0-1.0|
 |filter_homozygous|"TRUE"|Filter fits with homozygous loss greater than `homozygous_prop`|bool|"TRUE","FALSE|
@@ -275,7 +275,7 @@ A subset of samples may require smoothing of segments in order to be viable. If 
 
 ### Downsampling only
 
-Where ploidy and purity are provided from alternative sources, users may not need perform a gridsearch. Provided all samples have a valid `precPloidy` and `precPurity`, the `processPrecomputed.R` script can generate all the required output files to skip directly to read depth normalisation (via read downsampling), at which point Stage 2 or auto can be executed as previously described.
+Where ploidy and purity are provided from alternative sources, users may not need perform a gridsearch. Provided all samples have a valid `precPloidy` and `precPurity`, the `processPrecomputed.R` script can generate all the required output files to skip directly to read depth normalisation (via read downsampling), at which point Stage 2 can be executed as previously described.
 
 ```
 Rscript workflow/scripts/processPrecomputed.R

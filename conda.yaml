@@ -21,5 +21,6 @@ dependencies:
   - r-ranger
   - r-parsnip
   - r-optparse
+  - r-yaml
   - pytest
 
