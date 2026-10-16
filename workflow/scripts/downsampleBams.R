@@ -9,6 +9,13 @@
 # being sampled.
 args = commandArgs(trailingOnly=TRUE)
 
+# Redirect R output, messages, warnings and errors to the Snakemake rule log
+if(exists("snakemake")){
+  logFile <- file(snakemake@log[[1]], open = "wt")
+  sink(logFile, type = "output")
+  sink(logFile, type = "message")
+}
+
 
 if(exists("snakemake")){
   bam <- snakemake@input[["bam"]]
