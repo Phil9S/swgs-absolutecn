@@ -23,8 +23,6 @@ rule rel_to_abs:
         image
     params:
         sample="{sample}",
-        project="{project}",
-        bin="{bin}",
         genome=config["genome"],
     script:
         "../scripts/qdnaseqRelToAbs.R"

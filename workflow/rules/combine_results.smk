@@ -23,7 +23,7 @@ rule combine_results:
         tab=OUT_DIR
         + "sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/{project}_{bin}kb_ds_absCopyNumber_segTable.tsv",
     log:
-        "logs/combine_output_{project}_{bin}kb.log",
+        "logs/combine_results_{project}_{bin}kb.log",
     container:
         image
     threads: 1
