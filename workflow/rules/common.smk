@@ -4,6 +4,7 @@ from pathlib import Path
 from snakemake.utils import min_version
 import os
 import subprocess
+import sys
 from snakemake.exceptions import WorkflowError
 
 min_version("8.0.0")
@@ -27,9 +28,22 @@ validate(samplesheet, schema="../schemas/samples.schema.yaml")
 if any(samplesheet.SAMPLE_ID.duplicated()):
     sys.exit("Sample sheet contains duplicated sample ids")
 
-# set container uri
+# precPloidy/precPurity columns must exist but may contain NA
+# snakemake validate() drops NA values so schema 'required' rejects NA rows
+required_cols = {"precPloidy", "precPurity"}
+missing_cols = required_cols - set(samplesheet.columns)
+if missing_cols:
+    sys.exit(
+        "Sample sheet is missing required column(s): "
+        + ", ".join(sorted(missing_cols))
+        + " - add the column(s) with NA where values are not precomputed"
+    )
+
+# Accept docker paths with or without the docker:// prefix
 image = "docker://" + config["workflowimage"]
 cinsigimage = config["cinsigimage"]
+if cinsigimage and "://" not in cinsigimage:
+    cinsigimage = "docker://" + cinsigimage
 
 ##### CHECK MAX > MIN #####
 PLMIN = config["ploidy_min"]
@@ -40,71 +54,37 @@ PUMAX = config["purity_max"]
 # Set computeSigs and check
 SIGS = config["computeSigs"]
 
-from snakemake.exceptions import WorkflowError
-
-def _active_venv():
-    return (
-        os.environ.get("PIXI_ENVIRONMENT_NAME")
-        or os.environ.get("CONDA_PREFIX")
-        or os.environ.get("VIRTUAL_ENV")
-    )
-
-if SIGS == "TRUE":
-    venv = _active_venv()
-    cinsig_sif = config.get("cinsigimage", "")
-
-    if venv:
-        # Local/conda/pixi mode -- verify the package is actually importable
-        try:
-            subprocess.run(
-                ["Rscript", "-e",
-                 'if (!requireNamespace("CINSignatureQuantification", quietly=TRUE)) quit(status=1)'],
-                check=True, capture_output=True
-            )
-        except subprocess.CalledProcessError:
-            raise WorkflowError(
-                f"computeSigs=True and environment '{venv}' is active, but "
-                "CINSignatureQuantification is not installed in it.\n"
-                "See README section 'Optional - CINSignatureQuantification' "
-                "for install instructions\n"
-		"Note: GAP Available Source License v1.0, non-commercial "
-                "academic use only."
-            )
-        except FileNotFoundError:
-            raise WorkflowError(
-                f"computeSigs=True and environment '{venv}' is active, but "
-                "Rscript was not found on PATH within it."
-            )
-
-    elif cinsig_sif:
-        # No active env, but a container image is configured -- verify it exists
-        if not os.path.exists(cinsig_sif):
-            raise WorkflowError(
-                f"computeSigs=True and 'cinsigimager' is set to "
-                f"'{cinsig_sif}', but that file does not exist.\n"
-                "Build it with:\n"
-                f"  singularity build {cinsig_sif} docker/Dockerfile.cinsig-asl\n"
-                "Note: GAP Available Source License v1.0, non-commercial "
-                "academic use only."
-            )
-
-    else:
-        # Neither signal present -- can't tell how the user intends to run this
+# For computeSigs, basic check for CINSignatureQuantification availability
+# Env/container run mode is taken from config where setting 'cinsigimage' means container mode
+if SIGS == "TRUE" and not cinsigimage:
+    try:
+        subprocess.run(
+            ["Rscript", "-e",
+             'if (!requireNamespace("CINSignatureQuantification", quietly=TRUE)) quit(status=1)'],
+            check=True, capture_output=True
+        )
+    except subprocess.CalledProcessError:
         raise WorkflowError(
-            "computeSigs=True but no way to run CINSignatureQuantification was "
-            "detected.\n"
-            "Either:\n"
-            "  (a) activate the environment containing it before running "
-            "snakemake, e.g. 'pixi shell', or\n"
-            "  (b) set 'cinsigimage' in config to the cinsignaturequantification container\n"
-            "See README section 'Optional - CINSignatureQuantification'."
+            "computeSigs=TRUE but CINSignatureQuantification is not installed "
+            "in the active environment.\n"
+            "Either install it, or set 'cinsigimage' in config to the "
+            "CINSignatureQuantification docker image and run with "
+            "containers (--sdm apptainer).\n"
+            "See README section 'Optional - CINSignatureQuantification'.\n"
+            "Note: GAP Available Source License v1.0, non-commercial "
+            "academic use only."
+        )
+    except FileNotFoundError:
+        raise WorkflowError(
+            "computeSigs=TRUE but Rscript was not found on PATH in the "
+            "active environment."
         )
 
 if PLMIN > PLMAX:
-    sys.exit("Config error - Minimum ploidy exceeds or is equal to maximum ploidy")
+    sys.exit("Config error - Minimum ploidy exceeds maximum ploidy")
 
 if PUMIN > PUMAX:
-    sys.exit("Config error - Minimum purity exceeds or is equal to maximum purity")
+    sys.exit("Config error - Minimum purity exceeds maximum purity")
 
 
 def get_bam(wc):
@@ -131,7 +111,7 @@ def get_ds_bams(P, b):
         + "kb_combined_QC_predownsample.tsv"
     )
     if os.path.isfile(fl):
-        f = pd.read_table(fl).set_index(["SAMPLE_ID"], drop=False)
+        f = pd.read_table(fl, dtype={"SAMPLE_ID": str, "PATIENT_ID": str}).set_index(["SAMPLE_ID"], drop=False)
         if not f.empty:
             if f["use"].dtype == bool and all(~f.use.isnull()):
                 ftb = f[(f["use"] == True)]
