@@ -32,20 +32,38 @@ if(exists("snakemake")){
   reference <- opts$reference
 }
 
-
 options(scipen=999)
 `%>%` <- dplyr::`%>%`
 
-fitQC <- read.table(file = meta,header = T,sep = "\t",na.strings = "")
+fitQC <- read.table(file = meta,header = T,sep = "\t",na.strings = "",
+  colClasses = c(SAMPLE_ID = "character", PATIENT_ID = "character"))
 fitQCFilt <- fitQC %>%
   dplyr::filter(SAMPLE_ID == sampleName) %>%
-  dplyr::filter(use == TRUE)
+  dplyr::filter(use == "TRUE")
+
+# Exactly one selected fit is required per sample to set the downsample depth
+if(nrow(fitQCFilt) != 1){
+  stop(paste0(sampleName," - expected 1 fit with use == TRUE in ",meta,
+              " but found ",nrow(fitQCFilt)))
+}
+
+# Shell-quoted paths for use in system() commands (paths may contain spaces)
+bamQ <- shQuote(bam)
+bamOutQ <- shQuote(bamOut)
+referenceQ <- shQuote(reference)
 
 if(prplpu){
-  # Get read count using SAMtools if prplpu is set for all samples as the 
+  # Get read count using SAMtools if prplpu is set for all samples as the
   # stage_1 fitting is not performed
-  cmdTotalreads <- paste0("samtools view -c -F 260 ",bam)
-  totReads <- as.numeric(system(cmdTotalreads,intern=TRUE))
+  if(fileType == "CRAM"){
+    cmdTotalreads <- paste0("samtools view -T ",referenceQ," -c -F 260 ",bamQ)
+  } else {
+    cmdTotalreads <- paste0("samtools view -c -F 260 ",bamQ)
+  }
+  totReads <- suppressWarnings(as.numeric(system(cmdTotalreads,intern=TRUE)))
+  if(length(totReads) != 1 || is.na(totReads)){
+    stop(paste0("Failed to count reads: ", cmdTotalreads))
+  }
   readData <- data.frame(name = fitQCFilt$SAMPLE_ID,total.reads = totReads)
 } else {
   relative_smoothed <- readRDS(rds)
@@ -57,37 +75,43 @@ fitQCFilt$ratio <- round(fitQCFilt$downsample_depth / fitQCFilt$total.reads,digi
 
 perc <- fitQCFilt %>% .$ratio
 
+if(is.na(perc)){
+  stop(paste0(sampleName," - downsample ratio is NA (downsample_depth: ",
+              fitQCFilt$downsample_depth,", total.reads: ",fitQCFilt$total.reads,")"))
+}
+
 if(perc > 1){
   perc <- 1
 } else if(perc == 0){
-  message("downsample ratio too low - set to 0.0001 percent")
+  message("downsample ratio too low - set to 0.01 percent")
   perc <- 0.0001
 }
 
 if(fileType == "CRAM"){
   if(perc <= 0.96){
-    cmdDownsample <- paste("samtools view --subssample ",perc," --subsample-seed 99 -T ",reference," -b ",bam," > ",bamOut)
+    cmdDownsample <- paste0("samtools view --subsample ",perc," --subsample-seed 99 -T ",referenceQ," -b -o ",bamOutQ," ",bamQ)
   } else {
-    cmdDownsample <- paste("samtools view -T ",reference," -b ",bam," > ",bamOut)
+    cmdDownsample <- paste0("samtools view -T ",referenceQ," -b -o ",bamOutQ," ",bamQ)
   }
-  cmdIndex <- paste0("samtools index ",bamOut)
-
-  system(cmdDownsample)
-  system(cmdIndex)
- 
 } else {
   if(perc <= 0.96){
-    cmdDownsample <- paste("samtools view --subsample ",perc," --subsample-seed 99 -b ",bam," > ",bamOut)
-    cmdIndex <- paste0("samtools index ",bamOut)
-   
-    system(cmdDownsample)
-    system(cmdIndex)
-    
+    cmdDownsample <- paste0("samtools view --subsample ",perc," --subsample-seed 99 -b -o ",bamOutQ," ",bamQ)
   } else {
-    cmdCopy <- paste0("cp -P ",bam," ",bamOut)
-    cmdIndex <- paste0("samtools index ",bamOut)
-    system(cmdCopy)
-    system(cmdIndex)
+    cmdDownsample <- paste0("cp -P ",bamQ," ",bamOutQ)
   }
+}
+cmdIndex <- paste0("samtools index ",bamOutQ)
+
+# Stop on failure so a truncated BAM is not passed
+status <- system(cmdDownsample)
+if(status != 0){
+  unlink(bamOut)
+  stop(paste0("Downsampling failed (exit status ",status,"): ",cmdDownsample))
+}
+
+status <- system(cmdIndex)
+if(status != 0){
+  unlink(c(bamOut,paste0(bamOut,".bai")))
+  stop(paste0("BAM indexing failed (exit status ",status,"): ",cmdIndex))
 }
 
