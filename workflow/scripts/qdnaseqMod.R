@@ -22,7 +22,7 @@ if(exists("snakemake")){
   genome <- as.character(snakemake@params[["genome"]])
   autoSmooth <- as.logical(snakemake@params[["autoSmooth"]])
   smoothThreshold <- as.numeric(snakemake@params[["smoothThreshold"]])
-  use_seed <- snakemake@params[["use_seed"]]
+  use_seed <- as.logical(snakemake@params[["use_seed"]])
   seed_val <- snakemake@params[["seed_val"]]
   pairedEnd <- as.logical(snakemake@params[["pairedEnd"]])
 
@@ -37,7 +37,7 @@ if(exists("snakemake")){
   genome <- as.character(opts$genome)
   autoSmooth <- as.logical(opts$autoSmooth)
   smoothThreshold <- as.numeric(opts$smoothThreshold)
-  use_seed <- opts$use_seed
+  use_seed <- as.logical(opts$use_seed)
   seed_val <- opts$seed_val
   pairedEnd <- as.logical(opts$pairedEnd)
 }

@@ -18,6 +18,10 @@ validate(config, schema="../schemas/config.schema.yaml")
 OUT_DIR = config["out_dir"]
 OUT_DIR = os.path.join(OUT_DIR, "")
 
+# Check CRAM reference
+if config["filetype"] == "CRAM" and not config["reference"]:
+    sys.exit("CRAM input requires 'reference'")
+
 # Load sample sheet and set index
 samplesheet = pd.read_table(
     config["samplesheet"],

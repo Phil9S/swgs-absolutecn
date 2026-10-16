@@ -63,6 +63,7 @@ properties:
     enum: ["CRAM","BAM"]
   reference:
     type: string
+    default: ""
   pairedEnd:
     type: string
     enum: ["TRUE","FALSE"]
@@ -115,3 +116,4 @@ required:
   - fitMethod
   - errorMetric
   - computeSigs
+  - workflowimage
