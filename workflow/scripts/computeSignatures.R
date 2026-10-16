@@ -46,28 +46,27 @@ segs <- read.table(file = tsv,header = TRUE,sep = "\t",
 segs$start <- as.numeric(segs$start)
 segs$end <- as.numeric(segs$end)
 segs$segVal <- as.numeric(segs$segVal)
+# not required due to pipeline validation, but just in case it is 
 segs$segVal[segs$segVal < 0] <- 0
-## Generate
+# Generate signature activities using Drews and Mac methods
 cnsigs_drews <- CINSignatureQuantification::quantifyCNSignatures(segs,
-                                                                 experimentName = projectBin,
-                                                                 method = "drews",build = genome)
+  experimentName = projectBin,
+  method = "drews",build = genome)
 cnsigs_drews_acts <- CINSignatureQuantification::getActivities(cnsigs_drews)
 
 cnsigs_mac <- CINSignatureQuantification::quantifyCNSignatures(segs,
-                                                               experimentName = projectBin,
-                                                               method = "mac",build = genome)
+  experimentName = projectBin,
+  method = "mac",build = genome)
 cnsigs_mac_acts <- CINSignatureQuantification::getActivities(cnsigs_mac)
 
 write.table(x = cnsigs_drews_acts,file = tsvOutDrews,
-            sep = "\t",row.names = T,col.names = T,quote = F)
+  sep = "\t",row.names = T,col.names = T,quote = F)
 
 saveRDS(object = cnsigs_drews,file =paste0(dirname(tsvOutDrews),"/",
-                                         gsub(x = basename(tsvOutDrews),
-                                              pattern = "_acts.tsv",replacement = "_obj.rds")))
+  gsub(x = basename(tsvOutDrews),pattern = "_acts.tsv",replacement = "_obj.rds")))
 
 write.table(x = cnsigs_mac_acts,file = tsvOutMac,
-            sep = "\t",row.names = T,col.names = T,quote = F)
+  sep = "\t",row.names = T,col.names = T,quote = F)
 
 saveRDS(object = cnsigs_mac,file =paste0(dirname(tsvOutMac),"/",
-                                        gsub(x = basename(tsvOutMac),
-                                             pattern = "_acts.tsv",replacement = "_obj.rds")))
+  gsub(x = basename(tsvOutMac),pattern = "_acts.tsv",replacement = "_obj.rds")))
