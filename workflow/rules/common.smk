@@ -43,11 +43,11 @@ if missing_cols:
         + " - add the column(s) with NA where values are not precomputed"
     )
 
-# Check docker URIs
-image = "docker://" + config["workflowimage"]
-if image and "://" not in image:
+# Check docker URIs - accept image paths with or without the docker:// prefix
+image = config["workflowimage"]
+if "://" not in image:
     image = "docker://" + image
-    
+
 cinsigimage = config["cinsigimage"]
 if cinsigimage and "://" not in cinsigimage:
     cinsigimage = "docker://" + cinsigimage
