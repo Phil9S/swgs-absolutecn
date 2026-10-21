@@ -8,7 +8,7 @@ COPY pixi.* .
 ADD resources/ /
 # install dependencies to `/app/.pixi/envs/prod`
 # use `--locked` to ensure the lockfile is up to date with pixi.toml
-RUN pixi install --frozen --locked --run-post-link-scripts
+RUN pixi install --frozen --run-post-link-scripts
 RUN export TAR="tar --no-same-permissions --no-same-owner" && \
 	export TMPDIR=/tmp && \
 	pixi run Rscript -e 'remotes::install_github(repo = "markowetzlab/QDNAseq.hg38",quiet=TRUE,upgrade=FALSE,force=FALSE)'

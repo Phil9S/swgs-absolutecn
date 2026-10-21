@@ -139,12 +139,12 @@ Parameters here adjust the implemention type, error metrics, and flagging proced
 |variable|default|function|type|values|
 |--------|-------|--------|----|------|
 |autoSmooth|"FALSE"|Apply automatic smoothing of over-segmented copy number profiles|bool|"TRUE","FALSE"|
-|smoothThreshold|700|Amount of segments to trigger auto smoothing|integer|44-9999|
+|smoothThreshold|300|Amount of segments to trigger auto smoothing|integer|44-9999|
 |flagThreshold|0.84|Probability threshold at which to flag samples as potentially poor|float|0.0-0.99|
-fitMethod|"errorOnly"|Autofitting method to use to select best fit from gridsearch|string|"errorOnly","randforest"|
+|fitMethod|"errorOnly"|Autofitting method to use to select best fit from gridsearch|string|"errorOnly","randforest"|
 |errorMetric|"clonality"|Error metric used to determine best fit or tiebreaking procedure autofitting|string|"clonality","segvariance","rmse"|
-computeSigs|"FALSE"|Compute [CIN signatures](https://github.com/markowetzlab/CINSignatureQuantification/) on fitted profiles - see [here](#optional-step---cinsignaturequantification)|bool|"TRUE","FALSE"|
-|cinsigimage|""|Docker/Apptainer image for [CIN signatures](https://github.com/markowetzlab/CINSignatureQuantification/)|string|URL|
+|computeSigs|"FALSE"|Compute [CIN signatures](https://github.com/markowetzlab/CINSignatureQuantification/) on fitted profiles - see [here](#optional-step---cinsignaturequantification)|bool|"TRUE","FALSE"|
+|cinsigimage|""|Docker/Apptainer image for [CIN signatures](https://github.com/markowetzlab/CINSignatureQuantification/)|string|string|
 </details>
 
 <details>
@@ -156,15 +156,15 @@ Various filters for acceptable ploidy/purity combinations for fitting absolute c
 
 |variable|default|function|type|values|
 |--------|-------|--------|----|------|
-|af_cutoff|0.15|Maximum difference between expected and observed _TP53_ allele fraction|float|0.0 < x < 1.0|
-|filter_underpowered |"TRUE"|Filter ploidy/purity combinations without sufficent read depth support|string bool|"TRUE","FALSE"|
+|af_cutoff|0.15|Maximum difference between expected and observed _TP53_ allele fraction|float|0.0 < x <= 1.0|
+|filter_underpowered |"FALSE"|Filter ploidy/purity combinations without sufficent read depth support|string bool|"TRUE","FALSE"|
 |ploidy_min|1.6|Minimum ploidy value for gridsearch|float|1.0 < x <= 20.0|
 |ploidy_max|8.0|Maximum ploidy value for gridsearch|float|1.0 < x <= 20.0|
-|purity_min|0.15|Minimum purity value for gridsearch|float|0.0-1.0|
-|purity_max|1.0|Maximum purity value for gridsearch|float|0.0-1.0|
-|filter_homozygous|"TRUE"|Filter fits with homozygous loss greater than `homozygous_prop`|bool|"TRUE","FALSE|
+|purity_min|0.15|Minimum purity value for gridsearch|float|0.0 < x <= 1.0|
+|purity_max|1.0|Maximum purity value for gridsearch|float|0.0 < x <= 1.0|
+|filter_homozygous|"TRUE"|Filter fits with homozygous loss greater than `homozygous_prop`|bool|"TRUE","FALSE"|
 |homozygous_prop|10000000|Proportion of genome (in basepairs) called as homozygous loss at which to exclude fits|integer|min=0|
-|homozygous_threshold|0.4|Copy nubmer value at which to assign homozygous loss (counted by `homozygous_prop`)|float|0.0-0.99|
+|homozygous_threshold|0.4|Copy number value at which to assign homozygous loss (counted by `homozygous_prop`)|float|0.0-0.99|
 </details>
 
 #### Workflow management
@@ -229,7 +229,7 @@ It is good practice to perform the quality control on `stage_2` outputs as well.
 ## Output files
 
 ### Auto
- For each sample fitted three files are generated per sample in the results directory `/sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/abs_cn_rds/`
+ For each sample fitted three files are generated per sample in the results directory `/sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/{sample}/abs_cn_rds/`
 
 - `{project}_{SAMPLE_ID}_{bin}kb_ds_abs_fits.tsv` - Tab-seperated file containing absolute copy number profile metadata and fitting information.
 - `{project}_{SAMPLE_ID}_{bin}kb_ds_absCopyNumber.rds` - QDNASeqmod class object containing binned copy number data.
@@ -283,7 +283,7 @@ Rscript workflow/scripts/processPrecomputed.R
 container users can run the same script provided they run the command within the container image and bind the `OUTPUTDIR`.
 
 ```
-singularity exec --bind OUTPUTDIR docker://phil9s/swgs-absolutecn:latest Rscript workflow/resources/processPrecomputed.R
+singularity exec --bind OUTPUTDIR docker://phil9s/swgs-absolutecn:latest Rscript workflow/scripts/processPrecomputed.R
 ```
 ### Cell lines 
 

@@ -21,7 +21,7 @@ if (!requireNamespace("CINSignatureQuantification", quietly = TRUE)) {
     "\nCINSignatureQuantification is required when computeSigs = TRUE.\n\n",
     "This package is licensed under the GAP Available Source License v1.0 ",
     "(non-commercial academic use only,\nsee https://github.com/markowetzlab/CINSignatureQuantification/blob/main/LICENSE)",
-    "and is NOT bundled with\n","this pipeline for that reason.To install it run:\n\n",
+    " and is NOT bundled with\n","this pipeline for that reason. To install it run:\n\n",
     "Rscript -e 'remotes::install_github(\"markowetzlab/CINSignatureQuantification\")'\n\n",
     "By installing it you agree to its license terms, including the non-commercial restriction."
     )

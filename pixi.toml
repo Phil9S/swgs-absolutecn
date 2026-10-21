@@ -26,5 +26,3 @@ r-ranger = "*"
 r-parsnip = "*"
 r-optparse = ">=1.7.5,<2"
 pytest = ">=9.1.1,<10"
-r-yaml
-

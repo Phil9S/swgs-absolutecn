@@ -2,3 +2,9 @@
 __pycache__/
 *.pyc
 Dockerfile
+.git/
+.snakemake/
+results/
+logs/
+data/
+config/
