@@ -75,7 +75,7 @@ if(exists("snakemake")){
 metadata <- read.table(file = meta,header=T,sep="\t",
   colClasses = c(SAMPLE_ID = "character", PATIENT_ID = "character"))
 
-# source functions (temp until moved to package) and set scipen
+# set scipen
 options(scipen = 999)
 
 # read in relative copy number and extract model and read data
@@ -113,6 +113,9 @@ relcn <- rdsObj[to_use,]
 
 # Iterate through ploidy/purity combinations
 res <- data.frame()
+num_segs <- rswgsabsolutecn::getSegCount(relcn)
+targetCNVal <- median(Biobase::assayDataElement(relcn,"segmented")[gene_bin_seg])
+
 for(i in 1:length(ploidies)){
   ploidy <- ploidies[i]
   rowres <- data.frame()
@@ -122,11 +125,9 @@ for(i in 1:length(ploidies)){
     gridVals <- rswgsabsolutecn::gridStats(obj = relcn,ploidy = ploidy,purity = purity)
 
     downsample_depth <- rswgsabsolutecn::getDownsampleDepth(ploidy,purity,nbins_ref_genome)
-    num_segs <- length(rle(as.numeric(gridVals$seg))$values)
 
     errors <- rswgsabsolutecn::getErrors(data = gridVals)
 
-    targetCNVal <- median(gridVals$seg[gene_bin_seg])
     TP53cn <- round(rswgsabsolutecn::depthtocn(targetCNVal,purity,gridVals$seqdepth),1) # to 1 decimal place
     expected_TP53_AF <- TP53cn * purity / (TP53cn * purity + 2 * (1-purity))
 

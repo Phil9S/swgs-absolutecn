@@ -66,7 +66,7 @@ gridVals <- rswgsabsolutecn::gridStats(obj = abs_profiles,
                       ploidy = ploidy,
                       purity = purity)
 
-num_segs <- length(rle(as.numeric(gridVals$seg))$values)
+num_segs <- rswgsabsolutecn::getSegCount(abs_profiles)
 errors <- rswgsabsolutecn::getErrors(data = gridVals)
 
 targetCNVal <- median(gridVals$seg[gene_bin_seg])
