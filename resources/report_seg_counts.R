@@ -25,11 +25,13 @@ post <- "absolute_POST_down_sampling"
 
 preFilesTab <- list.files(path = paste0(outputLoc,pre),
                        recursive = T,full.names = T,
-                       pattern = "_QC_predownsample.tsv")
+                       pattern = "_fit_QC_predownsample\\.tsv$")
 
 postFilesTab <- list.files(path = paste0(outputLoc,post),
                         recursive = T,full.names = T ,
-                        pattern = "_ds_abs_fits.tsv")
+                        pattern = "_ds_abs_fits\\.tsv$")
+# per-sample tables only - drop the stage_2 combined table
+postFilesTab <- postFilesTab[basename(postFilesTab) != paste0(projectBin,"_ds_abs_fits.tsv")]
 
 verbose <- FALSE
 
@@ -49,7 +51,7 @@ if(any(file.exists(preFilesTab))){
     print(summary(preSegsTab))
   }
 } else {
-  cat("no pre or post downsampled files found\n")
+  cat("no pre downsampled files found\n")
 }
 
 if(any(file.exists(postFilesTab))){
