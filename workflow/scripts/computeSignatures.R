@@ -50,10 +50,8 @@ projectBin <- paste0(project,"_",bin,"kb")
 segs <- read.table(file = tsv,header = TRUE,sep = "\t",
   colClasses = c(sample = "character", chromosome = "character",
   start = "numeric", end = "numeric", segVal = "numeric"))
-segs$start <- as.numeric(segs$start)
-segs$end <- as.numeric(segs$end)
-segs$segVal <- as.numeric(segs$segVal)
-# not required due to pipeline validation, but just in case it is 
+
+# not required due to pipeline validation, but kept just in case 
 segs$segVal[segs$segVal < 0] <- 0
 # Generate signature activities using Drews and Mac methods
 cnsigs_drews <- CINSignatureQuantification::quantifyCNSignatures(segs,

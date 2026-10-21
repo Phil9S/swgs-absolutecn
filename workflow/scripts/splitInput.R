@@ -10,13 +10,11 @@ if(exists("snakemake")){
 }
 
 if(exists("snakemake")){
-tsv <- snakemake@input[["tsv"]]
-tsvOut <- snakemake@output[["tsv"]]
-sampleName <- snakemake@params[["sample"]]
-
+  tsv <- snakemake@input[["tsv"]]
+  tsvOut <- snakemake@output[["tsv"]]
+  sampleName <- snakemake@params[["sample"]]
 } else {
   opts <- optparse::parse_args(rswgsabsolutecn::setArgs(script = "splitInput"))
-  
   tsv <- opts$tsv
   tsvOut <- opts$tsvOut
   sampleName <- opts$sampleName
