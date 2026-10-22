@@ -1,6 +1,6 @@
 # Dockerfile build from pixi env
 # Based on https://github.com/pavelzw/pixi-docker-example
-FROM ghcr.io/prefix-dev/pixi:v0.82.1 AS build
+FROM ghcr.io/prefix-dev/pixi:0.82.1 AS build
 # copy source code, pixi.toml and pixi.lock to the container
 WORKDIR /app
 COPY install_env.sh .
