@@ -13,6 +13,8 @@ spec:
     - name: bam-data
       hostPath:
         path: /mnt/data
+    - name: scripts
+      emptyDir: {}
   templates:
     - name: auto-pipeline
       dag:
@@ -178,7 +180,7 @@ spec:
         args:
           - |
             mkdir -p "$(dirname "{{inputs.parameters.okOut}}")"
-            Rscript /workspace/workflow/scripts/bamCheck.R \
+            Rscript /app/workflow/scripts/bamCheck.R \
               --bam "{{inputs.parameters.bam}}" \
               --fileType "{{inputs.parameters.fileType}}" \
               --okOut "{{inputs.parameters.okOut}}"
@@ -224,7 +226,7 @@ spec:
         args:
           - |
             mkdir -p "$(dirname "{{inputs.parameters.rdsOut}}")"
-            Rscript workflow/scripts/qdnaseqMod.R \
+            Rscript /app/workflow/scripts/qdnaseqMod.R \
               --bin "{{workflow.parameters.bins}}" \
               --sampleName "{{inputs.parameters.sampleId}}" \
               --meta "{{inputs.parameters.meta}}" \
@@ -258,7 +260,7 @@ spec:
           - |
             mkdir -p "$(dirname "{{inputs.parameters.tsvOut}}")"
             mkdir -p "$(dirname "{{inputs.parameters.plotOut}}")"
-            Rscript workflow/scripts/gridsearch.R \
+            Rscript /app/workflow/scripts/gridsearch.R \
               --rds "{{inputs.parameters.rds}}" \
               --meta "{{inputs.parameters.meta}}" \
               --pdfOut "{{inputs.parameters.pdfOut}}" \
@@ -278,7 +280,7 @@ spec:
               --filter_underpowered "{{workflow.parameters.filter_underpowered}}" \
               --filter_homozygous "{{workflow.parameters.filter_homozygous}}" \
               --homozygous_prop "{{workflow.parameters.homozygous_prop}}" \
-              --homozygous_thrsh "{{workflow.parameters.homozygous_threshold}}"
+              --homozygous_threshold "{{workflow.parameters.homozygous_threshold}}"
 
     - name: autofit
       inputs:
@@ -294,7 +296,7 @@ spec:
         args:
           - |
             mkdir -p "$(dirname "{{inputs.parameters.tsvOut}}")"
-            Rscript workflow/scripts/autofit.R \
+            Rscript /app/workflow/scripts/autofit.R \
               --tsv "{{inputs.parameters.tsv}}" \
               --tsvOut "{{inputs.parameters.tsvOut}}" \
               --flagThreshold "{{workflow.parameters.flagThreshold}}" \
@@ -318,7 +320,7 @@ spec:
         args:
           - |
             mkdir -p "$(dirname "{{inputs.parameters.bamOut}}")"
-            Rscript workflow/scripts/downsampleBams.R \
+            Rscript /app/workflow/scripts/downsampleBams.R \
               --bam "{{inputs.parameters.bam}}" \
               --meta "{{inputs.parameters.meta}}" \
               --rds "{{inputs.parameters.rds}}" \
@@ -348,7 +350,7 @@ spec:
           - |
             mkdir -p "$(dirname "{{inputs.parameters.tsvOut}}")"
             mkdir -p "$(dirname "{{inputs.parameters.plotOut}}")"
-            Rscript workflow/scripts/qdnaseqRelToAbs.R \
+            Rscript /app/workflow/scripts/qdnaseqRelToAbs.R \
               --rds "{{inputs.parameters.rds}}" \
               --meta "{{inputs.parameters.meta}}" \
               --bin "{{workflow.parameters.bins}}" \
@@ -367,16 +369,23 @@ spec:
           - name: segTable
           - name: tsvDrews
           - name: tsvMac
+      initContainers:
+        - name: fetch-script
+          image: "{{workflow.parameters.workflowimage}}"
+          command: ["cp", "/app/workflow/scripts/computeSignatures.R", "/scripts/"]
+          mirrorVolumeMounts: true    
       container:
         image: "{{workflow.parameters.cinsigimage}}"
         volumeMounts:
           - name: bam-data
             mountPath: /mnt/data
+          - name: scripts
+            mountPath: /scripts  
         command: ["bash", "-c"]
         args:
           - |
             mkdir -p "$(dirname "{{inputs.parameters.tsvDrews}}")"
-            Rscript /workspace/workflow/scripts/computeSignatures.R \
+            Rscript /scripts/computeSignatures.R \
               --tsv "{{inputs.parameters.segTable}}" \
               --tsvDrews "{{inputs.parameters.tsvDrews}}" \
               --tsvMac "{{inputs.parameters.tsvMac}}" \
