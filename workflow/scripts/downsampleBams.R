@@ -46,7 +46,7 @@ fitQC <- read.table(file = meta,header = T,sep = "\t",na.strings = "",
   colClasses = c(SAMPLE_ID = "character", PATIENT_ID = "character"))
 fitQCFilt <- fitQC %>%
   dplyr::filter(SAMPLE_ID == sampleName) %>%
-  dplyr::filter(use == "TRUE")
+  dplyr::filter(use == TRUE)
 
 # Exactly one selected fit is required per sample to set the downsample depth
 if(nrow(fitQCFilt) != 1){

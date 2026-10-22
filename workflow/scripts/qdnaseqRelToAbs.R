@@ -40,7 +40,8 @@ options(scipen = 999)
 
 metadata <- read.table(meta,header = T,sep = "\t",
   colClasses = c(SAMPLE_ID = "character", PATIENT_ID = "character"))
-metadata <- metadata[metadata$use == "TRUE",]
+metadata <- metadata %>%
+  dplyr::filter(use == TRUE)
 
 # load rds object
 rdsRel <- readRDS(rds)

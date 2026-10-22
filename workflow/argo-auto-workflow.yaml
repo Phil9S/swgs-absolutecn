@@ -154,8 +154,6 @@ spec:
             when: "{{workflow.parameters.computeSigs}} == TRUE"
             arguments:
               parameters:
-                - name: sampleId
-                  value: "{{item.sampleId}}"
                 - name: segTable
                   value: "{{workflow.parameters.out_dir}}sWGS_fitting/{{workflow.parameters.project_name}}_{{workflow.parameters.bins}}kb/absolute_POST_down_sampling/{{item.sampleId}}/abs_cn_rds/{{workflow.parameters.project_name}}_{{item.sampleId}}_{{workflow.parameters.bins}}kb_ds_absCopyNumber_segTable.tsv"
                 - name: tsvDrews
@@ -203,11 +201,13 @@ spec:
             if [ "{{workflow.parameters.filetype}}" = "CRAM" ]; then
               samtools view -b \
                 -T "{{workflow.parameters.reference}}" \
-                "{{inputs.parameters.bam}}" > "{{inputs.parameters.bamOut}}"
-              samtools index "{{inputs.parameters.bamOut}}"
+                "{{inputs.parameters.bam}}" > "{{inputs.parameters.bamOut}}" && \
+              samtools index "{{inputs.parameters.bamOut}}" || \
+              { rm -f "{{inputs.parameters.bamOut}}" "{{inputs.parameters.bamOut}}.bai"; exit 1; }
             else
-              cp -P "{{inputs.parameters.bam}}" "{{inputs.parameters.bamOut}}"
-              samtools index "{{inputs.parameters.bamOut}}"
+              cp -P "{{inputs.parameters.bam}}" "{{inputs.parameters.bamOut}}" && \
+              samtools index "{{inputs.parameters.bamOut}}" || \
+              { rm -f "{{inputs.parameters.bamOut}}" "{{inputs.parameters.bamOut}}.bai"; exit 1; }
             fi
 
     - name: qdnaseq-mod
@@ -353,8 +353,6 @@ spec:
             Rscript /app/workflow/scripts/qdnaseqRelToAbs.R \
               --rds "{{inputs.parameters.rds}}" \
               --meta "{{inputs.parameters.meta}}" \
-              --bin "{{workflow.parameters.bins}}" \
-              --project "{{workflow.parameters.project_name}}" \
               --genome "{{workflow.parameters.genome}}" \
               --sampleName "{{inputs.parameters.sampleId}}" \
               --tsvOut "{{inputs.parameters.tsvOut}}" \
@@ -365,7 +363,6 @@ spec:
     - name: compute-signatures
       inputs:
         parameters:
-          - name: sampleId
           - name: segTable
           - name: tsvDrews
           - name: tsvMac
@@ -373,14 +370,14 @@ spec:
         - name: fetch-script
           image: "{{workflow.parameters.workflowimage}}"
           command: ["cp", "/app/workflow/scripts/computeSignatures.R", "/scripts/"]
-          mirrorVolumeMounts: true    
+          mirrorVolumeMounts: true
       container:
         image: "{{workflow.parameters.cinsigimage}}"
         volumeMounts:
           - name: bam-data
             mountPath: /mnt/data
           - name: scripts
-            mountPath: /scripts  
+            mountPath: /scripts
         command: ["bash", "-c"]
         args:
           - |
@@ -391,5 +388,4 @@ spec:
               --tsvMac "{{inputs.parameters.tsvMac}}" \
               --bin "{{workflow.parameters.bins}}" \
               --project "{{workflow.parameters.project_name}}" \
-              --genome "{{workflow.parameters.genome}}" \
-              --sampleName "{{inputs.parameters.sampleId}}"
+              --genome "{{workflow.parameters.genome}}"

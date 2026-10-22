@@ -83,6 +83,7 @@ for(i in 1:nrow(samplesheet)){
   writeLines(text = as.character(samplesheet$SAMPLE_ID[i]),
   paste0(rdsoutLoc,project,"_",samplesheet$SAMPLE_ID[i],"_",bin,"kb_relSmoothedCN.rds"))
 }
+
 writeLines(text = as.character(samplesheet$SAMPLE_ID),
   paste0(outputLoc,pre,"relative_cn_rds/",projectBin,"_relSmoothedCN.rds"))
 

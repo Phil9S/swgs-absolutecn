@@ -15,6 +15,10 @@ for(thisPackage in listOfAllPackages) {
   }
 }
 
+if("rswgsabsolutecn" %in% installedPackages && packageVersion("rswgsabsolutecn") < "1.1.1"){
+  missingPackages <- c(missingPackages,"rswgsabsolutecn (>= 1.1.1)")
+}
+
 if(!is.null(warnings())){
 	print(warnings())
 }

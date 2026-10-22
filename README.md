@@ -141,10 +141,10 @@ Parameters here adjust the implemention type, error metrics, and flagging proced
 |autoSmooth|"FALSE"|Apply automatic smoothing of over-segmented copy number profiles|bool|"TRUE","FALSE"|
 |smoothThreshold|300|Amount of segments to trigger auto smoothing|integer|44-9999|
 |flagThreshold|0.84|Probability threshold at which to flag samples as potentially poor|float|0.0-0.99|
-|fitMethod|"errorOnly"|Autofitting method to use to select best fit from gridsearch - 30kb bins and homozygous threshold=0.4|string|"errorOnly","randforest"|
+|fitMethod|"errorOnly"|Autofitting method to use to select best fit from gridsearch - randforest model is calibrated on 30kb bins and homozygous_threshold 0.4|string|"errorOnly","randforest"|
 |errorMetric|"clonality"|Error metric used to determine best fit or tiebreaking procedure autofitting|string|"clonality","segvariance","rmse"|
 |computeSigs|"FALSE"|Compute [CIN signatures](https://github.com/markowetzlab/CINSignatureQuantification/) on fitted profiles - see [here](#optional-step---cinsignaturequantification)|bool|"TRUE","FALSE"|
-|cinsigimage|""|Docker/Apptainer image for [CIN signatures](https://github.com/markowetzlab/CINSignatureQuantification/)|string|string|
+|cinsigimage|""|Docker/Apptainer image for [CIN signatures](https://github.com/markowetzlab/CINSignatureQuantification/)|string|docker image path|
 </details>
 
 <details>
