@@ -19,7 +19,7 @@ use_seed: 'TRUE'
 seed_val: '9999'
 
 # filter underpowered solutions - TRUE or FALSE
-# Default TRUE
+# Default FALSE
 filter_underpowered: 'FALSE'
 
 # ploidy range

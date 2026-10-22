@@ -5,7 +5,6 @@ FROM ghcr.io/prefix-dev/pixi:latest AS build
 WORKDIR /app
 COPY install_env.sh .
 COPY pixi.* .
-ADD resources/ /
 # install dependencies to `/app/.pixi/envs/default` and run post-link scripts
 # use `--locked` to ensure the lockfile is up to date with pixi.toml
 RUN pixi install --locked --run-post-link-scripts
@@ -17,7 +16,7 @@ RUN export TAR="tar --no-same-permissions --no-same-owner" && \
 	pixi run Rscript -e 'remotes::install_github(repo = "markowetzlab/QDNAseqmod",quiet=TRUE,upgrade=FALSE,force=FALSE)'
 RUN export TAR="tar --no-same-permissions --no-same-owner" && \
 	export TMPDIR=/tmp && \
-	pixi run Rscript -e 'remotes::install_github(repo = "markowetzlab/r-swgs-absolutecn",quiet=TRUE,upgrade=FALSE,force=FALSE)'
+	pixi run Rscript -e 'remotes::install_github(repo = "markowetzlab/r-swgs-absolutecn@v1.1.1",quiet=TRUE,upgrade=FALSE,force=FALSE)'
 
 FROM debian:12-slim AS production
 RUN TZ=Etc/UTC && \
@@ -31,7 +30,6 @@ RUN apt-get update && \
 ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
 ENV LANGUAGE=C.UTF-8
-COPY . /workspace
 WORKDIR /app
 COPY . .
 COPY LICENSE /licenses/LICENSE

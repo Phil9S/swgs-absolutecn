@@ -39,7 +39,7 @@ if(exists("snakemake")){
   filter_underpowered <- as.logical(snakemake@params[["filter_underpowered"]]) # Filter for powered fits only
   filter_homozygous <- as.logical(snakemake@params[["filter_homozygous"]]) # filter homozygous loss
   homozygous_prop <- as.numeric(snakemake@params[["homozygous_prop"]])
-  homozygous_thrsh <- as.numeric(snakemake@params[["homozygous_threshold"]]) # default 0.4
+  homozygous_threshold <- as.numeric(snakemake@params[["homozygous_threshold"]]) # default 0.4
 
 } else {
 
@@ -69,7 +69,7 @@ if(exists("snakemake")){
   filter_underpowered <- as.logical(opts$filter_underpowered)
   filter_homozygous <- as.logical(opts$filter_homozygous)
   homozygous_prop <- as.numeric(opts$homozygous_prop)
-  homozygous_thrsh <- as.numeric(opts$homozygous_thrsh)
+  homozygous_threshold <- as.numeric(opts$homozygous_threshold)
 }
 
 metadata <- read.table(file = meta,header=T,sep="\t",
@@ -93,16 +93,16 @@ gene_bin_seg <- rswgsabsolutecn::getGeneSeg(abs_data = rdsObj,genome = genome)
 metaflt <- metadata[metadata$SAMPLE_ID == sampleName,]
 
 if(!is.null(metaflt$precPloidy)){
-	if(!is.na(metaflt$precPloidy)){
+  if(!is.na(metaflt$precPloidy)){
     pl_min <- metaflt$precPloidy
-		pl_max <- metaflt$precPloidy
+    pl_max <- metaflt$precPloidy
   }
 }
 if(!is.null(metaflt$precPurity)){
-	if(!is.na(metaflt$precPurity)){
+  if(!is.na(metaflt$precPurity)){
     pu_min <- metaflt$precPurity
-		pu_max <- metaflt$precPurity
-	}
+    pu_max <- metaflt$precPurity
+  }
 }
 ploidies <- seq.int(pl_min,pl_max,0.1)
 purities <- seq.int(pu_min,pu_max,0.01)
@@ -131,7 +131,7 @@ for(i in 1:length(ploidies)){
     TP53cn <- round(rswgsabsolutecn::depthtocn(targetCNVal,purity,gridVals$seqdepth),1) # to 1 decimal place
     expected_TP53_AF <- TP53cn * purity / (TP53cn * purity + 2 * (1-purity))
 
-    hmzyg <- sum(gridVals$abs_seg <= homozygous_thrsh) * bin_size
+    hmzyg <- sum(gridVals$abs_seg <= homozygous_threshold) * bin_size
     powered <- downsample_depth < total_reads
 
     r <- c(ploidy,purity,num_segs,errors,downsample_depth,

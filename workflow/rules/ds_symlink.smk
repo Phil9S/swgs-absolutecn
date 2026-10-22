@@ -1,6 +1,6 @@
 # symlinking run locally
 localrules:
-  ds_symlink,
+    ds_symlink,
 
 rule ds_symlink:
     input:

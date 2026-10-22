@@ -24,7 +24,6 @@ QCTable <- read.table(tsv,header = T,sep = "\t",colClasses = c(SAMPLE_ID = "char
 QCTableSplit <- split(QCTable,f = as.factor(QCTable$SAMPLE_ID))
 
 splitTable <- QCTableSplit[[sampleName]]
-write.table(x = splitTable,
-	    file = tsvOut,
-	    append = FALSE,quote = FALSE,sep = "\t",row.names = FALSE,
-	    col.names = TRUE)
+write.table(x = splitTable,file = tsvOut,
+  append = FALSE,quote = FALSE,sep = "\t",row.names = FALSE,
+  col.names = TRUE)

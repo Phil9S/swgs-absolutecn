@@ -77,7 +77,7 @@ For the containerised implementation, a compatible version of both snakemake and
 Add the following to the end of any given snakemake command
 
 ```
---use-singularity --singularity-args "--bind INPUTDIR,OUTPUTDIR"
+--sdm apptainer --apptainer-args "--bind INPUTDIR,OUTPUTDIR"
 ```
 where `INPUTDIR` and `OUTPUTDIR` match those in the `sample_sheet.tsv` and `config.yaml`, respectively.
 
@@ -141,7 +141,7 @@ Parameters here adjust the implemention type, error metrics, and flagging proced
 |autoSmooth|"FALSE"|Apply automatic smoothing of over-segmented copy number profiles|bool|"TRUE","FALSE"|
 |smoothThreshold|300|Amount of segments to trigger auto smoothing|integer|44-9999|
 |flagThreshold|0.84|Probability threshold at which to flag samples as potentially poor|float|0.0-0.99|
-|fitMethod|"errorOnly"|Autofitting method to use to select best fit from gridsearch|string|"errorOnly","randforest"|
+|fitMethod|"errorOnly"|Autofitting method to use to select best fit from gridsearch - 30kb bins and homozygous threshold=0.4|string|"errorOnly","randforest"|
 |errorMetric|"clonality"|Error metric used to determine best fit or tiebreaking procedure autofitting|string|"clonality","segvariance","rmse"|
 |computeSigs|"FALSE"|Compute [CIN signatures](https://github.com/markowetzlab/CINSignatureQuantification/) on fitted profiles - see [here](#optional-step---cinsignaturequantification)|bool|"TRUE","FALSE"|
 |cinsigimage|""|Docker/Apptainer image for [CIN signatures](https://github.com/markowetzlab/CINSignatureQuantification/)|string|string|
@@ -214,7 +214,7 @@ snakemake --profile profile/slurm/ --snakefile workflow/stage_1
 
 After running stage 1 copy number fits will have been generated for each sample. In most cases, multiple viable fits will have been selected for each sample and a semi-qualitative quality control process needs to be applied to select the best fitting solution or exclude a sample should no fit be good enough.
 
-Follow the guide on [fit selection](resources/quality_control_guide.md) and profile [smoothing](#smoothing) to perform quality control and update the `{project}_fit_QC_predownsample.tsv` file. Once this step has been performed and a single acceptable fit has been selected for each sample, proceed to stage 2.
+Follow the guide on [fit selection](resources/quality_control_guide.md) and profile [smoothing](#smoothing) to perform quality control and update the `{project}_{bin}kb_combined_QC_predownsample.tsv` file. Once this step has been performed and a single acceptable fit has been selected for each sample, proceed to stage 2.
 
 ##### Stage 2
 
@@ -255,7 +255,7 @@ Rscript -e 'remotes::install_github("markowetzlab/CINSignatureQuantification")'
 
 #### Container
 
-Edit the config parameter `cinsigimage` to the image path for `CINSignatureQuantification` container (same format as `workflowimage`), which will then be pulled by snakemake on job execution when running with containers enabled (`--use-singularity`/`--sdm apptainer`).
+Edit the config parameter `cinsigimage` to the image path for `CINSignatureQuantification` container (same format as `workflowimage`), which will then be pulled by snakemake on job execution when running with containers enabled (`--sdm apptainer`).
 
 ```
 cinsigimage: phil9s/cinsignaturequantification:latest
