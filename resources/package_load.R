@@ -3,12 +3,15 @@ listOfAllPackages = c("Biobase","tidyverse","QDNAseq",
 	"QDNAseqmod","QDNAseq.hg19","QDNAseq.hg38","rswgsabsolutecn",
 	"matrixStats","parallel","plyr","ranger","parsnip","optparse","yaml")
 
+installedPackages <- rownames(installed.packages())
+missingPackages <- listOfAllPackages[!listOfAllPackages %in% installedPackages]
+
 for(thisPackage in listOfAllPackages) {
   
-  if(thisPackage %in% rownames(installed.packages()) == FALSE) {
-	cat(paste("[install_env][check_packages] ERROR - Package", thisPackage, "needs installing.\n"))
+  if(thisPackage %in% missingPackages) {
+	  cat(paste("[install_env][check_packages] ERROR - Package", thisPackage, "needs installing.\n"))
   } else {
-	cat(paste("[install_env][check_packages] Package", thisPackage, "is installed.\n"))
+	  cat(paste("[install_env][check_packages] Package", thisPackage, "is installed.\n"))
   }
 }
 
@@ -27,3 +30,6 @@ if (!requireNamespace("CINSignatureQuantification", quietly = TRUE)) {
     )
 }
 
+if(length(missingPackages) > 0) {
+  quit(status = 1)
+}

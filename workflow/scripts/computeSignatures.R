@@ -15,7 +15,7 @@ if (!requireNamespace("CINSignatureQuantification", quietly = TRUE)) {
     "\nCINSignatureQuantification is required when computeSigs = TRUE.\n\n",
     "This package is licensed under the GAP Available Source License v1.0 ",
     "(non-commercial academic use only) \nand is NOT bundled with this pipeline.",
-    " See https://github.com/markowetzlab/CINSignatureQuantification/blob/main/LICENSE).",
+    " See https://github.com/markowetzlab/CINSignatureQuantification/blob/main/LICENSE.",
     "\n\n",
     "For virtual environment installations run:\n",
     "Rscript -e 'remotes::install_github(\"markowetzlab/CINSignatureQuantification\")'\n\n",
@@ -34,7 +34,15 @@ if(exists("snakemake")){
   project <- snakemake@params[["project"]]
   genome <- as.character(snakemake@params[["genome"]])
 } else {
-  opts <- optparse::parse_args(rswgsabsolutecn::setArgs(script = "computeSignatures"))
+  argparse <- optparse::OptionParser() |>
+    optparse::add_option("--tsv", type = "character", help = "segment table path") |>
+    optparse::add_option("--tsvDrews", type = "character", help = "Drews output path") |>
+    optparse::add_option("--tsvMac", type = "character", help = "Mac output path") |>
+    optparse::add_option("--bin", type = "double", help = "bin size in kb") |>
+    optparse::add_option("--project", type = "character", help = "project name") |>
+    optparse::add_option("--genome", type = "character", help = "hg19 or hg38")
+
+  opts <- optparse::parse_args(argparse)
 
   tsv <- opts$tsv
   tsvOutDrews <- opts$tsvDrews

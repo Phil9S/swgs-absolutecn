@@ -20,9 +20,10 @@ if(exists("snakemake")){
 } else {
   opts <- optparse::parse_args(rswgsabsolutecn::setArgs(script = "combineResults"))
   
-  tsv <- opts$tsv
-  rds <- opts$rds
-  tab <- opts$tab
+  # comma-separated lists of per-sample files
+  tsv <- strsplit(opts$tsv, ",")[[1]]
+  rds <- strsplit(opts$rds, ",")[[1]]
+  tab <- if(is.null(opts$tab)) NULL else strsplit(opts$tab, ",")[[1]]
   tsvOut <- opts$tsvOut
   rdsOut <- opts$rdsOut
   tabOut <- opts$tabOut

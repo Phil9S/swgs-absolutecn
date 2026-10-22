@@ -41,8 +41,13 @@ if(!dir.exists(symoutLoc)){
 }
 
 cat("[processPrecomputed] Verifying BAM files...\n")
+missingBams <- samplesheet$SAMPLE_ID[!file.exists(samplesheet$file)]
+if(length(missingBams) > 0){
+  stop(paste0("BAM file(s) not found for sample(s): ",paste0(missingBams,collapse = ", "),
+              " - check the 'file' column in ",config$samplesheet))
+}
+
 okFiles <- paste0(symoutLoc,samplesheet$SAMPLE_ID,"_bam.ok")
-unlink(c(okFiles,sub("_bam.ok$","_bam.invalid",okFiles)))
 for(i in 1:nrow(samplesheet)){
   rswgsabsolutecn::bamCheck(x = samplesheet$file[i],filetype = config$filetype,
                             outname = okFiles[i])
@@ -71,15 +76,15 @@ cat("[processPrecomputed] Generating spoof Pre-downsampled RDS files...\n")
 # spoof RDS files from stage_1
 rdsoutLoc <- paste0(outputLoc,pre,"relative_cn_rds/")
 if(!dir.exists(rdsoutLoc)){
-        dir.create(rdsoutLoc,recursive=TRUE)
+  dir.create(rdsoutLoc,recursive=TRUE)
 }
 
 for(i in 1:nrow(samplesheet)){
-	writeLines(text = as.character(samplesheet$SAMPLE_ID[i]),
-		paste0(rdsoutLoc,project,"_",samplesheet$SAMPLE_ID[i],"_",bin,"kb_relSmoothedCN.rds"))
+  writeLines(text = as.character(samplesheet$SAMPLE_ID[i]),
+  paste0(rdsoutLoc,project,"_",samplesheet$SAMPLE_ID[i],"_",bin,"kb_relSmoothedCN.rds"))
 }
 writeLines(text = as.character(samplesheet$SAMPLE_ID),
-    paste0(outputLoc,pre,"relative_cn_rds/",projectBin,"_relSmoothedCN.rds"))
+  paste0(outputLoc,pre,"relative_cn_rds/",projectBin,"_relSmoothedCN.rds"))
 
 # generate QC file
 cat("[processPrecomputed] Generating stage_2 QC file input...\n")
@@ -99,13 +104,13 @@ samplesheetNew <- samplesheet %>%
 
 foutputLoc <- paste0(outputLoc,pre)
 if(!dir.exists(foutputLoc)){
-	dir.create(foutputLoc,recursive=TRUE)
+  dir.create(foutputLoc,recursive=TRUE)
 }
 
 cat("[processPrecomputed] Marking run as precomputed...\n")
 write.table(samplesheetNew,preFile,sep="\t",col.names=T,row.names=F,quote=F)
 write.table(samplesheetNew[,c("SAMPLE_ID","ploidy","purity")],paste0(foutputLoc,"precomp.ok"),
-	sep="\t",col.names=T,row.names=F,quote=F)
+  sep="\t",col.names=T,row.names=F,quote=F)
 writeLines(text = c("PRECOMPUTED"),paste0(foutputLoc,"GENERATED_USING_PRECOMPUTED_PL_PU_RDS_FILES_ARE_EMPTY"))
 
 cat("[processPrecomputed] Processing precomputed values complete\n")
