@@ -1,0 +1,22 @@
+{
+  "zenodo": {
+    "record": "21644953",
+    "doi": "10.5281/zenodo.21644953",
+    "license": "CC-BY-4.0",
+    "description": "GIAB NIST NA12878/HG001 0.1X read downsample, hg19 (GRCh37 contig names), paired-end",
+    "url": "https://zenodo.org/api/records/21644953/files/{name}/content",
+    "bam": "RMNISTHS_0_point_1xdownsample.bam",
+    "files": {
+      "RMNISTHS_0_point_1xdownsample.bam": {"size": 648060292, "md5": "1fe56df5615b401d9fc7c6849fce1ae7"},
+      "RMNISTHS_0_point_1xdownsample.bam.bai": {"size": 3794104, "md5": "5d065c4ea5ea37bda8b46029eb1d5469"}
+    }
+  },
+  "chr21_reference": {
+    "description": "Ensembl GRCh37 release 75 chromosome 21 (contig name '21')",
+    "url": "https://ftp.ensembl.org/pub/release-75/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa.gz",
+    "name": "Homo_sapiens.GRCh37.75.dna.chromosome.21.fa.gz",
+    "size": 10716588,
+    "md5": "cf94e02cc41150ba9ba38c7ae6181791",
+    "ensembl_bsd_sum": "11105 10466"
+  }
+}
