@@ -101,7 +101,7 @@ spec:
             arguments:
               parameters:
                 - name: bam
-                  value: "{{workflow.parameters.out_dir}}sWGS_fitting/{{workflow.parameters.project_name}}_{{workflow.parameters.bins}}kb/bams/{{item.sampleId}}.bam" 
+                  value: "{{workflow.parameters.out_dir}}sWGS_fitting/{{workflow.parameters.project_name}}_{{workflow.parameters.bins}}kb/bams/{{item.sampleId}}.bam"
                 - name: meta
                   value: "{{workflow.parameters.out_dir}}sWGS_fitting/{{workflow.parameters.project_name}}_{{workflow.parameters.bins}}kb/absolute_POST_down_sampling/{{item.sampleId}}/{{workflow.parameters.project_name}}_{{item.sampleId}}_fitted_QC.tsv"
                 - name: rds
@@ -359,7 +359,8 @@ spec:
               --rdsOut "{{inputs.parameters.rdsOut}}" \
               --tabOut "{{inputs.parameters.tabOut}}" \
               --plotOut "{{inputs.parameters.plotOut}}"
-
+    ## Compute CIN signatures - uses separate container with
+    ## R, r-optparse, and r-CINSignatureQuantification
     - name: compute-signatures
       inputs:
         parameters:

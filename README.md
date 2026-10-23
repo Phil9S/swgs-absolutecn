@@ -72,7 +72,7 @@ conda activate swgs-abscn && ./install_env.sh
 
 #### Container-based
 
-For the containerised implementation, a compatible version of both snakemake and singularity are required on your system (as well as a matching [snakemake executor plugins](https://snakemake.github.io/snakemake-plugin-catalog/), as required). See installing [singularity](https://docs.sylabs.io/guides/latest/user-guide/quick_start.html) and [snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html).
+For the containerised implementation, a compatible version of both snakemake and apptainer or singularity are required on your system (as well as a matching [snakemake executor plugins](https://snakemake.github.io/snakemake-plugin-catalog/), as required). See installing [singularity](https://docs.sylabs.io/guides/latest/user-guide/quick_start.html), [apptainer](https://apptainer.org/docs/admin/main/installation.html), and [snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html). If apptainer is not available snakemake commands will fall back to singularity.
 
 Add the following to the end of any given snakemake command
 
@@ -86,7 +86,7 @@ The container can be found [here](https://hub.docker.com/r/phil9s/swgs-absolutec
 ### Preparing workflow
 #### Sample sheet
 
-The workflow uses tab-separated file, `sample_sheet.tsv`, to specify the samples and associated BAM files to use as inputs. The `sample_sheet.tsv` schema is validated prior to executing the workflow and contains the fields below. An example `sample_sheet.tsv` is provided in the `config/` directory.
+The workflow uses tab-separated file, `sample_sheet.tsv`, to specify the samples and associated BAM files to use as inputs. The `sample_sheet.tsv` schema is validated prior to executing the workflow and contains the fields below. An example `sample_sheet.tsv` is provided in the `config/` directory. Note BAM files require a BAM index (`*.bai`).
 
 ##### Sample sheet example
 
@@ -144,7 +144,7 @@ Parameters here adjust the implemention type, error metrics, and flagging proced
 |fitMethod|"errorOnly"|Autofitting method to use to select best fit from gridsearch - randforest model is calibrated on 30kb bins and homozygous_threshold 0.4|string|"errorOnly","randforest"|
 |errorMetric|"clonality"|Error metric used to determine best fit or tiebreaking procedure autofitting|string|"clonality","segvariance","rmse"|
 |computeSigs|"FALSE"|Compute [CIN signatures](https://github.com/markowetzlab/CINSignatureQuantification/) on fitted profiles - see [here](#optional-step---cinsignaturequantification)|bool|"TRUE","FALSE"|
-|cinsigimage|""|Docker/Apptainer image for [CIN signatures](https://github.com/markowetzlab/CINSignatureQuantification/)|string|docker image path|
+|cinsigimage|""|Container image for [CIN signatures](https://github.com/markowetzlab/CINSignatureQuantification/)|string|Compatible image URI path|
 </details>
 
 <details>
@@ -275,16 +275,21 @@ A subset of samples may require smoothing of segments in order to be viable. If 
 
 ### Downsampling only
 
-Where ploidy and purity are provided from alternative sources, users may not need perform a gridsearch. Provided all samples have a valid `precPloidy` and `precPurity`, the `processPrecomputed.R` script can generate all the required output files to skip directly to read depth normalisation (via read downsampling), at which point Stage 2 can be executed as previously described.
+Where ploidy and purity are provided from alternative sources, users may not need to perform a gridsearch. Provided all samples have a valid `precPloidy` and `precPurity`, the `processPrecomputed.R` script can generate all the required output files to skip directly to read depth normalisation (via read downsampling), at which point Stage 2 can be executed as previously described.
 
 ```
 Rscript workflow/scripts/processPrecomputed.R
 ```
-container users can run the same script provided they run the command within the container image and bind the `OUTPUTDIR`.
+container users can run the same script provided they run the command within the container image and bind the `INPUTDIR` and `OUTPUTDIR` discussed in previously.
 
 ```
-singularity exec --bind OUTPUTDIR docker://phil9s/swgs-absolutecn:latest Rscript workflow/scripts/processPrecomputed.R
+apptainer exec --bind INPUTDIR,OUTPUTDIR docker://phil9s/swgs-absolutecn:latest Rscript workflow/scripts/processPrecomputed.R
 ```
+or
+```
+singularity exec --bind INPUTDIR,OUTPUTDIR docker://phil9s/swgs-absolutecn:latest Rscript workflow/scripts/processPrecomputed.R
+```
+
 ### Cell lines 
 
 Cell lines (or other similar data) often deviate from tumour samples, where the expected tumour purity is known to be approximately 100%. The purity range can be set using `purity_min` to 0.95 such that the gridsearch would restrict ploidy/purity combinations to enforce this expectation.

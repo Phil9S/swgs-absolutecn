@@ -81,7 +81,7 @@ if(!dir.exists(rdsoutLoc)){
 
 for(i in 1:nrow(samplesheet)){
   writeLines(text = as.character(samplesheet$SAMPLE_ID[i]),
-  paste0(rdsoutLoc,project,"_",samplesheet$SAMPLE_ID[i],"_",bin,"kb_relSmoothedCN.rds"))
+    paste0(rdsoutLoc,project,"_",samplesheet$SAMPLE_ID[i],"_",bin,"kb_relSmoothedCN.rds"))
 }
 
 writeLines(text = as.character(samplesheet$SAMPLE_ID),

@@ -20,7 +20,7 @@ dependencies:
   - r-remotes
   - r-ranger
   - r-parsnip
-  - r-optparse
+  - r-optparse>=1.7.5,<2
   - r-yaml
-  - pytest
+  - pytest>=9.1.1,<10
 
