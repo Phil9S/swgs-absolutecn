@@ -4,20 +4,17 @@
 # available reads) are symlink of original.
 # - CRAM files will always be downsampled into bams regardless of ratio between 
 # downsample depth to prevent repeat decompression to BAM
-# - Total reads Error catch for read ratios lower than 1e-4 (Large bin / high 
+# - Total reads error catch for read ratios lower than 1e-4 (Large bin / high 
 # coverages / Low ploidy / High purity) implemented to prevent too few reads 
 # being sampled.
 args = commandArgs(trailingOnly=TRUE)
 
-# Redirect R output, messages, warnings and errors to the Snakemake rule log
 if(exists("snakemake")){
+  # Redirect R output, messages, warnings and errors to the Snakemake rule log
   logFile <- file(snakemake@log[[1]], open = "wt")
   sink(logFile, type = "output")
   sink(logFile, type = "message")
-}
 
-
-if(exists("snakemake")){
   bam <- snakemake@input[["bam"]]
   meta <- snakemake@input[["meta"]]
   rds <- snakemake@input[["rds"]]
@@ -67,7 +64,14 @@ if(prplpu){
   } else {
     cmdTotalreads <- paste0("samtools view -c -F 260 ",bamQ)
   }
-  totReads <- suppressWarnings(as.numeric(system(cmdTotalreads,intern=TRUE)))
+  # Get total reads and capture any error messages from samtools to the rule log
+  errFile <- tempfile()
+  totReads <- suppressWarnings(as.numeric(system(paste0(cmdTotalreads," 2> ",shQuote(errFile)),intern=TRUE)))
+  errLines <- readLines(errFile)
+  if(length(errLines) > 0){
+    message(paste0(errLines,collapse = "\n"))
+  }
+
   if(length(totReads) != 1 || is.na(totReads)){
     stop(paste0("Failed to count reads: ", cmdTotalreads))
   }
@@ -110,15 +114,23 @@ if(fileType == "CRAM"){
 cmdIndex <- paste0("samtools index ",bamOutQ)
 
 # Stop on failure so a truncated BAM is not passed
-status <- system(cmdDownsample)
-if(status != 0){
+# samtools stderr goes to the rule log
+out <- suppressWarnings(system(paste0(cmdDownsample," 2>&1"),intern = TRUE))
+if(length(out) > 0){
+  message(paste0(out,collapse = "\n"))
+}
+status <- attr(out,"status")
+if(!is.null(status)){
   unlink(bamOut)
   stop(paste0("Downsampling failed (exit status ",status,"): ",cmdDownsample))
 }
 
-status <- system(cmdIndex)
-if(status != 0){
+out <- suppressWarnings(system(paste0(cmdIndex," 2>&1"),intern = TRUE))
+if(length(out) > 0){
+  message(paste0(out,collapse = "\n"))
+}
+status <- attr(out,"status")
+if(!is.null(status)){
   unlink(c(bamOut,paste0(bamOut,".bai")))
   stop(paste0("BAM indexing failed (exit status ",status,"): ",cmdIndex))
 }
-
