@@ -14,3 +14,6 @@ data/
 # pixi environments
 .pixi/*
 !.pixi/config.toml
+# pytest
+.pytest_cache/
+__pycache__/

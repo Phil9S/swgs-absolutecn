@@ -26,3 +26,9 @@ r-ranger = "*"
 r-parsnip = "*"
 r-optparse = ">=1.7.5,<2"
 pytest = ">=9.1.1,<10"
+
+[tasks]
+# see README "Testing" - integration tests download ~650 MB of test data once
+test-fast = "pytest -m dryrun"
+test = "pytest -m 'not container and not cinsig'"
+test-all = "pytest"

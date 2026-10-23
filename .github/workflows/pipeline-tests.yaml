@@ -1,0 +1,24 @@
+# Fast pipeline checks on every push - dry-run validation of config, sample sheet and job graphs.
+# The integration tests (real data, ~650 MB download) run locally - see README "Testing".
+name: pipeline-tests
+
+on:
+  push:
+  pull_request:
+
+permissions: read-all
+
+jobs:
+  dryrun:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: prefix-dev/setup-pixi@v0.11.2
+        with:
+          pixi-version: v0.82.1
+          cache: true
+          locked: true
+
+      - name: Dry-run tests
+        run: pixi run test-fast
