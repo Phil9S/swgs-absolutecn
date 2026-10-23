@@ -38,7 +38,7 @@ if(exists("snakemake")){
 options(scipen = 999)
 `%>%` <- dplyr::`%>%`
 
-metadata <- read.table(meta,header = T,sep = "\t",
+metadata <- read.table(meta,header = T,sep = "\t",quote = "",comment.char = "",
   colClasses = c(SAMPLE_ID = "character", PATIENT_ID = "character"))
 metadata <- metadata %>%
   dplyr::filter(use == TRUE)

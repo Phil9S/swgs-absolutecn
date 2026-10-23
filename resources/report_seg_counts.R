@@ -3,7 +3,7 @@
 args <- commandArgs(trailingOnly=T)
 
 countSegsTab <- function(x,stg="pre"){
-  filer <- read.table(x,nrows = 1,header = T,sep = "\t",
+  filer <- read.table(x,nrows = 1,header = T,sep = "\t",quote = "",comment.char = "",
     colClasses = c(SAMPLE_ID = "character"))
   pSample <- filer$SAMPLE_ID
   pSegs <- ifelse(stg=="pre",filer$segments,filer$segments.post)

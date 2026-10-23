@@ -55,7 +55,7 @@ if(exists("snakemake")){
 projectBin <- paste0(project,"_",bin,"kb")
 
 ## Load seg table and validate input columns
-segs <- read.table(file = tsv,header = TRUE,sep = "\t",
+segs <- read.table(file = tsv,header = TRUE,sep = "\t",quote = "",comment.char = "",
   colClasses = c(sample = "character", chromosome = "character",
   start = "numeric", end = "numeric", segVal = "numeric"))
 

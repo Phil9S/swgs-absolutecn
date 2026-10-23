@@ -39,7 +39,7 @@ if(exists("snakemake")){
 options(scipen=999)
 `%>%` <- dplyr::`%>%`
 
-fitQC <- read.table(file = meta,header = T,sep = "\t",na.strings = "",
+fitQC <- read.table(file = meta,header = T,sep = "\t",quote = "",comment.char = "",na.strings = "",
   colClasses = c(SAMPLE_ID = "character", PATIENT_ID = "character"))
 fitQCFilt <- fitQC %>%
   dplyr::filter(SAMPLE_ID == sampleName) %>%

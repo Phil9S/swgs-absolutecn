@@ -72,7 +72,7 @@ if(exists("snakemake")){
   homozygous_threshold <- as.numeric(opts$homozygous_threshold)
 }
 
-metadata <- read.table(file = meta,header=T,sep="\t",
+metadata <- read.table(file = meta,header=T,sep="\t",quote = "",comment.char = "",
   colClasses = c(SAMPLE_ID = "character", PATIENT_ID = "character"))
 
 # set scipen

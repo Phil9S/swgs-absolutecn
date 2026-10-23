@@ -43,7 +43,7 @@ if(exists("snakemake")){
 }
 
 options(scipen = 999)
-metadata <- read.table(file = meta,header=T,sep="\t",
+metadata <- read.table(file = meta,header=T,sep="\t",quote = "",comment.char = "",
   colClasses = c(SAMPLE_ID = "character", PATIENT_ID = "character"))
 
 # Samples to smooth

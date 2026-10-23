@@ -27,7 +27,7 @@ if(exists("snakemake")){
   errorMetric <- opts$errorMetric
 }
 
-fitsTable <- read.table(file = tsv,header=T,sep="\t",
+fitsTable <- read.table(file = tsv,header=T,sep="\t",quote = "",comment.char = "",
   colClasses = c(SAMPLE_ID = "character", PATIENT_ID = "character"))
 
 if(fitMethod == "randforest"){

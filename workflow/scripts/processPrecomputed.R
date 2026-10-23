@@ -6,7 +6,7 @@ args <- commandArgs(trailingOnly=TRUE)
 cat("[processPrecomputed] Generating file to skip stage_1\n")
 cat("[processPrecomputed] Reading config and samplesheet files...\n")
 config <- yaml::read_yaml(file="config/config.yaml")
-samplesheet <- read.table(config$samplesheet,header=TRUE,sep="\t",
+samplesheet <- read.table(config$samplesheet,header=TRUE,sep="\t",quote = "",comment.char = "",
   colClasses = c(SAMPLE_ID = "character", PATIENT_ID = "character"))
 projectBin <- paste0(config$project_name,"_",config$bins,"kb")
 # Ensure single trailing slash on out_dir
