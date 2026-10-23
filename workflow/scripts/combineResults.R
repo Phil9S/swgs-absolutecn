@@ -52,6 +52,24 @@ combinedTsv <- do.call(rbind,lapply(tsv,FUN = function(x){
 }))
 
 rdsList <- lapply(rds,readRDS)
+# Code review edge case
+# columns that are all NA for a sample (e.g. TP53freq, notes) are read as logical and
+# Biobase::combine rejects them next to another sample's values
+pdataCols <- unique(unlist(lapply(rdsList,function(x) colnames(Biobase::pData(x)))))
+for(col in pdataCols){
+  colClass <- unique(unlist(lapply(rdsList,function(x){
+    v <- Biobase::pData(x)[[col]]
+    if(is.null(v) || all(is.na(v))) NULL else class(v)
+  })))
+  if(length(colClass) == 1){
+    for(i in seq_along(rdsList)){
+      v <- Biobase::pData(rdsList[[i]])[[col]]
+      if(!is.null(v) && all(is.na(v))){
+        Biobase::pData(rdsList[[i]])[[col]] <- as(v,colClass)
+      }
+    }
+  }
+}
 combinedRDS <- rswgsabsolutecn::collapseRDS(rdsList)
 
 saveRDS(object = combinedRDS,rdsOut)

@@ -121,16 +121,17 @@ def get_ds_bams(P, b):
     d = []
     fl = Path(OUT_DIR,"sWGS_fitting",f"{P}_{b}kb","absolute_PRE_down_sampling",f"{P}_{b}kb_combined_QC_predownsample.tsv")
     if os.path.isfile(fl):
-        f = pd.read_table(fl, dtype={"SAMPLE_ID": str, "PATIENT_ID": str}).set_index(["SAMPLE_ID"], drop=False)
+        f = pd.read_table(fl, dtype={"SAMPLE_ID": str, "PATIENT_ID": str, "use": str}).set_index(["SAMPLE_ID"], drop=False)
         if not f.empty:
-            if f["use"].dtype == bool and all(~f.use.isnull()):
-                ftb = f[(f["use"] == True)]
+            # only values R's read.table reads as logical - pandas alone would also accept True/False
+            if f["use"].isin(["TRUE", "FALSE", "T", "F", "true", "false"]).all():
+                ftb = f[f["use"].isin(["TRUE", "T", "true"])]
                 if all(~ftb.SAMPLE_ID.duplicated()):
                     d = list(ftb["SAMPLE_ID"])
                 else:
                     sys.exit("Error - QC file contains duplicated sample ids marked 'TRUE'")
             else:
-                sys.exit("Error - QC file 'use' column contains non-boolean values")
+                sys.exit("Error - QC file 'use' column contains non-boolean values - use TRUE or FALSE")
         else:
             sys.exit("Error - QC file is empty. Filtering criteria may need adjusting")
     else:

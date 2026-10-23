@@ -71,21 +71,16 @@ for(i in 1:nrow(samplesheet)){
   }
 }
 
-
 cat("[processPrecomputed] Generating spoof Pre-downsampled RDS files...\n")
 # spoof RDS files from stage_1
-rdsoutLoc <- paste0(outputLoc,pre,"relative_cn_rds/")
-if(!dir.exists(rdsoutLoc)){
-  dir.create(rdsoutLoc,recursive=TRUE)
-}
-
 for(i in 1:nrow(samplesheet)){
+  sampleRdsLoc <- paste0(outputLoc,pre,samplesheet$SAMPLE_ID[i],"/relative_cn_rds/")
+  if(!dir.exists(sampleRdsLoc)){
+    dir.create(sampleRdsLoc,recursive=TRUE)
+  }
   writeLines(text = as.character(samplesheet$SAMPLE_ID[i]),
-    paste0(rdsoutLoc,project,"_",samplesheet$SAMPLE_ID[i],"_",bin,"kb_relSmoothedCN.rds"))
+    paste0(sampleRdsLoc,project,"_",samplesheet$SAMPLE_ID[i],"_",bin,"kb_relSmoothedCN.rds"))
 }
-
-writeLines(text = as.character(samplesheet$SAMPLE_ID),
-  paste0(outputLoc,pre,"relative_cn_rds/",projectBin,"_relSmoothedCN.rds"))
 
 # generate QC file
 cat("[processPrecomputed] Generating stage_2 QC file input...\n")
@@ -116,4 +111,3 @@ writeLines(text = c("PRECOMPUTED"),paste0(foutputLoc,"GENERATED_USING_PRECOMPUTE
 
 cat("[processPrecomputed] Processing precomputed values complete\n")
 cat("[processPrecomputed] stage_2 can now run without completing stage_1\n")
-#END
