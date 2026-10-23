@@ -6,20 +6,16 @@ if config["filetype"] in ["CRAM"]:
             bam=get_bam,
             check=Path(OUT_DIR,"sWGS_fitting/{project}_{bin}kb/bams/{sample}_bam.ok"),
         output:
-            temp(
-                expand(
-                    Path(OUT_DIR,"sWGS_fitting/{{project}}_{{bin}}kb/bams/{{sample}}.bam")
-                )
-            ),
+            bam=temp(Path(OUT_DIR,"sWGS_fitting/{project}_{bin}kb/bams/{sample}.bam")),
+            bai=temp(Path(OUT_DIR,"sWGS_fitting/{project}_{bin}kb/bams/{sample}.bam.bai")),
         log:
             "logs/cram_to_bam_{project}_{bin}kb_{sample}.log",
         container:
             image
-        threads: 1
         params:
             reference=config["reference"],
         shell:
-            "(samtools view -b -T {params.reference} {input.bam} > {output} && samtools index {output}) 2> {log}"
+            "(samtools view -b -T {params.reference} {input.bam} > {output.bam} && samtools index {output.bam} {output.bai}) 2> {log}"
 
 else:
     # symlinking run locally
@@ -31,13 +27,12 @@ else:
             bam=get_bam,
             check=Path(OUT_DIR,"sWGS_fitting/{project}_{bin}kb/bams/{sample}_bam.ok"),
         output:
-            expand(Path(OUT_DIR,"sWGS_fitting/{{project}}_{{bin}}kb/bams/{{sample}}.bam")),
+            Path(OUT_DIR,"sWGS_fitting/{project}_{bin}kb/bams/{sample}.bam"),
         params:
             bam_abs=lambda wc, input: os.path.abspath(input.bam),
         log:
             "logs/sym_link_{project}_{bin}kb_{sample}.log",
         container:
             image
-        threads: 1
         shell:
             "ln -s {params.bam_abs} {output} 2> {log}"

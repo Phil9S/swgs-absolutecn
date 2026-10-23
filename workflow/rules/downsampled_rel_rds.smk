@@ -1,12 +1,8 @@
 rule ds_relRDS:
     input:
-        bam=expand(
-            OUT_DIR
-            + "sWGS_fitting/{{project}}_{{bin}}kb/absolute_POST_down_sampling/downsampled_bams/{{sample}}.bam"
-        ),
+        bam=Path(OUT_DIR,"sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/downsampled_bams/{sample}.bam"),
     output:
-        rds=OUT_DIR
-        + "sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/{sample}/relative_cn_rds/{project}_{sample}_{bin}kb_relSmoothedCN.rds",
+        rds=Path(OUT_DIR,"sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/{sample}/relative_cn_rds/{project}_{sample}_{bin}kb_relSmoothedCN.rds"),
     log:
         "logs/ds_relRDS_{project}_{bin}kb_{sample}.log",
     container:

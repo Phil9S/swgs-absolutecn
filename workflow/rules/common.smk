@@ -5,6 +5,7 @@ from snakemake.utils import min_version
 import os
 import subprocess
 import sys
+import re
 from snakemake.exceptions import WorkflowError
 
 min_version("8.0.0")
@@ -42,6 +43,17 @@ if missing_cols:
         + ", ".join(sorted(missing_cols))
         + " - add the column(s) with NA where values are not precomputed"
     )
+
+# Check for BAM index files
+# Region-based binning in QDNAseq needs an index next to each source BAM
+if config["filetype"] == "BAM":
+    unindexed = [
+        s for s, f in zip(samplesheet.SAMPLE_ID, samplesheet.file)
+        if not any(os.path.exists(i) for i in (f + ".bai", re.sub(r"\.bam$", ".bai", f), f + ".csi"))
+    ]
+    if unindexed:
+        sys.exit("BAM index not found for sample(s): " + ", ".join(unindexed)
+                 + " - run samtools index on the source BAMs")
 
 # Check docker URIs - accept image paths with or without the docker:// prefix
 image = config["workflowimage"]

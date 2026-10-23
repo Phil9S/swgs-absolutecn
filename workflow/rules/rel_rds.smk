@@ -1,6 +1,9 @@
 rule relRDS:
     input:
-        bam=expand(Path(OUT_DIR,"sWGS_fitting/{{project}}_{{bin}}kb/bams/{{sample}}.bam")),
+        bam=Path(OUT_DIR,"sWGS_fitting/{project}_{bin}kb/bams/{sample}.bam"),
+        # CRAM-converted BAMs are temp - keep the index until QDNAseq has read the BAM
+        bai=(Path(OUT_DIR,"sWGS_fitting/{project}_{bin}kb/bams/{sample}.bam.bai")
+          if config["filetype"] == "CRAM" else []),
     output:
         rds=Path(OUT_DIR,"sWGS_fitting/{project}_{bin}kb/absolute_PRE_down_sampling/{sample}/relative_cn_rds/{project}_{sample}_{bin}kb_relSmoothedCN.rds"),
     log:

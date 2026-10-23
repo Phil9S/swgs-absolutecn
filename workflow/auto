@@ -21,8 +21,7 @@ if SIGS == "TRUE":
     rule all:
         input:
             expand(
-                OUT_DIR
-                + "sWGS_fitting/{project}_{bin}kb/cin_signatures/{sample}/{project}_{sample}_{bin}kb_DREWS_CIN_signature_acts.tsv",
+                Path(OUT_DIR,"sWGS_fitting/{project}_{bin}kb/cin_signatures/{sample}/{project}_{sample}_{bin}kb_DREWS_CIN_signature_acts.tsv"),
                 sample=SAMPLES,
                 project=config["project_name"],
                 bin=config["bins"],
@@ -31,8 +30,7 @@ else:
     rule all:
         input:
             expand(
-                OUT_DIR
-                + "sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/{sample}/abs_cn_rds/{project}_{sample}_{bin}kb_ds_abs_fits.tsv",
+                Path(OUT_DIR,"sWGS_fitting/{project}_{bin}kb/absolute_POST_down_sampling/{sample}/abs_cn_rds/{project}_{sample}_{bin}kb_ds_abs_fits.tsv"),
                 sample=SAMPLES,
                 project=config["project_name"],
                 bin=config["bins"],

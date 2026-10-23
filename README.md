@@ -86,7 +86,7 @@ The container can be found [here](https://hub.docker.com/r/phil9s/swgs-absolutec
 ### Preparing workflow
 #### Sample sheet
 
-The workflow uses tab-separated file, `sample_sheet.tsv`, to specify the samples and associated BAM files to use as inputs. The `sample_sheet.tsv` schema is validated prior to executing the workflow and contains the fields below. An example `sample_sheet.tsv` is provided in the `config/` directory. Note BAM files require a BAM index (`*.bai`).
+The workflow uses tab-separated file, `sample_sheet.tsv`, to specify the samples and associated BAM files to use as inputs. The `sample_sheet.tsv` schema is validated prior to executing the workflow and contains the fields below. An example `sample_sheet.tsv` is provided in the `config/` directory. Note source BAM files require a BAM index (`*.bai`).
 
 ##### Sample sheet example
 
