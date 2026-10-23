@@ -360,7 +360,7 @@ spec:
               --tabOut "{{inputs.parameters.tabOut}}" \
               --plotOut "{{inputs.parameters.plotOut}}"
     ## Compute CIN signatures - uses separate container with
-    ## R, r-optparse, and r-CINSignatureQuantification
+    ## R ≥ 4.1, r-optparse, and r-CINSignatureQuantification
     - name: compute-signatures
       inputs:
         parameters:
