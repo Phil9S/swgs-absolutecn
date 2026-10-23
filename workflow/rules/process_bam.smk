@@ -29,7 +29,7 @@ else:
         output:
             Path(OUT_DIR,"sWGS_fitting/{project}_{bin}kb/bams/{sample}.bam"),
         params:
-            bam_abs=lambda wc, input: os.path.abspath(input.bam),
+            bam_abs=lambda wc, input: os.path.realpath(input.bam),
         log:
             "logs/sym_link_{project}_{bin}kb_{sample}.log",
         container:

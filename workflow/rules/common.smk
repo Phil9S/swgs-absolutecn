@@ -47,10 +47,12 @@ if missing_cols:
 # Check for BAM index files
 # Region-based binning in QDNAseq needs an index next to each source BAM
 if config["filetype"] == "BAM":
-    unindexed = [
-        s for s, f in zip(samplesheet.SAMPLE_ID, samplesheet.file)
-        if not any(os.path.exists(i) for i in (f + ".bai", re.sub(r"\.bam$", ".bai", f), f + ".csi"))
-    ]
+    unindexed = []
+    for s, f in zip(samplesheet.SAMPLE_ID, samplesheet.file):
+        # QDNAseq follows symlinks (normalizePath), so look for the index next to the real file
+        real = os.path.realpath(f)
+        if not any(os.path.exists(i) for i in (real + ".bai", re.sub(r"\.bam$", ".bai", real), real + ".csi")):
+            unindexed.append(s)
     if unindexed:
         sys.exit("BAM index not found for sample(s): " + ", ".join(unindexed)
                  + " - run samtools index on the source BAMs")
@@ -117,18 +119,7 @@ def get_bam(wc):
 
 def get_ds_bams(P, b):
     d = []
-    fl = (
-        OUT_DIR
-        + "sWGS_fitting/"
-        + P
-        + "_"
-        + str(b)
-        + "kb/absolute_PRE_down_sampling/"
-        + P
-        + "_"
-        + str(b)
-        + "kb_combined_QC_predownsample.tsv"
-    )
+    fl = Path(OUT_DIR,"sWGS_fitting",f"{P}_{b}kb","absolute_PRE_down_sampling",f"{P}_{b}kb_combined_QC_predownsample.tsv")
     if os.path.isfile(fl):
         f = pd.read_table(fl, dtype={"SAMPLE_ID": str, "PATIENT_ID": str}).set_index(["SAMPLE_ID"], drop=False)
         if not f.empty:
