@@ -311,7 +311,7 @@ The pytest suite in `tests/` runs the workflows on Linux (or WSL) inside the pix
 ```
 pixi run test-fast   # dry-run checks of config, sample sheet and job graph (~30 s, no test data)
 pixi run test        # also full workflow runs on real data (~650 MB download once, then ~10-15 min)
-pixi run test-all    # also the opt-in container and CIN signature tests
+pixi run test-all    # also the opt-in container tests
 ```
 
 |marker|what it covers|requirements|
@@ -320,7 +320,6 @@ pixi run test-all    # also the opt-in container and CIN signature tests
 |`integration`|auto, staged and precomputed runs, filters, smoothing, autofit methods and the Argo command-line options|test data download|
 |`cram`|CRAM to BAM conversion with the GRCh37 chr21 reference|test data download|
 |`container`|auto workflow with `--sdm apptainer` against `workflowimage` (or `SWGS_TEST_IMAGE`)|apptainer or singularity|
-|`cinsig`|CIN signature computation|CINSignatureQuantification installed, or `SWGS_TEST_CINSIG_IMAGE` plus apptainer|
 
 Test data is cached in `~/.cache/swgs-absolutecn-tests` (override with `SWGS_TEST_DATA`) and checked by md5. The integration tests use the GIAB NA12878/HG001 0.1X downsampled BAM from Zenodo ([10.5281/zenodo.21644953](https://doi.org/10.5281/zenodo.21644953), CC BY 4.0) and test BAMs derived from it with samtools (subsamples, a 5 Mb homozygous deletion and a multi-segment mosaic). Set `SWGS_TEST_CORES` to change the number of cores used per workflow run (default 4).
 
