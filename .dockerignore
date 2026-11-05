@@ -1,0 +1,10 @@
+.pixi/
+__pycache__/
+*.pyc
+Dockerfile
+.git/
+.snakemake/
+results/
+logs/
+data/
+config/sample_sheet.tsv

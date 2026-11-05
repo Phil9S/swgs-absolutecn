@@ -19,7 +19,7 @@
 
 ## Introduction
 
- While the fitting process removes many fits that are poor quality or unlikely to be acceptable, each sample is likely to have more than one potential acceptable fit associated with it (output in the file `{project}_fit_QC_predownsample.tsv`). This requires the selection of a single best fit, or exclusion of all fits, for each sample.
+ While the fitting process removes many fits that are poor quality or unlikely to be acceptable, each sample is likely to have more than one potential acceptable fit associated with it (output in the file `{project}_{bin}kb_combined_QC_predownsample.tsv`). This requires the selection of a single best fit, or exclusion of all fits, for each sample.
 
 ### Selection features
 
@@ -37,7 +37,7 @@ A comparison can therefore be made between the experimental _TP53_ VAF and the e
 
 By default, copy number profile fits with VAF differences of greater than 0.15 are excluded and not considered (this does not apply to samples where _TP53_ VAF is not available). This can be changed to a given threshold by altering the `af_cutoff` value in the `config/config.yaml` file in the git repository.
 
-From the `{project}_fit_QC_predownsample.tsv` file, for each fit, compare the value from `expected_TP53_AF` to the `TP53_freq` value. As a guide, absolute differences between the two values of less than `0.03` are considered essentially identical outcomes, with differences of `0.03`-`0.05` being considered relatively good fits. Fits with values between `0.05`-`0.15` are generally considered poorer but tenable in combination with other selection features.
+From the `{project}_{bin}kb_combined_QC_predownsample.tsv` file, for each fit, compare the value from `expected_TP53_AF` to the `TP53freq` value. As a guide, absolute differences between the two values of less than `0.03` are considered essentially identical outcomes, with differences of `0.03`-`0.05` being considered relatively good fits. Fits with values between `0.05`-`0.15` are generally considered poorer but tenable in combination with other selection features.
 
 ##### Clonality error parameter
 
@@ -111,7 +111,7 @@ High noise on its own is not sufficient to remove a profile but can support and 
 
 In deciding whether to include or exclude a absolute copy number profile for a given sample, some features described above can be used independently (such as non-interleaving copy states) but most will need to be used collectively to form a list of evidences that either support or negate the viability of a fit.
 
-It is good practice to make extensive use of the `notes` field of the `{project}_fit_QC_predownsample.tsv` to list features and how they impact the quality of a fit.
+It is good practice to make extensive use of the `notes` field of the `{project}_{bin}kb_combined_QC_predownsample.tsv` to list features and how they impact the quality of a fit.
 
 ###### Example 1
 
